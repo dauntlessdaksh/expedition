@@ -3,11 +3,13 @@ import 'package:geolocator/geolocator.dart';
 /// In-memory distance and speed calculations for a live activity session.
 class ActivityMetricsTracker {
   double distanceMeters = 0;
+  double maxSpeedMps = 0;
   Position? _lastRecordedPosition;
   DateTime? _lastRecordedTime;
 
   void reset() {
     distanceMeters = 0;
+    maxSpeedMps = 0;
     _lastRecordedPosition = null;
     _lastRecordedTime = null;
   }
@@ -24,6 +26,11 @@ class ActivityMetricsTracker {
       if (segment >= 0.5) {
         distanceMeters += segment;
       }
+    }
+
+    final speed = currentSpeedMps(position);
+    if (speed > maxSpeedMps) {
+      maxSpeedMps = speed;
     }
 
     _lastRecordedPosition = position;

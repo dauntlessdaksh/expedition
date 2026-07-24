@@ -1,7 +1,7 @@
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../data/repositories/dummy_home_repository.dart';
+import '../../data/repositories/home_repository.dart';
 import '../../domain/models/home_dashboard_data.dart';
 
 part 'home_event.dart';
@@ -9,21 +9,24 @@ part 'home_state.dart';
 
 /// Loads and exposes home dashboard data to the UI.
 class HomeBloc extends Bloc<HomeEvent, HomeState> {
-  HomeBloc({required DummyHomeRepository repository})
+  HomeBloc({required HomeRepository repository})
       : _repository = repository,
         super(const HomeState()) {
-    on<HomeStarted>(_onStarted);
-    on<HomeRefreshed>(_onRefreshed);
+    on<LoadDashboard>(_onLoadDashboard);
+    on<RefreshDashboard>(_onRefreshDashboard);
   }
 
-  final DummyHomeRepository _repository;
+  final HomeRepository _repository;
 
-  Future<void> _onStarted(HomeStarted event, Emitter<HomeState> emit) async {
+  Future<void> _onLoadDashboard(
+    LoadDashboard event,
+    Emitter<HomeState> emit,
+  ) async {
     await _loadDashboard(emit);
   }
 
-  Future<void> _onRefreshed(
-    HomeRefreshed event,
+  Future<void> _onRefreshDashboard(
+    RefreshDashboard event,
     Emitter<HomeState> emit,
   ) async {
     await _loadDashboard(emit, isRefresh: true);

@@ -6,6 +6,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
+import '../../../history/domain/models/workout.dart';
+import '../../../history/data/repositories/workout_repository.dart';
+import '../../../onboarding/data/repositories/onboarding_repository.dart';
+import '../../../shared/utils/workout_calorie_calculator.dart';
 import '../../data/services/location_service.dart';
 import '../../data/utils/activity_metrics_tracker.dart';
 
@@ -14,8 +18,13 @@ part 'activity_state.dart';
 
 /// Manages live GPS activity tracking state in memory.
 class ActivityBloc extends Bloc<ActivityEvent, ActivityState> {
-  ActivityBloc({required LocationService locationService})
-      : _locationService = locationService,
+  ActivityBloc({
+    required LocationService locationService,
+    required WorkoutRepository workoutRepository,
+    required OnboardingRepository onboardingRepository,
+  })  : _locationService = locationService,
+        _workoutRepository = workoutRepository,
+        _onboardingRepository = onboardingRepository,
         super(const ActivityState()) {
     on<ActivityStarted>(_onStarted);
     on<StartTracking>(_onStartTracking);
@@ -28,7 +37,11 @@ class ActivityBloc extends Bloc<ActivityEvent, ActivityState> {
     on<RecenterMapRequested>(_onRecenterMapRequested);
   }
 
+  static const _activityType = 'outdoor_run';
+
   final LocationService _locationService;
+  final WorkoutRepository _workoutRepository;
+  final OnboardingRepository _onboardingRepository;
   final ActivityMetricsTracker _metrics = ActivityMetricsTracker();
 
   StreamSubscription<Position>? _positionSubscription;
@@ -36,6 +49,7 @@ class ActivityBloc extends Bloc<ActivityEvent, ActivityState> {
 
   Duration _accumulatedDuration = Duration.zero;
   DateTime? _segmentStartTime;
+  DateTime? _sessionStartTime;
 
   @override
   Future<void> close() {
@@ -50,6 +64,7 @@ class ActivityBloc extends Bloc<ActivityEvent, ActivityState> {
   ) async {
     emit(state.copyWith(
       status: ActivityTrackingStatus.locating,
+      workoutSaveStatus: ActivityWorkoutSaveStatus.none,
       clearError: true,
     ));
 
@@ -123,6 +138,7 @@ class ActivityBloc extends Bloc<ActivityEvent, ActivityState> {
     _metrics.reset();
     _accumulatedDuration = Duration.zero;
     _segmentStartTime = DateTime.now();
+    _sessionStartTime = _segmentStartTime;
 
     final initialPoints = state.currentPosition == null
         ? <LatLng>[]
@@ -130,11 +146,13 @@ class ActivityBloc extends Bloc<ActivityEvent, ActivityState> {
 
     emit(state.copyWith(
       status: ActivityTrackingStatus.tracking,
+      workoutSaveStatus: ActivityWorkoutSaveStatus.none,
       routePoints: initialPoints,
       duration: Duration.zero,
       distanceMeters: 0,
       currentSpeedMps: 0,
       averageSpeedMps: 0,
+      maxSpeedMps: 0,
       followUser: true,
       clearError: true,
     ));
@@ -196,25 +214,99 @@ class ActivityBloc extends Bloc<ActivityEvent, ActivityState> {
     StopTracking event,
     Emitter<ActivityState> emit,
   ) async {
+    final wasActiveSession =
+        state.status == ActivityTrackingStatus.tracking ||
+            state.status == ActivityTrackingStatus.paused;
+    final elapsed = _currentElapsedDuration();
+    final sessionSnapshot = _SessionSnapshot(
+      startTime: _sessionStartTime,
+      endTime: DateTime.now(),
+      duration: elapsed,
+      distanceMeters: state.distanceMeters,
+      averageSpeedMps: state.averageSpeedMps,
+      maxSpeedMps: _metrics.maxSpeedMps,
+      routePoints: List<LatLng>.from(state.routePoints),
+    );
+
     _durationTimer?.cancel();
     await _positionSubscription?.cancel();
 
-    _metrics.reset();
-    _accumulatedDuration = Duration.zero;
-    _segmentStartTime = null;
+    if (wasActiveSession && sessionSnapshot.hasSaveableData) {
+      emit(state.copyWith(
+        workoutSaveStatus: ActivityWorkoutSaveStatus.saving,
+      ));
 
+      try {
+        await _saveWorkout(sessionSnapshot);
+        emit(state.copyWith(
+          status: ActivityTrackingStatus.stopped,
+          workoutSaveStatus: ActivityWorkoutSaveStatus.saved,
+          routePoints: const [],
+          duration: Duration.zero,
+          distanceMeters: 0,
+          currentSpeedMps: 0,
+          averageSpeedMps: 0,
+          maxSpeedMps: 0,
+          followUser: true,
+          clearError: true,
+        ));
+        return;
+      } on Exception {
+        emit(state.copyWith(
+          workoutSaveStatus: ActivityWorkoutSaveStatus.failed,
+          errorMessage: 'Unable to save workout. Please try again.',
+        ));
+      }
+    }
+
+    _resetSessionTracking();
     emit(state.copyWith(
       status: ActivityTrackingStatus.ready,
+      workoutSaveStatus: ActivityWorkoutSaveStatus.none,
       routePoints: const [],
       duration: Duration.zero,
       distanceMeters: 0,
       currentSpeedMps: 0,
       averageSpeedMps: 0,
+      maxSpeedMps: 0,
       followUser: true,
       clearError: true,
     ));
 
     await _startLocationPreview();
+  }
+
+  Future<void> _saveWorkout(_SessionSnapshot snapshot) async {
+    final profile = await _onboardingRepository.getUserProfile();
+    final weightKg = profile?.weight ?? 70.0;
+    final startTime = snapshot.startTime ?? snapshot.endTime;
+    final calories = WorkoutCalorieCalculator.estimate(
+      durationSeconds: snapshot.duration.inSeconds,
+      distanceMeters: snapshot.distanceMeters,
+      weightKg: weightKg,
+    );
+
+    final workout = Workout(
+      activityType: _activityType,
+      startTime: startTime,
+      endTime: snapshot.endTime,
+      durationInSeconds: snapshot.duration.inSeconds,
+      distanceInMeters: snapshot.distanceMeters,
+      averageSpeed: snapshot.averageSpeedMps,
+      maxSpeed: snapshot.maxSpeedMps,
+      calories: calories,
+      polyline: snapshot.routePoints,
+      createdAt: DateTime.now(),
+    );
+
+    await _workoutRepository.saveWorkout(workout);
+  }
+
+  void _resetSessionTracking() {
+    _metrics.reset();
+    _accumulatedDuration = Duration.zero;
+    _segmentStartTime = null;
+    _sessionStartTime = null;
   }
 
   void _onLocationUpdated(
@@ -250,6 +342,7 @@ class ActivityBloc extends Bloc<ActivityEvent, ActivityState> {
       distanceMeters: distanceMeters,
       currentSpeedMps: currentSpeedMps,
       averageSpeedMps: averageSpeedMps,
+      maxSpeedMps: _metrics.maxSpeedMps,
       gpsAccuracyMeters: position.accuracy,
     ));
   }
@@ -288,4 +381,27 @@ class ActivityBloc extends Bloc<ActivityEvent, ActivityState> {
     return _accumulatedDuration +
         DateTime.now().difference(_segmentStartTime!);
   }
+}
+
+class _SessionSnapshot {
+  const _SessionSnapshot({
+    required this.startTime,
+    required this.endTime,
+    required this.duration,
+    required this.distanceMeters,
+    required this.averageSpeedMps,
+    required this.maxSpeedMps,
+    required this.routePoints,
+  });
+
+  final DateTime? startTime;
+  final DateTime endTime;
+  final Duration duration;
+  final double distanceMeters;
+  final double averageSpeedMps;
+  final double maxSpeedMps;
+  final List<LatLng> routePoints;
+
+  bool get hasSaveableData =>
+      duration.inSeconds >= 1 || distanceMeters >= 10;
 }

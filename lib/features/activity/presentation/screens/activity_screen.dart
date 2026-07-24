@@ -16,91 +16,105 @@ class ActivityScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<ActivityBloc, ActivityState>(
-      builder: (context, state) {
-        return Scaffold(
-          backgroundColor: AppColorPalette.darkBackground,
-          body: Stack(
-            children: [
-              const Positioned.fill(child: ActivityMap()),
-              SafeArea(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: AppSpacing.lg,
-                    vertical: AppSpacing.sm,
-                  ),
-                  child: Row(
-                    children: [
-                      _TopIconButton(
-                        icon: Icons.arrow_back_rounded,
-                        onPressed: () => context.go(RouteConstants.home),
-                      ),
-                      const Spacer(),
-                      if (!state.followUser && state.currentPosition != null)
-                        _TopIconButton(
-                          icon: Icons.my_location_rounded,
-                          onPressed: () => context.read<ActivityBloc>().add(
-                                const RecenterMapRequested(),
-                              ),
-                        ),
-                    ],
-                  ),
-                ),
-              ),
-              if (state.errorMessage != null)
+    return BlocListener<ActivityBloc, ActivityState>(
+      listenWhen: (previous, current) =>
+          previous.workoutSaveStatus != current.workoutSaveStatus,
+      listener: (context, state) {
+        if (state.workoutSaveStatus == ActivityWorkoutSaveStatus.saved) {
+          context.go(RouteConstants.home);
+        }
+      },
+      child: BlocBuilder<ActivityBloc, ActivityState>(
+        builder: (context, state) {
+          return Scaffold(
+            backgroundColor: AppColorPalette.darkBackground,
+            body: Stack(
+              children: [
+                const Positioned.fill(child: ActivityMap()),
                 SafeArea(
-                  child: Align(
-                    alignment: Alignment.topCenter,
-                    child: Padding(
-                      padding: const EdgeInsets.only(
-                        top: 56,
-                        left: AppSpacing.lg,
-                        right: AppSpacing.lg,
-                      ),
-                      child: _ErrorBanner(message: state.errorMessage!),
-                    ),
-                  ),
-                ),
-              Align(
-                alignment: Alignment.bottomCenter,
-                child: SafeArea(
-                  top: false,
                   child: Padding(
-                    padding: const EdgeInsets.fromLTRB(
-                      AppSpacing.lg,
-                      0,
-                      AppSpacing.lg,
-                      AppSpacing.lg,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: AppSpacing.lg,
+                      vertical: AppSpacing.sm,
                     ),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
+                    child: Row(
                       children: [
-                        WorkoutPanel(state: state),
-                        SizedBox(height: state.showWorkoutPanel ? AppSpacing.lg : 0),
-                        ActivityControls(
-                          state: state,
-                          onStart: () => context.read<ActivityBloc>().add(
-                                const StartTracking(),
-                              ),
-                          onPause: () => context.read<ActivityBloc>().add(
-                                const PauseTracking(),
-                              ),
-                          onResume: () => context.read<ActivityBloc>().add(
-                                const ResumeTracking(),
-                              ),
-                          onStop: () => context.read<ActivityBloc>().add(
-                                const StopTracking(),
-                              ),
+                        _TopIconButton(
+                          icon: Icons.arrow_back_rounded,
+                          onPressed: state.workoutSaveStatus ==
+                                  ActivityWorkoutSaveStatus.saving
+                              ? null
+                              : () => context.go(RouteConstants.home),
                         ),
+                        const Spacer(),
+                        if (!state.followUser && state.currentPosition != null)
+                          _TopIconButton(
+                            icon: Icons.my_location_rounded,
+                            onPressed: () => context.read<ActivityBloc>().add(
+                                  const RecenterMapRequested(),
+                                ),
+                          ),
                       ],
                     ),
                   ),
                 ),
-              ),
-            ],
-          ),
-        );
-      },
+                if (state.errorMessage != null)
+                  SafeArea(
+                    child: Align(
+                      alignment: Alignment.topCenter,
+                      child: Padding(
+                        padding: const EdgeInsets.only(
+                          top: 56,
+                          left: AppSpacing.lg,
+                          right: AppSpacing.lg,
+                        ),
+                        child: _ErrorBanner(message: state.errorMessage!),
+                      ),
+                    ),
+                  ),
+                Align(
+                  alignment: Alignment.bottomCenter,
+                  child: SafeArea(
+                    top: false,
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(
+                        AppSpacing.lg,
+                        0,
+                        AppSpacing.lg,
+                        AppSpacing.lg,
+                      ),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          WorkoutPanel(state: state),
+                          SizedBox(
+                            height: state.showWorkoutPanel ? AppSpacing.lg : 0,
+                          ),
+                          ActivityControls(
+                            state: state,
+                            onStart: () => context.read<ActivityBloc>().add(
+                                  const StartTracking(),
+                                ),
+                            onPause: () => context.read<ActivityBloc>().add(
+                                  const PauseTracking(),
+                                ),
+                            onResume: () => context.read<ActivityBloc>().add(
+                                  const ResumeTracking(),
+                                ),
+                            onStop: () => context.read<ActivityBloc>().add(
+                                  const StopTracking(),
+                                ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          );
+        },
+      ),
     );
   }
 }
@@ -112,7 +126,7 @@ class _TopIconButton extends StatelessWidget {
   });
 
   final IconData icon;
-  final VoidCallback onPressed;
+  final VoidCallback? onPressed;
 
   @override
   Widget build(BuildContext context) {
@@ -136,7 +150,13 @@ class _TopIconButton extends StatelessWidget {
           child: SizedBox(
             width: 44,
             height: 44,
-            child: Icon(icon, color: AppColorPalette.white, size: 22),
+            child: Icon(
+              icon,
+              color: onPressed == null
+                  ? AppColorPalette.grey600
+                  : AppColorPalette.white,
+              size: 22,
+            ),
           ),
         ),
       ),

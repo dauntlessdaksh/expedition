@@ -70,7 +70,7 @@ class _HomeScreenState extends State<HomeScreen> with RouteAware {
                 const LoadingIndicator(message: 'Loading your dashboard...'),
               HomeStatus.failure => _ErrorView(
                   onRetry: () =>
-                      context.read<HomeBloc>().add(const HomeStarted()),
+                      context.read<HomeBloc>().add(const LoadDashboard()),
                 ),
               HomeStatus.loaded when state.data != null =>
                 _DashboardContent(
@@ -105,7 +105,7 @@ class _DashboardContent extends StatelessWidget {
           color: AppColorPalette.primary,
           backgroundColor: AppColorPalette.darkCard,
           onRefresh: () async {
-            context.read<HomeBloc>().add(const HomeRefreshed());
+            context.read<HomeBloc>().add(const RefreshDashboard());
           },
           child: CustomScrollView(
             physics: const AlwaysScrollableScrollPhysics(

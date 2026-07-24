@@ -25,6 +25,7 @@ class DailyStats extends Equatable {
     required this.distanceGoalKm,
     required this.activeMinutes,
     required this.activeMinutesGoal,
+    this.workoutCount = 0,
   });
 
   final int steps;
@@ -35,6 +36,7 @@ class DailyStats extends Equatable {
   final double distanceGoalKm;
   final int activeMinutes;
   final int activeMinutesGoal;
+  final int workoutCount;
 
   double get stepsProgress => steps / stepsGoal;
   double get caloriesProgress => calories / caloriesGoal;
@@ -56,6 +58,7 @@ class DailyStats extends Equatable {
         distanceGoalKm,
         activeMinutes,
         activeMinutesGoal,
+        workoutCount,
       ];
 }
 

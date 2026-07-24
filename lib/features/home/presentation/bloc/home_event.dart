@@ -7,10 +7,10 @@ sealed class HomeEvent extends Equatable {
   List<Object?> get props => [];
 }
 
-final class HomeStarted extends HomeEvent {
-  const HomeStarted();
+final class LoadDashboard extends HomeEvent {
+  const LoadDashboard();
 }
 
-final class HomeRefreshed extends HomeEvent {
-  const HomeRefreshed();
+final class RefreshDashboard extends HomeEvent {
+  const RefreshDashboard();
 }

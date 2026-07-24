@@ -8,7 +8,9 @@ import 'core/services/api_client.dart';
 import 'core/theme/app_theme.dart';
 import 'core/theme/theme_cubit.dart';
 import 'core/utils/logger.dart';
-import 'features/home/data/repositories/dummy_home_repository.dart';
+import 'features/history/data/datasource/workout_local_datasource.dart';
+import 'features/history/data/repositories/workout_repository.dart';
+import 'features/home/data/repositories/home_repository.dart';
 import 'features/onboarding/data/datasource/onboarding_local_datasource.dart';
 import 'features/onboarding/data/repositories/onboarding_repository.dart';
 
@@ -51,13 +53,19 @@ Future<void> bootstrap() async {
     OnboardingLocalDataSource(database),
   );
 
-  final homeRepository = DummyHomeRepository(
+  final workoutRepository = WorkoutRepository(
+    WorkoutLocalDataSource(database),
+  );
+
+  final homeRepository = HomeRepository(
+    workoutRepository: workoutRepository,
     onboardingRepository: onboardingRepository,
   );
 
   final appRouter = AppRouter(
     onboardingRepository: onboardingRepository,
     homeRepository: homeRepository,
+    workoutRepository: workoutRepository,
   );
 
   AppLogger.info('Core services initialized');
@@ -70,7 +78,8 @@ Future<void> bootstrap() async {
         RepositoryProvider<OnboardingRepository>.value(
           value: onboardingRepository,
         ),
-        RepositoryProvider<DummyHomeRepository>.value(value: homeRepository),
+        RepositoryProvider<WorkoutRepository>.value(value: workoutRepository),
+        RepositoryProvider<HomeRepository>.value(value: homeRepository),
       ],
       child: BlocProvider(
         create: (_) => ThemeCubit(),

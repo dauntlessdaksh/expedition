@@ -6,7 +6,8 @@ import '../../features/activity/data/services/location_service.dart';
 import '../../features/activity/presentation/bloc/activity_bloc.dart';
 import '../../features/activity/presentation/screens/activity_screen.dart';
 import '../../features/avatar_test/presentation/screens/avatar_test_screen.dart';
-import '../../features/home/data/repositories/dummy_home_repository.dart';
+import '../../features/history/data/repositories/workout_repository.dart';
+import '../../features/home/data/repositories/home_repository.dart';
 import '../../features/home/presentation/bloc/home_bloc.dart';
 import '../../features/home/presentation/screens/home_screen.dart';
 import '../../features/onboarding/data/repositories/onboarding_repository.dart';
@@ -21,7 +22,8 @@ import 'route_constants.dart';
 class AppRouter {
   AppRouter({
     required OnboardingRepository onboardingRepository,
-    required DummyHomeRepository homeRepository,
+    required HomeRepository homeRepository,
+    required WorkoutRepository workoutRepository,
     GlobalKey<NavigatorState>? navigatorKey,
   }) : navigatorKey = navigatorKey ?? GlobalKey<NavigatorState>() {
     router = GoRouter(
@@ -29,7 +31,11 @@ class AppRouter {
       initialLocation: RouteConstants.splash,
       debugLogDiagnostics: true,
       observers: [routeObserver],
-      routes: _buildRoutes(onboardingRepository, homeRepository),
+      routes: _buildRoutes(
+        onboardingRepository,
+        homeRepository,
+        workoutRepository,
+      ),
     );
   }
 
@@ -43,7 +49,8 @@ class AppRouter {
 
   static List<RouteBase> _buildRoutes(
     OnboardingRepository onboardingRepository,
-    DummyHomeRepository homeRepository,
+    HomeRepository homeRepository,
+    WorkoutRepository workoutRepository,
   ) {
     return [
       GoRoute(
@@ -78,7 +85,7 @@ class AppRouter {
           key: state.pageKey,
           child: BlocProvider(
             create: (_) => HomeBloc(repository: homeRepository)
-              ..add(const HomeStarted()),
+              ..add(const LoadDashboard()),
             child: const HomeScreen(),
           ),
         ),
@@ -89,8 +96,11 @@ class AppRouter {
         pageBuilder: (context, state) => fadeSlideTransitionPage(
           key: state.pageKey,
           child: BlocProvider(
-            create: (_) => ActivityBloc(locationService: LocationService())
-              ..add(const ActivityStarted()),
+            create: (_) => ActivityBloc(
+              locationService: LocationService(),
+              workoutRepository: workoutRepository,
+              onboardingRepository: onboardingRepository,
+            )..add(const ActivityStarted()),
             child: const ActivityScreen(),
           ),
         ),

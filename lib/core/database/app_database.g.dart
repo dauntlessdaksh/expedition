@@ -922,16 +922,689 @@ class SettingsCompanion extends UpdateCompanion<Setting> {
   }
 }
 
+class $WorkoutsTable extends Workouts
+    with TableInfo<$WorkoutsTable, WorkoutRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $WorkoutsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    hasAutoIncrement: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'PRIMARY KEY AUTOINCREMENT',
+    ),
+  );
+  static const VerificationMeta _activityTypeMeta = const VerificationMeta(
+    'activityType',
+  );
+  @override
+  late final GeneratedColumn<String> activityType = GeneratedColumn<String>(
+    'activity_type',
+    aliasedName,
+    false,
+    additionalChecks: GeneratedColumn.checkTextLength(
+      minTextLength: 1,
+      maxTextLength: 50,
+    ),
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _startTimeMeta = const VerificationMeta(
+    'startTime',
+  );
+  @override
+  late final GeneratedColumn<DateTime> startTime = GeneratedColumn<DateTime>(
+    'start_time',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _endTimeMeta = const VerificationMeta(
+    'endTime',
+  );
+  @override
+  late final GeneratedColumn<DateTime> endTime = GeneratedColumn<DateTime>(
+    'end_time',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _durationInSecondsMeta = const VerificationMeta(
+    'durationInSeconds',
+  );
+  @override
+  late final GeneratedColumn<int> durationInSeconds = GeneratedColumn<int>(
+    'duration_in_seconds',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _distanceInMetersMeta = const VerificationMeta(
+    'distanceInMeters',
+  );
+  @override
+  late final GeneratedColumn<double> distanceInMeters = GeneratedColumn<double>(
+    'distance_in_meters',
+    aliasedName,
+    false,
+    type: DriftSqlType.double,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _averageSpeedMeta = const VerificationMeta(
+    'averageSpeed',
+  );
+  @override
+  late final GeneratedColumn<double> averageSpeed = GeneratedColumn<double>(
+    'average_speed',
+    aliasedName,
+    false,
+    type: DriftSqlType.double,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _maxSpeedMeta = const VerificationMeta(
+    'maxSpeed',
+  );
+  @override
+  late final GeneratedColumn<double> maxSpeed = GeneratedColumn<double>(
+    'max_speed',
+    aliasedName,
+    false,
+    type: DriftSqlType.double,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _caloriesMeta = const VerificationMeta(
+    'calories',
+  );
+  @override
+  late final GeneratedColumn<int> calories = GeneratedColumn<int>(
+    'calories',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _polylineMeta = const VerificationMeta(
+    'polyline',
+  );
+  @override
+  late final GeneratedColumn<String> polyline = GeneratedColumn<String>(
+    'polyline',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _createdAtMeta = const VerificationMeta(
+    'createdAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+    'created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+    defaultValue: currentDateAndTime,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    activityType,
+    startTime,
+    endTime,
+    durationInSeconds,
+    distanceInMeters,
+    averageSpeed,
+    maxSpeed,
+    calories,
+    polyline,
+    createdAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'workouts';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<WorkoutRow> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('activity_type')) {
+      context.handle(
+        _activityTypeMeta,
+        activityType.isAcceptableOrUnknown(
+          data['activity_type']!,
+          _activityTypeMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_activityTypeMeta);
+    }
+    if (data.containsKey('start_time')) {
+      context.handle(
+        _startTimeMeta,
+        startTime.isAcceptableOrUnknown(data['start_time']!, _startTimeMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_startTimeMeta);
+    }
+    if (data.containsKey('end_time')) {
+      context.handle(
+        _endTimeMeta,
+        endTime.isAcceptableOrUnknown(data['end_time']!, _endTimeMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_endTimeMeta);
+    }
+    if (data.containsKey('duration_in_seconds')) {
+      context.handle(
+        _durationInSecondsMeta,
+        durationInSeconds.isAcceptableOrUnknown(
+          data['duration_in_seconds']!,
+          _durationInSecondsMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_durationInSecondsMeta);
+    }
+    if (data.containsKey('distance_in_meters')) {
+      context.handle(
+        _distanceInMetersMeta,
+        distanceInMeters.isAcceptableOrUnknown(
+          data['distance_in_meters']!,
+          _distanceInMetersMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_distanceInMetersMeta);
+    }
+    if (data.containsKey('average_speed')) {
+      context.handle(
+        _averageSpeedMeta,
+        averageSpeed.isAcceptableOrUnknown(
+          data['average_speed']!,
+          _averageSpeedMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_averageSpeedMeta);
+    }
+    if (data.containsKey('max_speed')) {
+      context.handle(
+        _maxSpeedMeta,
+        maxSpeed.isAcceptableOrUnknown(data['max_speed']!, _maxSpeedMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_maxSpeedMeta);
+    }
+    if (data.containsKey('calories')) {
+      context.handle(
+        _caloriesMeta,
+        calories.isAcceptableOrUnknown(data['calories']!, _caloriesMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_caloriesMeta);
+    }
+    if (data.containsKey('polyline')) {
+      context.handle(
+        _polylineMeta,
+        polyline.isAcceptableOrUnknown(data['polyline']!, _polylineMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_polylineMeta);
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  WorkoutRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return WorkoutRow(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id'],
+      )!,
+      activityType: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}activity_type'],
+      )!,
+      startTime: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}start_time'],
+      )!,
+      endTime: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}end_time'],
+      )!,
+      durationInSeconds: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}duration_in_seconds'],
+      )!,
+      distanceInMeters: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}distance_in_meters'],
+      )!,
+      averageSpeed: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}average_speed'],
+      )!,
+      maxSpeed: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}max_speed'],
+      )!,
+      calories: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}calories'],
+      )!,
+      polyline: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}polyline'],
+      )!,
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}created_at'],
+      )!,
+    );
+  }
+
+  @override
+  $WorkoutsTable createAlias(String alias) {
+    return $WorkoutsTable(attachedDatabase, alias);
+  }
+}
+
+class WorkoutRow extends DataClass implements Insertable<WorkoutRow> {
+  final int id;
+  final String activityType;
+  final DateTime startTime;
+  final DateTime endTime;
+  final int durationInSeconds;
+  final double distanceInMeters;
+  final double averageSpeed;
+  final double maxSpeed;
+  final int calories;
+  final String polyline;
+  final DateTime createdAt;
+  const WorkoutRow({
+    required this.id,
+    required this.activityType,
+    required this.startTime,
+    required this.endTime,
+    required this.durationInSeconds,
+    required this.distanceInMeters,
+    required this.averageSpeed,
+    required this.maxSpeed,
+    required this.calories,
+    required this.polyline,
+    required this.createdAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['activity_type'] = Variable<String>(activityType);
+    map['start_time'] = Variable<DateTime>(startTime);
+    map['end_time'] = Variable<DateTime>(endTime);
+    map['duration_in_seconds'] = Variable<int>(durationInSeconds);
+    map['distance_in_meters'] = Variable<double>(distanceInMeters);
+    map['average_speed'] = Variable<double>(averageSpeed);
+    map['max_speed'] = Variable<double>(maxSpeed);
+    map['calories'] = Variable<int>(calories);
+    map['polyline'] = Variable<String>(polyline);
+    map['created_at'] = Variable<DateTime>(createdAt);
+    return map;
+  }
+
+  WorkoutsCompanion toCompanion(bool nullToAbsent) {
+    return WorkoutsCompanion(
+      id: Value(id),
+      activityType: Value(activityType),
+      startTime: Value(startTime),
+      endTime: Value(endTime),
+      durationInSeconds: Value(durationInSeconds),
+      distanceInMeters: Value(distanceInMeters),
+      averageSpeed: Value(averageSpeed),
+      maxSpeed: Value(maxSpeed),
+      calories: Value(calories),
+      polyline: Value(polyline),
+      createdAt: Value(createdAt),
+    );
+  }
+
+  factory WorkoutRow.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return WorkoutRow(
+      id: serializer.fromJson<int>(json['id']),
+      activityType: serializer.fromJson<String>(json['activityType']),
+      startTime: serializer.fromJson<DateTime>(json['startTime']),
+      endTime: serializer.fromJson<DateTime>(json['endTime']),
+      durationInSeconds: serializer.fromJson<int>(json['durationInSeconds']),
+      distanceInMeters: serializer.fromJson<double>(json['distanceInMeters']),
+      averageSpeed: serializer.fromJson<double>(json['averageSpeed']),
+      maxSpeed: serializer.fromJson<double>(json['maxSpeed']),
+      calories: serializer.fromJson<int>(json['calories']),
+      polyline: serializer.fromJson<String>(json['polyline']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'activityType': serializer.toJson<String>(activityType),
+      'startTime': serializer.toJson<DateTime>(startTime),
+      'endTime': serializer.toJson<DateTime>(endTime),
+      'durationInSeconds': serializer.toJson<int>(durationInSeconds),
+      'distanceInMeters': serializer.toJson<double>(distanceInMeters),
+      'averageSpeed': serializer.toJson<double>(averageSpeed),
+      'maxSpeed': serializer.toJson<double>(maxSpeed),
+      'calories': serializer.toJson<int>(calories),
+      'polyline': serializer.toJson<String>(polyline),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+    };
+  }
+
+  WorkoutRow copyWith({
+    int? id,
+    String? activityType,
+    DateTime? startTime,
+    DateTime? endTime,
+    int? durationInSeconds,
+    double? distanceInMeters,
+    double? averageSpeed,
+    double? maxSpeed,
+    int? calories,
+    String? polyline,
+    DateTime? createdAt,
+  }) => WorkoutRow(
+    id: id ?? this.id,
+    activityType: activityType ?? this.activityType,
+    startTime: startTime ?? this.startTime,
+    endTime: endTime ?? this.endTime,
+    durationInSeconds: durationInSeconds ?? this.durationInSeconds,
+    distanceInMeters: distanceInMeters ?? this.distanceInMeters,
+    averageSpeed: averageSpeed ?? this.averageSpeed,
+    maxSpeed: maxSpeed ?? this.maxSpeed,
+    calories: calories ?? this.calories,
+    polyline: polyline ?? this.polyline,
+    createdAt: createdAt ?? this.createdAt,
+  );
+  WorkoutRow copyWithCompanion(WorkoutsCompanion data) {
+    return WorkoutRow(
+      id: data.id.present ? data.id.value : this.id,
+      activityType: data.activityType.present
+          ? data.activityType.value
+          : this.activityType,
+      startTime: data.startTime.present ? data.startTime.value : this.startTime,
+      endTime: data.endTime.present ? data.endTime.value : this.endTime,
+      durationInSeconds: data.durationInSeconds.present
+          ? data.durationInSeconds.value
+          : this.durationInSeconds,
+      distanceInMeters: data.distanceInMeters.present
+          ? data.distanceInMeters.value
+          : this.distanceInMeters,
+      averageSpeed: data.averageSpeed.present
+          ? data.averageSpeed.value
+          : this.averageSpeed,
+      maxSpeed: data.maxSpeed.present ? data.maxSpeed.value : this.maxSpeed,
+      calories: data.calories.present ? data.calories.value : this.calories,
+      polyline: data.polyline.present ? data.polyline.value : this.polyline,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('WorkoutRow(')
+          ..write('id: $id, ')
+          ..write('activityType: $activityType, ')
+          ..write('startTime: $startTime, ')
+          ..write('endTime: $endTime, ')
+          ..write('durationInSeconds: $durationInSeconds, ')
+          ..write('distanceInMeters: $distanceInMeters, ')
+          ..write('averageSpeed: $averageSpeed, ')
+          ..write('maxSpeed: $maxSpeed, ')
+          ..write('calories: $calories, ')
+          ..write('polyline: $polyline, ')
+          ..write('createdAt: $createdAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    activityType,
+    startTime,
+    endTime,
+    durationInSeconds,
+    distanceInMeters,
+    averageSpeed,
+    maxSpeed,
+    calories,
+    polyline,
+    createdAt,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is WorkoutRow &&
+          other.id == this.id &&
+          other.activityType == this.activityType &&
+          other.startTime == this.startTime &&
+          other.endTime == this.endTime &&
+          other.durationInSeconds == this.durationInSeconds &&
+          other.distanceInMeters == this.distanceInMeters &&
+          other.averageSpeed == this.averageSpeed &&
+          other.maxSpeed == this.maxSpeed &&
+          other.calories == this.calories &&
+          other.polyline == this.polyline &&
+          other.createdAt == this.createdAt);
+}
+
+class WorkoutsCompanion extends UpdateCompanion<WorkoutRow> {
+  final Value<int> id;
+  final Value<String> activityType;
+  final Value<DateTime> startTime;
+  final Value<DateTime> endTime;
+  final Value<int> durationInSeconds;
+  final Value<double> distanceInMeters;
+  final Value<double> averageSpeed;
+  final Value<double> maxSpeed;
+  final Value<int> calories;
+  final Value<String> polyline;
+  final Value<DateTime> createdAt;
+  const WorkoutsCompanion({
+    this.id = const Value.absent(),
+    this.activityType = const Value.absent(),
+    this.startTime = const Value.absent(),
+    this.endTime = const Value.absent(),
+    this.durationInSeconds = const Value.absent(),
+    this.distanceInMeters = const Value.absent(),
+    this.averageSpeed = const Value.absent(),
+    this.maxSpeed = const Value.absent(),
+    this.calories = const Value.absent(),
+    this.polyline = const Value.absent(),
+    this.createdAt = const Value.absent(),
+  });
+  WorkoutsCompanion.insert({
+    this.id = const Value.absent(),
+    required String activityType,
+    required DateTime startTime,
+    required DateTime endTime,
+    required int durationInSeconds,
+    required double distanceInMeters,
+    required double averageSpeed,
+    required double maxSpeed,
+    required int calories,
+    required String polyline,
+    this.createdAt = const Value.absent(),
+  }) : activityType = Value(activityType),
+       startTime = Value(startTime),
+       endTime = Value(endTime),
+       durationInSeconds = Value(durationInSeconds),
+       distanceInMeters = Value(distanceInMeters),
+       averageSpeed = Value(averageSpeed),
+       maxSpeed = Value(maxSpeed),
+       calories = Value(calories),
+       polyline = Value(polyline);
+  static Insertable<WorkoutRow> custom({
+    Expression<int>? id,
+    Expression<String>? activityType,
+    Expression<DateTime>? startTime,
+    Expression<DateTime>? endTime,
+    Expression<int>? durationInSeconds,
+    Expression<double>? distanceInMeters,
+    Expression<double>? averageSpeed,
+    Expression<double>? maxSpeed,
+    Expression<int>? calories,
+    Expression<String>? polyline,
+    Expression<DateTime>? createdAt,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (activityType != null) 'activity_type': activityType,
+      if (startTime != null) 'start_time': startTime,
+      if (endTime != null) 'end_time': endTime,
+      if (durationInSeconds != null) 'duration_in_seconds': durationInSeconds,
+      if (distanceInMeters != null) 'distance_in_meters': distanceInMeters,
+      if (averageSpeed != null) 'average_speed': averageSpeed,
+      if (maxSpeed != null) 'max_speed': maxSpeed,
+      if (calories != null) 'calories': calories,
+      if (polyline != null) 'polyline': polyline,
+      if (createdAt != null) 'created_at': createdAt,
+    });
+  }
+
+  WorkoutsCompanion copyWith({
+    Value<int>? id,
+    Value<String>? activityType,
+    Value<DateTime>? startTime,
+    Value<DateTime>? endTime,
+    Value<int>? durationInSeconds,
+    Value<double>? distanceInMeters,
+    Value<double>? averageSpeed,
+    Value<double>? maxSpeed,
+    Value<int>? calories,
+    Value<String>? polyline,
+    Value<DateTime>? createdAt,
+  }) {
+    return WorkoutsCompanion(
+      id: id ?? this.id,
+      activityType: activityType ?? this.activityType,
+      startTime: startTime ?? this.startTime,
+      endTime: endTime ?? this.endTime,
+      durationInSeconds: durationInSeconds ?? this.durationInSeconds,
+      distanceInMeters: distanceInMeters ?? this.distanceInMeters,
+      averageSpeed: averageSpeed ?? this.averageSpeed,
+      maxSpeed: maxSpeed ?? this.maxSpeed,
+      calories: calories ?? this.calories,
+      polyline: polyline ?? this.polyline,
+      createdAt: createdAt ?? this.createdAt,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (activityType.present) {
+      map['activity_type'] = Variable<String>(activityType.value);
+    }
+    if (startTime.present) {
+      map['start_time'] = Variable<DateTime>(startTime.value);
+    }
+    if (endTime.present) {
+      map['end_time'] = Variable<DateTime>(endTime.value);
+    }
+    if (durationInSeconds.present) {
+      map['duration_in_seconds'] = Variable<int>(durationInSeconds.value);
+    }
+    if (distanceInMeters.present) {
+      map['distance_in_meters'] = Variable<double>(distanceInMeters.value);
+    }
+    if (averageSpeed.present) {
+      map['average_speed'] = Variable<double>(averageSpeed.value);
+    }
+    if (maxSpeed.present) {
+      map['max_speed'] = Variable<double>(maxSpeed.value);
+    }
+    if (calories.present) {
+      map['calories'] = Variable<int>(calories.value);
+    }
+    if (polyline.present) {
+      map['polyline'] = Variable<String>(polyline.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('WorkoutsCompanion(')
+          ..write('id: $id, ')
+          ..write('activityType: $activityType, ')
+          ..write('startTime: $startTime, ')
+          ..write('endTime: $endTime, ')
+          ..write('durationInSeconds: $durationInSeconds, ')
+          ..write('distanceInMeters: $distanceInMeters, ')
+          ..write('averageSpeed: $averageSpeed, ')
+          ..write('maxSpeed: $maxSpeed, ')
+          ..write('calories: $calories, ')
+          ..write('polyline: $polyline, ')
+          ..write('createdAt: $createdAt')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
   late final $UsersTable users = $UsersTable(this);
   late final $SettingsTable settings = $SettingsTable(this);
+  late final $WorkoutsTable workouts = $WorkoutsTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
   @override
-  List<DatabaseSchemaEntity> get allSchemaEntities => [users, settings];
+  List<DatabaseSchemaEntity> get allSchemaEntities => [
+    users,
+    settings,
+    workouts,
+  ];
 }
 
 typedef $$UsersTableCreateCompanionBuilder =
@@ -1393,6 +2066,319 @@ typedef $$SettingsTableProcessedTableManager =
       Setting,
       PrefetchHooks Function()
     >;
+typedef $$WorkoutsTableCreateCompanionBuilder =
+    WorkoutsCompanion Function({
+      Value<int> id,
+      required String activityType,
+      required DateTime startTime,
+      required DateTime endTime,
+      required int durationInSeconds,
+      required double distanceInMeters,
+      required double averageSpeed,
+      required double maxSpeed,
+      required int calories,
+      required String polyline,
+      Value<DateTime> createdAt,
+    });
+typedef $$WorkoutsTableUpdateCompanionBuilder =
+    WorkoutsCompanion Function({
+      Value<int> id,
+      Value<String> activityType,
+      Value<DateTime> startTime,
+      Value<DateTime> endTime,
+      Value<int> durationInSeconds,
+      Value<double> distanceInMeters,
+      Value<double> averageSpeed,
+      Value<double> maxSpeed,
+      Value<int> calories,
+      Value<String> polyline,
+      Value<DateTime> createdAt,
+    });
+
+class $$WorkoutsTableFilterComposer
+    extends Composer<_$AppDatabase, $WorkoutsTable> {
+  $$WorkoutsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get activityType => $composableBuilder(
+    column: $table.activityType,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get startTime => $composableBuilder(
+    column: $table.startTime,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get endTime => $composableBuilder(
+    column: $table.endTime,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get durationInSeconds => $composableBuilder(
+    column: $table.durationInSeconds,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get distanceInMeters => $composableBuilder(
+    column: $table.distanceInMeters,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get averageSpeed => $composableBuilder(
+    column: $table.averageSpeed,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get maxSpeed => $composableBuilder(
+    column: $table.maxSpeed,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get calories => $composableBuilder(
+    column: $table.calories,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get polyline => $composableBuilder(
+    column: $table.polyline,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$WorkoutsTableOrderingComposer
+    extends Composer<_$AppDatabase, $WorkoutsTable> {
+  $$WorkoutsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get activityType => $composableBuilder(
+    column: $table.activityType,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get startTime => $composableBuilder(
+    column: $table.startTime,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get endTime => $composableBuilder(
+    column: $table.endTime,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get durationInSeconds => $composableBuilder(
+    column: $table.durationInSeconds,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get distanceInMeters => $composableBuilder(
+    column: $table.distanceInMeters,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get averageSpeed => $composableBuilder(
+    column: $table.averageSpeed,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get maxSpeed => $composableBuilder(
+    column: $table.maxSpeed,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get calories => $composableBuilder(
+    column: $table.calories,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get polyline => $composableBuilder(
+    column: $table.polyline,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$WorkoutsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $WorkoutsTable> {
+  $$WorkoutsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get activityType => $composableBuilder(
+    column: $table.activityType,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get startTime =>
+      $composableBuilder(column: $table.startTime, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get endTime =>
+      $composableBuilder(column: $table.endTime, builder: (column) => column);
+
+  GeneratedColumn<int> get durationInSeconds => $composableBuilder(
+    column: $table.durationInSeconds,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<double> get distanceInMeters => $composableBuilder(
+    column: $table.distanceInMeters,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<double> get averageSpeed => $composableBuilder(
+    column: $table.averageSpeed,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<double> get maxSpeed =>
+      $composableBuilder(column: $table.maxSpeed, builder: (column) => column);
+
+  GeneratedColumn<int> get calories =>
+      $composableBuilder(column: $table.calories, builder: (column) => column);
+
+  GeneratedColumn<String> get polyline =>
+      $composableBuilder(column: $table.polyline, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+}
+
+class $$WorkoutsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $WorkoutsTable,
+          WorkoutRow,
+          $$WorkoutsTableFilterComposer,
+          $$WorkoutsTableOrderingComposer,
+          $$WorkoutsTableAnnotationComposer,
+          $$WorkoutsTableCreateCompanionBuilder,
+          $$WorkoutsTableUpdateCompanionBuilder,
+          (
+            WorkoutRow,
+            BaseReferences<_$AppDatabase, $WorkoutsTable, WorkoutRow>,
+          ),
+          WorkoutRow,
+          PrefetchHooks Function()
+        > {
+  $$WorkoutsTableTableManager(_$AppDatabase db, $WorkoutsTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$WorkoutsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$WorkoutsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$WorkoutsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                Value<String> activityType = const Value.absent(),
+                Value<DateTime> startTime = const Value.absent(),
+                Value<DateTime> endTime = const Value.absent(),
+                Value<int> durationInSeconds = const Value.absent(),
+                Value<double> distanceInMeters = const Value.absent(),
+                Value<double> averageSpeed = const Value.absent(),
+                Value<double> maxSpeed = const Value.absent(),
+                Value<int> calories = const Value.absent(),
+                Value<String> polyline = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+              }) => WorkoutsCompanion(
+                id: id,
+                activityType: activityType,
+                startTime: startTime,
+                endTime: endTime,
+                durationInSeconds: durationInSeconds,
+                distanceInMeters: distanceInMeters,
+                averageSpeed: averageSpeed,
+                maxSpeed: maxSpeed,
+                calories: calories,
+                polyline: polyline,
+                createdAt: createdAt,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                required String activityType,
+                required DateTime startTime,
+                required DateTime endTime,
+                required int durationInSeconds,
+                required double distanceInMeters,
+                required double averageSpeed,
+                required double maxSpeed,
+                required int calories,
+                required String polyline,
+                Value<DateTime> createdAt = const Value.absent(),
+              }) => WorkoutsCompanion.insert(
+                id: id,
+                activityType: activityType,
+                startTime: startTime,
+                endTime: endTime,
+                durationInSeconds: durationInSeconds,
+                distanceInMeters: distanceInMeters,
+                averageSpeed: averageSpeed,
+                maxSpeed: maxSpeed,
+                calories: calories,
+                polyline: polyline,
+                createdAt: createdAt,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$WorkoutsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $WorkoutsTable,
+      WorkoutRow,
+      $$WorkoutsTableFilterComposer,
+      $$WorkoutsTableOrderingComposer,
+      $$WorkoutsTableAnnotationComposer,
+      $$WorkoutsTableCreateCompanionBuilder,
+      $$WorkoutsTableUpdateCompanionBuilder,
+      (WorkoutRow, BaseReferences<_$AppDatabase, $WorkoutsTable, WorkoutRow>),
+      WorkoutRow,
+      PrefetchHooks Function()
+    >;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -1401,4 +2387,6 @@ class $AppDatabaseManager {
       $$UsersTableTableManager(_db, _db.users);
   $$SettingsTableTableManager get settings =>
       $$SettingsTableTableManager(_db, _db.settings);
+  $$WorkoutsTableTableManager get workouts =>
+      $$WorkoutsTableTableManager(_db, _db.workouts);
 }

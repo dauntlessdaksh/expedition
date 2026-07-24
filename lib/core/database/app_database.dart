@@ -3,17 +3,18 @@ import 'package:drift_flutter/drift_flutter.dart';
 
 import 'tables/settings_table.dart';
 import 'tables/users_table.dart';
+import 'tables/workouts_table.dart';
 
 part 'app_database.g.dart';
 
 /// Local SQLite database for offline-first data persistence.
-@DriftDatabase(tables: [Users, Settings])
+@DriftDatabase(tables: [Users, Settings, Workouts])
 class AppDatabase extends _$AppDatabase {
   AppDatabase([QueryExecutor? executor])
       : super(executor ?? _openConnection());
 
   @override
-  int get schemaVersion => 3;
+  int get schemaVersion => 4;
 
   @override
   MigrationStrategy get migration {
@@ -29,6 +30,9 @@ class AppDatabase extends _$AppDatabase {
         if (from < 3) {
           await m.deleteTable('users');
           await m.createTable(users);
+        }
+        if (from < 4) {
+          await m.createTable(workouts);
         }
       },
     );

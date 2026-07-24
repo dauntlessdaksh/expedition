@@ -6,7 +6,7 @@ import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/theme/premium_gradients.dart';
 import '../../domain/models/home_dashboard_data.dart';
 
-/// Weekly activity bar chart placeholder with dummy data.
+/// Weekly activity bar chart driven by persisted workout data.
 class WeeklyChart extends StatelessWidget {
   const WeeklyChart({
     required this.weeklyActivity,

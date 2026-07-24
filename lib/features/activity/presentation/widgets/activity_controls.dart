@@ -25,6 +25,22 @@ class ActivityControls extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isSaving =
+        state.workoutSaveStatus == ActivityWorkoutSaveStatus.saving;
+
+    if (isSaving) {
+      return const SizedBox(
+        key: ValueKey('saving'),
+        height: 58,
+        child: Center(
+          child: CircularProgressIndicator(
+            color: AppColorPalette.primary,
+            strokeWidth: 2.5,
+          ),
+        ),
+      );
+    }
+
     return AnimatedSwitcher(
       duration: const Duration(milliseconds: 280),
       switchInCurve: Curves.easeOutCubic,
