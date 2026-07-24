@@ -60,3 +60,7 @@ final class RecenterMapRequested extends ActivityEvent {
 final class ClearPendingCelebration extends ActivityEvent {
   const ClearPendingCelebration();
 }
+
+final class ClearSavedWorkoutNavigation extends ActivityEvent {
+  const ClearSavedWorkoutNavigation();
+}

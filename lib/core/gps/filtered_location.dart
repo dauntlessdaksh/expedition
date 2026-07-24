@@ -19,6 +19,9 @@ class FilteredLocation extends Equatable {
     required this.timestamp,
     required this.polyline,
     required this.maxSpeed,
+    this.activeCalories = 0,
+    this.currentAltitudeMeters,
+    this.elevationGainMeters = 0,
   });
 
   final LatLng position;
@@ -34,6 +37,9 @@ class FilteredLocation extends Equatable {
   final DateTime timestamp;
   final List<LatLng> polyline;
   final double maxSpeed;
+  final int activeCalories;
+  final double? currentAltitudeMeters;
+  final double elevationGainMeters;
 
   bool get isActivelyTracking =>
       trackingState == GpsTrackingState.tracking;
@@ -52,6 +58,9 @@ class FilteredLocation extends Equatable {
     DateTime? timestamp,
     List<LatLng>? polyline,
     double? maxSpeed,
+    int? activeCalories,
+    double? currentAltitudeMeters,
+    double? elevationGainMeters,
   }) {
     return FilteredLocation(
       position: position ?? this.position,
@@ -67,6 +76,11 @@ class FilteredLocation extends Equatable {
       timestamp: timestamp ?? this.timestamp,
       polyline: polyline ?? this.polyline,
       maxSpeed: maxSpeed ?? this.maxSpeed,
+      activeCalories: activeCalories ?? this.activeCalories,
+      currentAltitudeMeters:
+          currentAltitudeMeters ?? this.currentAltitudeMeters,
+      elevationGainMeters:
+          elevationGainMeters ?? this.elevationGainMeters,
     );
   }
 
@@ -85,6 +99,9 @@ class FilteredLocation extends Equatable {
         timestamp,
         polyline,
         maxSpeed,
+        activeCalories,
+        currentAltitudeMeters,
+        elevationGainMeters,
       ];
 }
 

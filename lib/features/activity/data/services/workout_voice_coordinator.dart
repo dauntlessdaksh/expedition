@@ -77,8 +77,12 @@ class WorkoutVoiceCoordinator {
   Future<void> _handleChain = Future<void>.value();
 
   void updateSettings(VoiceSettings settings) {
+    final wasEnabled = _settings.enabled;
     _settings = settings;
     unawaited(_voiceService.applySettings(settings));
+    if (wasEnabled && !settings.enabled) {
+      unawaited(_voiceService.stop());
+    }
   }
 
   void updateGoals({

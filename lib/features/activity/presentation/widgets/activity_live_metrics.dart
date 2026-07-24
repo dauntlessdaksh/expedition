@@ -256,6 +256,7 @@ class ActivityTrackingControls extends StatelessWidget {
     required this.onCancel,
     required this.onPauseResume,
     required this.onLock,
+    this.voiceEnabled = false,
     this.onMusicTap,
     this.onMuteTap,
     super.key,
@@ -263,6 +264,7 @@ class ActivityTrackingControls extends StatelessWidget {
 
   final bool isPaused;
   final Duration duration;
+  final bool voiceEnabled;
   final VoidCallback onCancel;
   final VoidCallback onPauseResume;
   final VoidCallback onLock;
@@ -286,8 +288,12 @@ class ActivityTrackingControls extends StatelessWidget {
             ),
           ),
           _WorkoutUtilityButton(
-            icon: Icons.volume_off_rounded,
-            iconColor: AppColorPalette.grey400,
+            icon: voiceEnabled
+                ? Icons.volume_up_rounded
+                : Icons.volume_off_rounded,
+            iconColor: voiceEnabled
+                ? AppColorPalette.primaryLight
+                : AppColorPalette.grey400,
             onTap: onMuteTap,
           ),
         ],
@@ -503,6 +509,7 @@ class ActivityLockOverlay extends StatelessWidget {
     required this.duration,
     required this.isPaused,
     required this.onUnlock,
+    this.voiceEnabled = false,
     this.onMusicTap,
     this.onMuteTap,
     super.key,
@@ -510,6 +517,7 @@ class ActivityLockOverlay extends StatelessWidget {
 
   final Duration duration;
   final bool isPaused;
+  final bool voiceEnabled;
   final VoidCallback onUnlock;
   final VoidCallback? onMusicTap;
   final VoidCallback? onMuteTap;
@@ -553,8 +561,12 @@ class ActivityLockOverlay extends StatelessWidget {
                     ),
                   ),
                   _WorkoutUtilityButton(
-                    icon: Icons.volume_off_rounded,
-                    iconColor: AppColorPalette.grey400,
+                    icon: voiceEnabled
+                        ? Icons.volume_up_rounded
+                        : Icons.volume_off_rounded,
+                    iconColor: voiceEnabled
+                        ? AppColorPalette.primaryLight
+                        : AppColorPalette.grey400,
                     onTap: onMuteTap,
                   ),
                 ],

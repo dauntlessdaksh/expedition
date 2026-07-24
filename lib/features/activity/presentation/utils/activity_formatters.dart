@@ -1,17 +1,14 @@
 /// Formats live activity metrics for display.
 abstract final class ActivityFormatters {
+  /// Workout elapsed time as `HH:MM:SS`.
   static String duration(Duration duration) {
-    final hours = duration.inHours;
-    final minutes = duration.inMinutes.remainder(60);
-    final seconds = duration.inSeconds.remainder(60);
+    final totalSeconds = duration.inSeconds;
+    final hours = totalSeconds ~/ 3600;
+    final minutes = (totalSeconds % 3600) ~/ 60;
+    final seconds = totalSeconds % 60;
 
-    if (hours > 0) {
-      return '${hours.toString().padLeft(2, '0')}:'
-          '${minutes.toString().padLeft(2, '0')}:'
-          '${seconds.toString().padLeft(2, '0')}';
-    }
-
-    return '${minutes.toString().padLeft(2, '0')}:'
+    return '${hours.toString().padLeft(2, '0')}:'
+        '${minutes.toString().padLeft(2, '0')}:'
         '${seconds.toString().padLeft(2, '0')}';
   }
 
@@ -30,5 +27,10 @@ abstract final class ActivityFormatters {
 
   static String gpsAccuracy(double meters) {
     return '±${meters.round()} m';
+  }
+
+  static String elevationMeters(double meters) {
+    if (meters <= 0) return '0 m';
+    return '${meters.round()} m';
   }
 }

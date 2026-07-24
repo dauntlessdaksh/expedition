@@ -1,6 +1,7 @@
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
+import 'calculators/calorie_calculator.dart';
 import 'calculators/distance_calculator.dart';
 import 'calculators/speed_calculator.dart';
 import 'filtered_location.dart';
@@ -9,6 +10,7 @@ import 'filters/time_filter.dart';
 import 'gps_engine_config.dart';
 import 'gps_tracking_state.dart';
 import 'managers/polyline_manager.dart';
+import 'trackers/elevation_tracker.dart';
 
 /// Outdoor-only GPS engine with a professional state machine pipeline.
 class GpsEngine {
@@ -18,7 +20,9 @@ class GpsEngine {
         _distanceFilter = const DistanceFilter(),
         _speedCalculator = SpeedCalculator(),
         _distanceCalculator = DistanceCalculator(),
-        _polylineManager = PolylineManager();
+        _polylineManager = PolylineManager(),
+        _calorieCalculator = CalorieCalculator(),
+        _elevationTracker = ElevationTracker();
 
   final GpsEngineConfig _config;
   final TimeFilter _timeFilter;
@@ -26,6 +30,8 @@ class GpsEngine {
   final SpeedCalculator _speedCalculator;
   final DistanceCalculator _distanceCalculator;
   final PolylineManager _polylineManager;
+  final CalorieCalculator _calorieCalculator;
+  final ElevationTracker _elevationTracker;
 
   GpsTrackingState _state = GpsTrackingState.waitingForGpsLock;
   bool _sessionActive = false;
@@ -54,6 +60,16 @@ class GpsEngine {
   bool get hasGpsLock => _hasGpsLock;
 
   FilteredLocation? get lastLocation => _lastLocation;
+
+  void configureSession({
+    required String activityType,
+    double weightKg = 70,
+  }) {
+    _calorieCalculator.configure(
+      activityType: activityType,
+      weightKg: weightKg,
+    );
+  }
 
   Duration get elapsedTime {
     if (!_sessionActive) {
@@ -256,6 +272,8 @@ class GpsEngine {
     _speedCalculator.reset();
     _distanceCalculator.reset();
     _polylineManager.reset();
+    _calorieCalculator.reset();
+    _elevationTracker.reset();
   }
 
   GpsProcessResult _processWaitingForGpsLock(
@@ -388,6 +406,13 @@ class GpsEngine {
 
     _polylineManager.tryAdd(candidate, _config);
     _consecutiveStationarySamples = 0;
+    _elevationTracker.process(raw.altitude);
+    _calorieCalculator.applyMovingSegment(
+      deltaSeconds: deltaSeconds,
+      currentSpeedMps: smoothedSpeed,
+      isMoving: true,
+      gpsMovementAccepted: true,
+    );
 
     return GpsProcessResult.accepted(
       _buildSnapshot(
@@ -547,6 +572,13 @@ class GpsEngine {
         isMoving: true,
         config: _config,
       );
+
+      _calorieCalculator.applyMovingSegment(
+        deltaSeconds: _pendingConfirmedTime.inSeconds.toDouble(),
+        currentSpeedMps: averageSpeed,
+        isMoving: true,
+        gpsMovementAccepted: true,
+      );
     }
 
     _polylineManager.tryAdd(candidate, _config);
@@ -603,6 +635,9 @@ class GpsEngine {
       timestamp: timestamp,
       polyline: _polylineManager.points,
       maxSpeed: _speedCalculator.maxSpeedMps,
+      activeCalories: _calorieCalculator.activeCaloriesRounded,
+      currentAltitudeMeters: _elevationTracker.currentAltitudeMeters,
+      elevationGainMeters: _elevationTracker.elevationGainMeters,
     );
 
     _lastLocation = location;

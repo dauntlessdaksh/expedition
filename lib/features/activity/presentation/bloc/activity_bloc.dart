@@ -46,6 +46,7 @@ class ActivityBloc extends Bloc<ActivityEvent, ActivityState> {
     on<FollowUserToggled>(_onFollowUserToggled);
     on<RecenterMapRequested>(_onRecenterMapRequested);
     on<ClearPendingCelebration>(_onClearPendingCelebration);
+    on<ClearSavedWorkoutNavigation>(_onClearSavedWorkoutNavigation);
   }
 
   static const _activityType = 'outdoor_run';
@@ -75,6 +76,7 @@ class ActivityBloc extends Bloc<ActivityEvent, ActivityState> {
     emit(state.copyWith(
       status: ActivityTrackingStatus.locating,
       workoutSaveStatus: ActivityWorkoutSaveStatus.none,
+      clearSavedWorkoutId: true,
       clearError: true,
     ));
 
@@ -183,6 +185,8 @@ class ActivityBloc extends Bloc<ActivityEvent, ActivityState> {
     _gpsEngine.reset();
     _sessionStartTime = DateTime.now();
 
+    unawaited(_configureGpsSession());
+
     if (state.currentPosition != null) {
       _gpsEngine.beginSession(
         seed: state.currentPosition!,
@@ -202,6 +206,9 @@ class ActivityBloc extends Bloc<ActivityEvent, ActivityState> {
       currentSpeedMps: 0,
       averageSpeedMps: 0,
       maxSpeedMps: 0,
+      currentAltitudeMeters: 0,
+      activeCalories: 0,
+      elevationGainMeters: 0,
       followUser: true,
       clearError: true,
     ));
@@ -290,7 +297,7 @@ class ActivityBloc extends Bloc<ActivityEvent, ActivityState> {
       ));
 
       try {
-        await _saveWorkout(sessionSnapshot);
+        final savedWorkout = await _saveWorkout(sessionSnapshot);
         final profile = await _onboardingRepository.getUserProfile();
         final syncResult = await _gamificationRepository.syncAfterWorkout();
         final celebration = syncResult.newlyUnlocked.isNotEmpty
@@ -300,6 +307,7 @@ class ActivityBloc extends Bloc<ActivityEvent, ActivityState> {
         emit(state.copyWith(
           status: ActivityTrackingStatus.stopped,
           workoutSaveStatus: ActivityWorkoutSaveStatus.saved,
+          savedWorkoutId: savedWorkout.id,
           pendingCelebration: celebration,
           userGender: profile?.gender ?? 'male',
           routePoints: const [],
@@ -308,6 +316,9 @@ class ActivityBloc extends Bloc<ActivityEvent, ActivityState> {
           currentSpeedMps: 0,
           averageSpeedMps: 0,
           maxSpeedMps: 0,
+          currentAltitudeMeters: 0,
+          activeCalories: 0,
+          elevationGainMeters: 0,
           followUser: true,
           clearError: true,
         ));
@@ -330,6 +341,9 @@ class ActivityBloc extends Bloc<ActivityEvent, ActivityState> {
       currentSpeedMps: 0,
       averageSpeedMps: 0,
       maxSpeedMps: 0,
+      currentAltitudeMeters: 0,
+      activeCalories: 0,
+      elevationGainMeters: 0,
       followUser: true,
       clearError: true,
     ));
@@ -337,7 +351,7 @@ class ActivityBloc extends Bloc<ActivityEvent, ActivityState> {
     await _startLocationPreview();
   }
 
-  Future<void> _saveWorkout(_SessionSnapshot snapshot) async {
+  Future<Workout> _saveWorkout(_SessionSnapshot snapshot) async {
     final profile = await _onboardingRepository.getUserProfile();
     final weightKg = profile?.weight ?? 70.0;
     final startTime = snapshot.startTime ?? snapshot.endTime;
@@ -360,7 +374,7 @@ class ActivityBloc extends Bloc<ActivityEvent, ActivityState> {
       createdAt: DateTime.now(),
     );
 
-    await _workoutRepository.saveWorkout(workout);
+    return _workoutRepository.saveWorkout(workout);
   }
 
   void _onLocationUpdated(
@@ -395,6 +409,9 @@ class ActivityBloc extends Bloc<ActivityEvent, ActivityState> {
       maxSpeedMps: location.maxSpeed,
       gpsAccuracyMeters: location.accuracy,
       duration: location.elapsedTime,
+      currentAltitudeMeters: location.currentAltitudeMeters ?? 0,
+      activeCalories: location.activeCalories,
+      elevationGainMeters: location.elevationGainMeters,
     ));
   }
 
@@ -407,7 +424,20 @@ class ActivityBloc extends Bloc<ActivityEvent, ActivityState> {
     emit(state.copyWith(
       duration: _gpsEngine.elapsedTime,
       averageSpeedMps: lastLocation?.averageSpeed ?? state.averageSpeedMps,
+      activeCalories: lastLocation?.activeCalories ?? state.activeCalories,
+      currentAltitudeMeters:
+          lastLocation?.currentAltitudeMeters ?? state.currentAltitudeMeters,
+      elevationGainMeters:
+          lastLocation?.elevationGainMeters ?? state.elevationGainMeters,
     ));
+  }
+
+  Future<void> _configureGpsSession() async {
+    final profile = await _onboardingRepository.getUserProfile();
+    _gpsEngine.configureSession(
+      activityType: _activityType,
+      weightKg: profile?.weight ?? 70,
+    );
   }
 
   void _onFollowUserToggled(
@@ -429,6 +459,18 @@ class ActivityBloc extends Bloc<ActivityEvent, ActivityState> {
     Emitter<ActivityState> emit,
   ) {
     emit(state.copyWith(clearPendingCelebration: true));
+  }
+
+  void _onClearSavedWorkoutNavigation(
+    ClearSavedWorkoutNavigation event,
+    Emitter<ActivityState> emit,
+  ) {
+    emit(state.copyWith(
+      clearSavedWorkoutId: true,
+      workoutSaveStatus: ActivityWorkoutSaveStatus.none,
+      status: ActivityTrackingStatus.ready,
+    ));
+    unawaited(_startLocationPreview());
   }
 }
 
