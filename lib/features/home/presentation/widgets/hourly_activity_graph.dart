@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_spacing.dart';
+import '../../../../core/theme/expedition_colors.dart';
 import '../../../../core/theme/premium_gradients.dart';
 import '../../domain/models/home_dashboard_data.dart';
 
@@ -83,6 +84,7 @@ class _HourlyActivityGraphState extends State<HourlyActivityGraph> {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.expeditionColors;
     final values = widget.hourlyActivity.stepsByHour;
     final maxValue = values.fold<double>(0, (a, b) => a > b ? a : b);
     final normalization = maxValue > 0 ? maxValue : 1.0;
@@ -128,7 +130,7 @@ class _HourlyActivityGraphState extends State<HourlyActivityGraph> {
                   ],
                 ),
                 border: Border.all(
-                  color: AppColorPalette.white.withValues(alpha: 0.04),
+                  color: colors.divider,
                 ),
               ),
               child: ClipRRect(
@@ -267,11 +269,11 @@ class _HourlyActivityGraphState extends State<HourlyActivityGraph> {
                           ),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: const [
-                              _TimeLabel('12:00'),
-                              _TimeLabel('6:00'),
-                              _TimeLabel('12:00'),
-                              _TimeLabel('6:00'),
+                            children: [
+                              _TimeLabel('12:00', color: colors.textMuted),
+                              _TimeLabel('6:00', color: colors.textMuted),
+                              _TimeLabel('12:00', color: colors.textMuted),
+                              _TimeLabel('6:00', color: colors.textMuted),
                             ],
                           ),
                         ),
@@ -315,16 +317,17 @@ class _HourlyActivityGraphState extends State<HourlyActivityGraph> {
 }
 
 class _TimeLabel extends StatelessWidget {
-  const _TimeLabel(this.label);
+  const _TimeLabel(this.label, {required this.color});
 
   final String label;
+  final Color color;
 
   @override
   Widget build(BuildContext context) {
     return Text(
       label,
       style: TextStyle(
-        color: AppColorPalette.textSecondary.withValues(alpha: 0.7),
+        color: color.withValues(alpha: 0.85),
         fontSize: 10,
         fontWeight: FontWeight.w500,
         letterSpacing: 0.2,

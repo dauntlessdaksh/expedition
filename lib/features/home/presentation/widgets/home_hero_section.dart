@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_spacing.dart';
+import '../../../../core/navigation/avatar_layout.dart';
+import '../../../../core/theme/expedition_colors.dart';
 import '../../domain/models/home_dashboard_data.dart';
 import 'avatar_card.dart';
 import 'daily_goal_rings.dart';
@@ -9,17 +11,11 @@ import 'daily_goal_rings.dart';
 /// Two-column hero matching the reference layout: avatar left, rings + stats right.
 class HomeHeroSection extends StatelessWidget {
   const HomeHeroSection({
-    required this.gender,
     required this.stats,
-    required this.avatarVisible,
-    required this.avatarSuspended,
     super.key,
   });
 
-  final String gender;
   final DailyStats stats;
-  final bool avatarVisible;
-  final bool avatarSuspended;
 
   @override
   Widget build(BuildContext context) {
@@ -31,12 +27,9 @@ class HomeHeroSection extends StatelessWidget {
           Expanded(
             flex: 58,
             child: AvatarCard(
-              gender: gender,
-              visible: avatarVisible,
-              suspended: avatarSuspended,
+              key: avatarLayoutKey,
               compact: true,
               fillHeight: true,
-              scale: 1.15,
             ),
           ),
           const SizedBox(width: AppSpacing.xs),
@@ -118,6 +111,8 @@ class _MetricRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.expeditionColors;
+
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
@@ -132,19 +127,19 @@ class _MetricRow extends StatelessWidget {
           children: [
             Text(
               value,
-              style: const TextStyle(
-                color: AppColorPalette.textPrimary,
+              style: TextStyle(
+                color: colors.textPrimary,
                 fontSize: 26,
                 fontWeight: FontWeight.w700,
                 letterSpacing: -0.6,
                 height: 1.05,
-                fontFeatures: [FontFeature.tabularFigures()],
+                fontFeatures: const [FontFeature.tabularFigures()],
               ),
             ),
             Text(
               label,
               style: TextStyle(
-                color: AppColorPalette.textSecondary.withValues(alpha: 0.9),
+                color: colors.textSecondary.withValues(alpha: 0.9),
                 fontSize: 14,
                 fontWeight: FontWeight.w500,
               ),

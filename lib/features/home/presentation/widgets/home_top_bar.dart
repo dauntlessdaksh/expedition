@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_spacing.dart';
+import '../../../../core/theme/expedition_colors.dart';
 
 /// Top bar with greeting and settings for the home screen.
 class HomeTopBar extends StatelessWidget {
@@ -16,6 +16,8 @@ class HomeTopBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.expeditionColors;
+
     return Padding(
       padding: const EdgeInsets.fromLTRB(
         AppSpacing.xl,
@@ -33,7 +35,7 @@ class HomeTopBar extends StatelessWidget {
                 Text(
                   'Hey,',
                   style: TextStyle(
-                    color: AppColorPalette.textSecondary.withValues(alpha: 0.9),
+                    color: colors.textSecondary,
                     fontSize: 15,
                     fontWeight: FontWeight.w500,
                     letterSpacing: -0.1,
@@ -45,8 +47,8 @@ class HomeTopBar extends StatelessWidget {
                   userName,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    color: AppColorPalette.textPrimary,
+                  style: TextStyle(
+                    color: colors.textPrimary,
                     fontSize: 26,
                     fontWeight: FontWeight.w700,
                     letterSpacing: -0.6,
@@ -80,6 +82,8 @@ class _TopIconButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.expeditionColors;
+
     return Semantics(
       label: semanticLabel,
       button: true,
@@ -93,7 +97,7 @@ class _TopIconButton extends StatelessWidget {
             height: 44,
             child: Icon(
               icon,
-              color: AppColorPalette.textPrimary,
+              color: colors.textPrimary,
               size: 24,
             ),
           ),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_spacing.dart';
+import '../../../../core/theme/expedition_colors.dart';
 import '../../../../core/theme/premium_gradients.dart';
 import '../../domain/models/home_dashboard_data.dart';
 
@@ -16,6 +17,7 @@ class DailyStepsProgressBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.expeditionColors;
     final progress = stats.stepsProgress.clamp(0.0, 1.0);
     final percent = (progress * 100).round();
 
@@ -25,11 +27,11 @@ class DailyStepsProgressBar extends StatelessWidget {
         Row(
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
-            const Expanded(
+            Expanded(
               child: Text(
                 'Daily Steps',
                 style: TextStyle(
-                  color: AppColorPalette.textSecondary,
+                  color: colors.textSecondary,
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
                   letterSpacing: 0.8,
@@ -66,11 +68,11 @@ class DailyStepsProgressBar extends StatelessWidget {
               builder: (context, steps, _) {
                 return Text(
                   _formatNumber(steps),
-                  style: const TextStyle(
-                    color: AppColorPalette.textPrimary,
+                  style: TextStyle(
+                    color: colors.textPrimary,
                     fontSize: 13,
                     fontWeight: FontWeight.w700,
-                    fontFeatures: [FontFeature.tabularFigures()],
+                    fontFeatures: const [FontFeature.tabularFigures()],
                   ),
                 );
               },
@@ -78,7 +80,7 @@ class DailyStepsProgressBar extends StatelessWidget {
             Text(
               ' / ${_formatNumber(stats.stepsGoal)} steps',
               style: TextStyle(
-                color: AppColorPalette.textSecondary.withValues(alpha: 0.85),
+                color: colors.textSecondary.withValues(alpha: 0.85),
                 fontSize: 13,
                 fontWeight: FontWeight.w500,
               ),
@@ -102,9 +104,9 @@ class DailyStepsProgressBar extends StatelessWidget {
                       height: 10,
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(999),
-                        color: AppColorPalette.grey900.withValues(alpha: 0.9),
+                        color: colors.progressTrack,
                         border: Border.all(
-                          color: AppColorPalette.white.withValues(alpha: 0.06),
+                          color: colors.divider,
                         ),
                       ),
                     ),
@@ -147,8 +149,7 @@ class DailyStepsProgressBar extends StatelessWidget {
                               ),
                             ],
                             border: Border.all(
-                              color:
-                                  AppColorPalette.white.withValues(alpha: 0.35),
+                              color: colors.textPrimary.withValues(alpha: 0.2),
                               width: 1.5,
                             ),
                           ),

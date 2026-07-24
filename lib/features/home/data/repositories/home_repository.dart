@@ -19,7 +19,6 @@ class HomeRepository {
   final OnboardingRepository _onboardingRepository;
   final ProfileRepository _profileRepository;
 
-  static const _defaultCaloriesGoal = 600;
   static const _defaultActiveMinutesGoal = 60;
   static const _stepsPerKm = 1300;
 
@@ -34,7 +33,8 @@ class HomeRepository {
     final todayCalories = _sumCalories(todaysWorkouts);
     final todayActiveMinutes = _sumActiveMinutes(todaysWorkouts);
     final todaySteps = _estimateSteps(todayDistanceMeters);
-    final dailyDistanceGoalKm = preferences.weeklyDistanceGoalKm / 7;
+    final dailyDistanceGoalKm = preferences.dailyDistanceGoalKm;
+    final dailyCalorieGoal = preferences.dailyCalorieGoal;
 
     return HomeDashboardData(
       userName: profile?.name ?? 'Athlete',
@@ -43,7 +43,7 @@ class HomeRepository {
         steps: todaySteps,
         stepsGoal: preferences.dailyStepGoal,
         calories: todayCalories,
-        caloriesGoal: _defaultCaloriesGoal,
+        caloriesGoal: dailyCalorieGoal,
         distanceKm: todayDistanceMeters / 1000,
         distanceGoalKm: dailyDistanceGoalKm,
         activeMinutes: todayActiveMinutes,
