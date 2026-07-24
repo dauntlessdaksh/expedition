@@ -51,5 +51,18 @@
 	<string>Expedition uses motion data to automatically detect your activities.</string>
 	<key>io.flutter.embedded_views_preview</key>
 	<true/>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLName</key>
+			<string>com.expedition.expedition</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>expedition</string>
+			</array>
+		</dict>
+	</array>
 </dict>
 </plist>

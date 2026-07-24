@@ -42,6 +42,8 @@ android {
         versionCode = flutter.versionCode
         versionName = flutter.versionName
         manifestPlaceholders["GOOGLE_MAPS_API_KEY"] = googleMapsApiKey
+        manifestPlaceholders["redirectSchemeName"] = "expedition"
+        manifestPlaceholders["redirectHostName"] = "callback"
     }
 
     buildTypes {

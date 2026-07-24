@@ -49,4 +49,49 @@ abstract final class GradientPolyline {
     return Color.lerp(colors[index], colors[index + 1], localT) ??
         AppColorPalette.routeRed;
   }
+
+  /// Builds a pace-colored route where fast segments are green and slow are red.
+  static Set<Polyline> buildByPace(
+    List<LatLng> points,
+    List<double> paceSecondsPerKm, {
+    int width = 5,
+    String idPrefix = 'route',
+  }) {
+    if (points.length < 2) {
+      return const {};
+    }
+
+    final validPaces = paceSecondsPerKm.where((pace) => pace > 0).toList();
+    if (validPaces.isEmpty) {
+      return build(points, width: width, idPrefix: idPrefix);
+    }
+
+    final minPace = validPaces.reduce((a, b) => a < b ? a : b);
+    final maxPace = validPaces.reduce((a, b) => a > b ? a : b);
+    final range = (maxPace - minPace).clamp(1, double.infinity);
+
+    final polylines = <Polyline>{};
+    final segmentCount = points.length - 1;
+
+    for (var i = 0; i < segmentCount; i++) {
+      final pace = i < paceSecondsPerKm.length ? paceSecondsPerKm[i] : 0;
+      final normalized = pace <= 0
+          ? 0.5
+          : ((pace - minPace) / range).clamp(0.0, 1.0);
+
+      polylines.add(
+        Polyline(
+          polylineId: PolylineId('${idPrefix}_$i'),
+          points: [points[i], points[i + 1]],
+          color: _colorAt(normalized),
+          width: width,
+          jointType: JointType.round,
+          startCap: Cap.roundCap,
+          endCap: Cap.roundCap,
+        ),
+      );
+    }
+
+    return polylines;
+  }
 }

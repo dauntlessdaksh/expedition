@@ -5,7 +5,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import '../../../../core/widgets/skeleton/skeleton_loaders.dart';
 import '../bloc/activity_bloc.dart';
 import 'activity_tab_scope.dart';
-import 'map_dark_style.dart';
+import 'map_styles.dart';
 
 /// Full-screen Google Map with live route rendering and user follow mode.
 class ActivityMap extends StatefulWidget {
@@ -18,8 +18,19 @@ class ActivityMap extends StatefulWidget {
 class _ActivityMapState extends State<ActivityMap> {
   GoogleMapController? _controller;
   LatLng? _lastFollowedPosition;
+  Brightness? _mapBrightness;
 
   static const _initialPosition = LatLng(28.6139, 77.2090);
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final brightness = Theme.of(context).brightness;
+    if (_mapBrightness != brightness) {
+      _mapBrightness = brightness;
+      _controller?.setMapStyle(MapStyles.forContext(context));
+    }
+  }
 
   @override
   void dispose() {
@@ -42,6 +53,8 @@ class _ActivityMapState extends State<ActivityMap> {
       builder: (context, state) {
         final isTabActive = ActivityTabActiveScope.of(context);
         final showMap = isTabActive || state.isSessionActive;
+        final mapStyle = MapStyles.forContext(context);
+        final placeholderColor = Theme.of(context).colorScheme.surface;
 
         return RepaintBoundary(
           child: Stack(
@@ -49,15 +62,20 @@ class _ActivityMapState extends State<ActivityMap> {
             children: [
               if (showMap)
                 GoogleMap(
+                  key: ValueKey(mapStyle),
                   initialCameraPosition: const CameraPosition(
                     target: _initialPosition,
                     zoom: 15,
                   ),
-                  style: MapDarkStyle.json,
+                  style: mapStyle,
                   myLocationEnabled: state.permissionStatus ==
                       ActivityPermissionStatus.granted,
                   myLocationButtonEnabled: false,
                   zoomControlsEnabled: false,
+                  zoomGesturesEnabled: true,
+                  scrollGesturesEnabled: true,
+                  rotateGesturesEnabled: false,
+                  tiltGesturesEnabled: false,
                   compassEnabled: false,
                   mapToolbarEnabled: false,
                   polylines: state.polylines,
@@ -79,9 +97,7 @@ class _ActivityMapState extends State<ActivityMap> {
                   },
                 )
               else
-                const ColoredBox(
-                  color: Color(0xFF0B0C10),
-                ),
+                ColoredBox(color: placeholderColor),
               if (state.status == ActivityTrackingStatus.locating && showMap)
                 SkeletonLoaders.activityMapOverlay(),
             ],
