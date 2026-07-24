@@ -12,7 +12,7 @@ void main() {
     });
 
     test('enters stationary state after consecutive low movement samples', () {
-      for (var i = 0; i < 3; i++) {
+      for (var i = 0; i < 4; i++) {
         detector.update(
           segmentMeters: 2,
           config: GpsTestFixtures.config,
@@ -45,7 +45,7 @@ void main() {
 
       expect(detector.isMoving, isTrue);
 
-      for (var i = 0; i < 3; i++) {
+      for (var i = 0; i < 4; i++) {
         detector.update(
           segmentMeters: 2,
           config: GpsTestFixtures.config,

@@ -3,23 +3,26 @@ import 'package:flutter/material.dart';
 import '../../../../core/constants/app_border_radius.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_spacing.dart';
+import '../../../../core/theme/app_typography.dart';
 import '../../../../core/theme/premium_gradients.dart';
 import '../../domain/models/home_dashboard_data.dart';
 
 /// A single stat tile used inside [StatsGrid].
 class StatTile extends StatelessWidget {
   const StatTile({
-    required this.emoji,
+    required this.icon,
     required this.label,
     required this.value,
     required this.progress,
+    this.highlight = false,
     super.key,
   });
 
-  final String emoji;
+  final IconData icon;
   final String label;
   final String value;
   final double progress;
+  final bool highlight;
 
   @override
   Widget build(BuildContext context) {
@@ -32,31 +35,43 @@ class StatTile extends StatelessWidget {
           padding: const EdgeInsets.all(AppSpacing.lg),
           decoration: BoxDecoration(
             gradient: PremiumGradients.cardShimmer,
-            borderRadius: AppBorderRadius.radiusLg,
+            borderRadius: AppBorderRadius.radiusXxl,
             border: Border.all(
-              color: AppColorPalette.darkCardElevated.withValues(alpha: 0.6),
+              color: highlight
+                  ? AppColorPalette.primary.withValues(alpha: 0.35)
+                  : AppColorPalette.divider,
             ),
+            boxShadow: [
+              BoxShadow(
+                color: AppColorPalette.black.withValues(alpha: 0.25),
+                blurRadius: 16,
+                offset: const Offset(0, 6),
+              ),
+            ],
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(emoji, style: const TextStyle(fontSize: 22)),
+              Icon(
+                icon,
+                color: highlight
+                    ? AppColorPalette.primary
+                    : AppColorPalette.textSecondary,
+                size: 22,
+              ),
               const Spacer(),
               Text(
-                label,
-                style: const TextStyle(
-                  color: AppColorPalette.grey400,
-                  fontSize: 12,
-                  fontWeight: FontWeight.w500,
-                ),
+                label.toUpperCase(),
+                style: AppTypography.statLabel,
               ),
               const SizedBox(height: AppSpacing.xs),
               Text(
                 value,
-                style: const TextStyle(
-                  color: AppColorPalette.white,
-                  fontSize: 18,
-                  fontWeight: FontWeight.w700,
+                style: AppTypography.statMedium.copyWith(
+                  fontSize: 22,
+                  color: highlight
+                      ? AppColorPalette.primary
+                      : AppColorPalette.textPrimary,
                 ),
               ),
               const SizedBox(height: AppSpacing.sm),
@@ -65,7 +80,7 @@ class StatTile extends StatelessWidget {
                 child: LinearProgressIndicator(
                   value: animatedProgress,
                   minHeight: 3,
-                  backgroundColor: AppColorPalette.darkCardElevated,
+                  backgroundColor: AppColorPalette.surface,
                   color: AppColorPalette.primary,
                 ),
               ),
@@ -95,29 +110,30 @@ class StatsGrid extends StatelessWidget {
       physics: const NeverScrollableScrollPhysics(),
       mainAxisSpacing: AppSpacing.md,
       crossAxisSpacing: AppSpacing.md,
-      childAspectRatio: 1.15,
+      childAspectRatio: 1.1,
       children: [
         StatTile(
-          emoji: '🔥',
+          icon: Icons.local_fire_department_rounded,
           label: 'Calories',
           value: '${stats.calories} kcal',
           progress: stats.caloriesProgress,
         ),
         StatTile(
-          emoji: '👣',
+          icon: Icons.directions_walk_rounded,
           label: 'Steps',
           value: _formatNumber(stats.steps),
           progress: stats.stepsProgress,
+          highlight: true,
         ),
         StatTile(
-          emoji: '📏',
+          icon: Icons.straighten_rounded,
           label: 'Distance',
           value: '${stats.distanceKm.toStringAsFixed(1)} km',
           progress: stats.distanceProgress,
         ),
         StatTile(
-          emoji: '⏱',
-          label: 'Active Minutes',
+          icon: Icons.timer_rounded,
+          label: 'Active Min',
           value: '${stats.activeMinutes} min',
           progress: stats.activeMinutesProgress,
         ),

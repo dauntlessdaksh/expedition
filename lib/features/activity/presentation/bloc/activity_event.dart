@@ -11,6 +11,10 @@ final class ActivityStarted extends ActivityEvent {
   const ActivityStarted();
 }
 
+final class ActivityPreviewStopped extends ActivityEvent {
+  const ActivityPreviewStopped();
+}
+
 final class StartTracking extends ActivityEvent {
   const StartTracking();
 }

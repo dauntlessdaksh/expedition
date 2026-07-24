@@ -53,7 +53,7 @@ void main() {
       calculator.applyAcceptedSegment(
         segmentMeters: 10,
         deltaSeconds: 20,
-        smoothedSpeedMps: 0.5,
+        smoothedSpeedMps: 0.2,
         isMoving: true,
         config: GpsTestFixtures.config,
       );

@@ -7,6 +7,6 @@ class AccuracyFilter {
   const AccuracyFilter();
 
   bool passes(Position position, GpsEngineConfig config) {
-    return position.accuracy <= config.minimumAccuracy;
+    return position.accuracy <= config.gpsLockAccuracyMeters;
   }
 }

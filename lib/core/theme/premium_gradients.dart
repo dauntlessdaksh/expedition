@@ -2,14 +2,14 @@ import 'package:flutter/material.dart';
 
 import '../constants/app_colors.dart';
 
-/// Premium gradient presets used across onboarding screens.
+/// Premium gradient presets for Expedition's dark athletic UI.
 abstract final class PremiumGradients {
   static const LinearGradient darkBackground = LinearGradient(
-    begin: Alignment.topLeft,
-    end: Alignment.bottomRight,
+    begin: Alignment.topCenter,
+    end: Alignment.bottomCenter,
     colors: [
       AppColorPalette.darkBackground,
-      AppColorPalette.gradientMid,
+      AppColorPalette.darkSurface,
       AppColorPalette.darkBackground,
     ],
   );
@@ -18,9 +18,9 @@ abstract final class PremiumGradients {
     begin: Alignment.topCenter,
     end: Alignment.bottomCenter,
     colors: [
-      Color(0x000D9488),
-      Color(0x400D9488),
-      Color(0x000D9488),
+      Color(0x00E53935),
+      Color(0x26E53935),
+      Color(0x00E53935),
     ],
   );
 
@@ -28,8 +28,8 @@ abstract final class PremiumGradients {
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
     colors: [
-      AppColorPalette.primary,
-      AppColorPalette.primaryLight,
+      AppColorPalette.accentGradientStart,
+      AppColorPalette.accentGradientEnd,
     ],
   );
 
@@ -42,13 +42,48 @@ abstract final class PremiumGradients {
     ],
   );
 
+  static const LinearGradient cardAccentEdge = LinearGradient(
+    begin: Alignment.centerLeft,
+    end: Alignment.centerRight,
+    colors: [
+      Color(0x33E53935),
+      AppColorPalette.darkCard,
+    ],
+  );
+
+  static const LinearGradient progressRing = LinearGradient(
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+    colors: [
+      AppColorPalette.accentGradientStart,
+      AppColorPalette.primary,
+      AppColorPalette.accentGradientEnd,
+    ],
+  );
+
+  static const LinearGradient chartBar = LinearGradient(
+    begin: Alignment.bottomCenter,
+    end: Alignment.topCenter,
+    colors: [
+      AppColorPalette.primaryDark,
+      AppColorPalette.primaryLight,
+    ],
+  );
+
   static LinearGradient avatarRing(Color accent) => LinearGradient(
         begin: Alignment.topLeft,
         end: Alignment.bottomRight,
         colors: [
           accent,
           AppColorPalette.primaryLight,
-          AppColorPalette.accent,
+          AppColorPalette.accentGradientEnd,
         ],
       );
+
+  static const List<Color> routeGradient = [
+    AppColorPalette.routeGreen,
+    AppColorPalette.routeYellow,
+    AppColorPalette.routeOrange,
+    AppColorPalette.routeRed,
+  ];
 }

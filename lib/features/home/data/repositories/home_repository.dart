@@ -54,7 +54,68 @@ class HomeRepository {
         allWorkouts.map((workout) => workout.startTime),
       ),
       weeklyActivity: _buildWeeklyActivity(weeklyWorkouts),
+      hourlyActivity: _buildHourlyActivity(todaysWorkouts),
+      recentWorkout: allWorkouts.isEmpty ? null : allWorkouts.first,
     );
+  }
+
+  HourlyActivityData _buildHourlyActivity(List<Workout> todaysWorkouts) {
+    final steps = List<double>.filled(24, 0);
+    final distanceKm = List<double>.filled(24, 0);
+    final calories = List<double>.filled(24, 0);
+    final activeMinutes = List<double>.filled(24, 0);
+
+    for (final workout in todaysWorkouts) {
+      _distributeWorkout(
+        workout: workout,
+        onSegment: (hour, fraction) {
+          steps[hour] += _estimateSteps(workout.distanceInMeters) * fraction;
+          distanceKm[hour] += (workout.distanceInMeters / 1000) * fraction;
+          calories[hour] += workout.calories * fraction;
+          activeMinutes[hour] +=
+              (workout.durationInSeconds / 60) * fraction;
+        },
+      );
+    }
+
+    return HourlyActivityData(
+      stepsByHour: steps,
+      distanceKmByHour: distanceKm,
+      caloriesByHour: calories,
+      activeMinutesByHour: activeMinutes,
+    );
+  }
+
+  void _distributeWorkout({
+    required Workout workout,
+    required void Function(int hour, double fraction) onSegment,
+  }) {
+    final totalSeconds = workout.durationInSeconds;
+    if (totalSeconds <= 0) {
+      onSegment(workout.startTime.hour, 1);
+      return;
+    }
+
+    var cursor = workout.startTime;
+    final end = workout.endTime;
+
+    while (cursor.isBefore(end)) {
+      final hour = cursor.hour;
+      final hourEnd = DateTime(
+        cursor.year,
+        cursor.month,
+        cursor.day,
+        cursor.hour,
+      ).add(const Duration(hours: 1));
+      final segmentEnd = hourEnd.isBefore(end) ? hourEnd : end;
+      final segmentSeconds = segmentEnd.difference(cursor).inSeconds;
+
+      if (segmentSeconds > 0) {
+        onSegment(hour, segmentSeconds / totalSeconds);
+      }
+
+      cursor = segmentEnd;
+    }
   }
 
   List<WeeklyActivityDay> _buildWeeklyActivity(List<Workout> weeklyWorkouts) {

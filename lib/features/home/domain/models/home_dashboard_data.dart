@@ -1,5 +1,46 @@
 import 'package:equatable/equatable.dart';
 
+import '../../../history/domain/models/workout.dart';
+
+/// Hourly activity buckets (24 values, index = hour of day).
+class HourlyActivityData extends Equatable {
+  const HourlyActivityData({
+    required this.stepsByHour,
+    required this.distanceKmByHour,
+    required this.caloriesByHour,
+    required this.activeMinutesByHour,
+  });
+
+  final List<double> stepsByHour;
+  final List<double> distanceKmByHour;
+  final List<double> caloriesByHour;
+  final List<double> activeMinutesByHour;
+
+  List<double> valuesFor(HourlyMetric metric) {
+    return switch (metric) {
+      HourlyMetric.steps => stepsByHour,
+      HourlyMetric.distance => distanceKmByHour,
+      HourlyMetric.calories => caloriesByHour,
+      HourlyMetric.activeMinutes => activeMinutesByHour,
+    };
+  }
+
+  @override
+  List<Object?> get props => [
+        stepsByHour,
+        distanceKmByHour,
+        caloriesByHour,
+        activeMinutesByHour,
+      ];
+}
+
+enum HourlyMetric {
+  steps,
+  distance,
+  calories,
+  activeMinutes,
+}
+
 /// A single day's activity value for the weekly chart.
 class WeeklyActivityDay extends Equatable {
   const WeeklyActivityDay({
@@ -70,6 +111,8 @@ class HomeDashboardData extends Equatable {
     required this.stats,
     required this.streakDays,
     required this.weeklyActivity,
+    required this.hourlyActivity,
+    this.recentWorkout,
   });
 
   final String userName;
@@ -77,6 +120,8 @@ class HomeDashboardData extends Equatable {
   final DailyStats stats;
   final int streakDays;
   final List<WeeklyActivityDay> weeklyActivity;
+  final HourlyActivityData hourlyActivity;
+  final Workout? recentWorkout;
 
   @override
   List<Object?> get props => [
@@ -85,5 +130,7 @@ class HomeDashboardData extends Equatable {
         stats,
         streakDays,
         weeklyActivity,
+        hourlyActivity,
+        recentWorkout,
       ];
 }

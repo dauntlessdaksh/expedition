@@ -34,6 +34,12 @@ void main() {
             workoutCount: 1,
           ),
           weeklyActivity: const [],
+          hourlyActivity: HourlyActivityData(
+            stepsByHour: List.filled(24, 0),
+            distanceKmByHour: List.filled(24, 0),
+            caloriesByHour: List.filled(24, 0),
+            activeMinutesByHour: List.filled(24, 0),
+          ),
         ),
       );
     },

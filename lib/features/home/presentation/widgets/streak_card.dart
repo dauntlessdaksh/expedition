@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/constants/app_border_radius.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_spacing.dart';
+import '../../../../core/theme/premium_gradients.dart';
 
 /// Horizontal card highlighting the user's current activity streak.
 class StreakCard extends StatelessWidget {
@@ -19,21 +20,14 @@ class StreakCard extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.all(AppSpacing.xl),
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.centerLeft,
-          end: Alignment.centerRight,
-          colors: [
-            AppColorPalette.primary.withValues(alpha: 0.18),
-            AppColorPalette.darkCard,
-          ],
-        ),
-        borderRadius: AppBorderRadius.radiusXl,
+        gradient: PremiumGradients.cardAccentEdge,
+        borderRadius: AppBorderRadius.radiusXxl,
         border: Border.all(
-          color: AppColorPalette.primary.withValues(alpha: 0.25),
+          color: AppColorPalette.primary.withValues(alpha: 0.2),
         ),
         boxShadow: [
           BoxShadow(
-            color: AppColorPalette.primary.withValues(alpha: 0.1),
+            color: AppColorPalette.primary.withValues(alpha: 0.12),
             blurRadius: 24,
             offset: const Offset(0, 8),
           ),
@@ -46,10 +40,12 @@ class StreakCard extends StatelessWidget {
             height: 52,
             decoration: BoxDecoration(
               color: AppColorPalette.primary.withValues(alpha: 0.15),
-              borderRadius: AppBorderRadius.radiusMd,
+              borderRadius: AppBorderRadius.radiusXl,
             ),
-            child: const Center(
-              child: Text('🔥', style: TextStyle(fontSize: 26)),
+            child: const Icon(
+              Icons.local_fire_department_rounded,
+              color: AppColorPalette.primary,
+              size: 28,
             ),
           ),
           const SizedBox(width: AppSpacing.lg),
@@ -60,16 +56,17 @@ class StreakCard extends StatelessWidget {
                 Text(
                   '$streakDays Day Streak',
                   style: const TextStyle(
-                    color: AppColorPalette.white,
-                    fontSize: 18,
+                    color: AppColorPalette.textPrimary,
+                    fontSize: 20,
                     fontWeight: FontWeight.w700,
+                    letterSpacing: -0.3,
                   ),
                 ),
                 const SizedBox(height: AppSpacing.xs),
                 Text(
                   "You've been active for $streakDays consecutive days.",
                   style: const TextStyle(
-                    color: AppColorPalette.grey400,
+                    color: AppColorPalette.textSecondary,
                     fontSize: 13,
                     height: 1.4,
                   ),

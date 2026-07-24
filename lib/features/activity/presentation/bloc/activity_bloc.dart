@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:equatable/equatable.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -9,6 +8,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import '../../../../core/errors/failure_mapper.dart';
 import '../../../../core/gps/gps_engine.dart';
 import '../../../../core/gps/gps_engine_config.dart';
+import '../../../../core/utils/gradient_polyline.dart';
 import '../../../../core/services/permission_service.dart';
 import '../../../gamification/data/repositories/gamification_repository.dart';
 import '../../../gamification/domain/models/gamification_models.dart';
@@ -36,6 +36,7 @@ class ActivityBloc extends Bloc<ActivityEvent, ActivityState> {
         _gpsEngine = gpsEngine ?? GpsEngine(config: GpsEngineConfig.running()),
         super(const ActivityState()) {
     on<ActivityStarted>(_onStarted);
+    on<ActivityPreviewStopped>(_onPreviewStopped);
     on<StartTracking>(_onStartTracking);
     on<PauseTracking>(_onPauseTracking);
     on<ResumeTracking>(_onResumeTracking);
@@ -156,6 +157,18 @@ class ActivityBloc extends Bloc<ActivityEvent, ActivityState> {
       (position) => add(LocationUpdated(position)),
       onError: (_) {},
     );
+  }
+
+  Future<void> _onPreviewStopped(
+    ActivityPreviewStopped event,
+    Emitter<ActivityState> emit,
+  ) async {
+    if (state.isSessionActive) {
+      return;
+    }
+
+    await _positionSubscription?.cancel();
+    _durationTimer?.cancel();
   }
 
   Future<void> _onStartTracking(
@@ -358,6 +371,7 @@ class ActivityBloc extends Bloc<ActivityEvent, ActivityState> {
     final isTracking = state.status == ActivityTrackingStatus.tracking;
 
     if (!isTracking) {
+      _gpsEngine.processPreview(raw);
       emit(state.copyWith(
         currentPosition: LatLng(raw.latitude, raw.longitude),
         gpsAccuracyMeters: raw.accuracy,

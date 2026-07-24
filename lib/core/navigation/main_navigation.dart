@@ -6,7 +6,7 @@ import 'main_tab.dart';
 
 /// Navigation helpers for the main bottom navigation shell.
 abstract final class MainNavigation {
-  static const double bottomNavReservedHeight = 96;
+  static const double bottomNavReservedHeight = 104;
 
   static bool shouldShowBottomNav(String location) {
     final detailPattern = RegExp(r'^/history/\d+');

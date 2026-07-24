@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/constants/app_border_radius.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_spacing.dart';
+import '../../../../core/theme/app_typography.dart';
 import '../bloc/activity_bloc.dart';
 import '../utils/activity_formatters.dart';
 
@@ -28,21 +29,19 @@ class WorkoutPanel extends StatelessWidget {
           ignoring: !state.showWorkoutPanel,
           child: DecoratedBox(
             decoration: BoxDecoration(
-              color: AppColorPalette.darkCard.withValues(alpha: 0.94),
-              borderRadius: AppBorderRadius.radiusXl,
-              border: Border.all(
-                color: AppColorPalette.grey700.withValues(alpha: 0.55),
-              ),
+              color: AppColorPalette.glassOverlay,
+              borderRadius: AppBorderRadius.radiusXxl,
+              border: Border.all(color: AppColorPalette.divider),
               boxShadow: [
                 BoxShadow(
-                  color: AppColorPalette.black.withValues(alpha: 0.35),
-                  blurRadius: 28,
+                  color: AppColorPalette.black.withValues(alpha: 0.45),
+                  blurRadius: 32,
                   offset: const Offset(0, 12),
                 ),
               ],
             ),
             child: Padding(
-              padding: const EdgeInsets.all(AppSpacing.lg),
+              padding: const EdgeInsets.all(AppSpacing.xl),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -51,7 +50,7 @@ class WorkoutPanel extends StatelessWidget {
                     value: ActivityFormatters.duration(state.duration),
                     emphasized: true,
                   ),
-                  const SizedBox(height: AppSpacing.md),
+                  const SizedBox(height: AppSpacing.lg),
                   Row(
                     children: [
                       Expanded(
@@ -60,6 +59,7 @@ class WorkoutPanel extends StatelessWidget {
                           value: ActivityFormatters.distanceKm(
                             state.distanceMeters,
                           ),
+                          highlight: true,
                         ),
                       ),
                       const SizedBox(width: AppSpacing.md),
@@ -122,23 +122,14 @@ class _MetricRow extends StatelessWidget {
       children: [
         Text(
           label.toUpperCase(),
-          style: TextStyle(
-            color: AppColorPalette.grey400,
-            fontSize: 11,
-            fontWeight: FontWeight.w600,
-            letterSpacing: 1.1,
-          ),
+          style: AppTypography.statLabel,
         ),
         const SizedBox(height: AppSpacing.xs),
         Text(
           value,
-          style: TextStyle(
-            color: AppColorPalette.white,
-            fontSize: emphasized ? 42 : 24,
-            fontWeight: FontWeight.w700,
-            letterSpacing: -0.5,
-            fontFeatures: const [FontFeature.tabularFigures()],
-          ),
+          style: emphasized
+              ? AppTypography.statLarge.copyWith(fontSize: 48)
+              : AppTypography.statMedium,
         ),
       ],
     );
@@ -149,10 +140,12 @@ class _MetricTile extends StatelessWidget {
   const _MetricTile({
     required this.label,
     required this.value,
+    this.highlight = false,
   });
 
   final String label;
   final String value;
+  final bool highlight;
 
   @override
   Widget build(BuildContext context) {
@@ -162,28 +155,29 @@ class _MetricTile extends StatelessWidget {
         vertical: AppSpacing.md,
       ),
       decoration: BoxDecoration(
-        color: AppColorPalette.darkSurface.withValues(alpha: 0.85),
-        borderRadius: AppBorderRadius.radiusMd,
+        color: AppColorPalette.surface,
+        borderRadius: AppBorderRadius.radiusXl,
+        border: Border.all(
+          color: highlight
+              ? AppColorPalette.primary.withValues(alpha: 0.3)
+              : AppColorPalette.divider,
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            label,
-            style: const TextStyle(
-              color: AppColorPalette.grey400,
-              fontSize: 12,
-              fontWeight: FontWeight.w500,
-            ),
+            label.toUpperCase(),
+            style: AppTypography.statLabel.copyWith(fontSize: 10),
           ),
           const SizedBox(height: AppSpacing.xs),
           Text(
             value,
-            style: const TextStyle(
-              color: AppColorPalette.white,
-              fontSize: 18,
-              fontWeight: FontWeight.w700,
-              fontFeatures: [FontFeature.tabularFigures()],
+            style: AppTypography.statMedium.copyWith(
+              fontSize: 20,
+              color: highlight
+                  ? AppColorPalette.primary
+                  : AppColorPalette.textPrimary,
             ),
           ),
         ],

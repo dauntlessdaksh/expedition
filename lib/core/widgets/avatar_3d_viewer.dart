@@ -3,27 +3,44 @@ import 'package:model_viewer_plus/model_viewer_plus.dart';
 
 import '../constants/app_assets.dart';
 import '../constants/app_colors.dart';
+import '../services/avatar_lifecycle.dart';
 
 /// Ensures embedded GLB animations loop continuously after the model loads.
 const kAvatarAnimationLoopScript = '''
-document.addEventListener('DOMContentLoaded', () => {
-  const modelViewer = document.querySelector('model-viewer');
-  if (!modelViewer) return;
+(() => {
+  const bindLoop = () => {
+    const modelViewer = document.querySelector('model-viewer');
+    if (!modelViewer) {
+      return;
+    }
 
-  modelViewer.addEventListener('load', () => {
-    const animations = modelViewer.availableAnimations;
-    if (!animations || animations.length === 0) return;
+    const startLoop = () => {
+      const animations = modelViewer.availableAnimations || [];
+      if (animations.length === 0) {
+        return;
+      }
 
-    modelViewer.animationName = animations[0];
-    modelViewer.play({ repetitions: Infinity });
-  });
-});
+      modelViewer.animationName = animations[0];
+      modelViewer.play({ repetitions: Infinity });
+    };
+
+    if (modelViewer.loaded) {
+      startLoop();
+      return;
+    }
+
+    modelViewer.addEventListener('load', startLoop, { once: true });
+  };
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', bindLoop, { once: true });
+  } else {
+    bindLoop();
+  }
+})();
 ''';
 
 /// Reusable 3D avatar viewer for GLB models with running animation.
-///
-/// Safely remounts the underlying WebView when [assetPath] changes to avoid
-/// Android crashes from hot-swapping GLB assets in a live platform view.
 class Avatar3DViewer extends StatefulWidget {
   const Avatar3DViewer({
     required this.assetPath,
@@ -34,6 +51,7 @@ class Avatar3DViewer extends StatefulWidget {
     this.fieldOfView = '30deg',
     this.interactionEnabled = false,
     this.enabled = true,
+    this.onLoaded,
   });
 
   final String assetPath;
@@ -43,6 +61,7 @@ class Avatar3DViewer extends StatefulWidget {
   final String fieldOfView;
   final bool interactionEnabled;
   final bool enabled;
+  final VoidCallback? onLoaded;
 
   static String assetForGender(String gender) {
     return gender.toLowerCase() == 'female'
@@ -55,14 +74,17 @@ class Avatar3DViewer extends StatefulWidget {
 }
 
 class _Avatar3DViewerState extends State<Avatar3DViewer> {
-  bool _showViewer = true;
+  bool _showViewer = false;
   String? _activeAssetPath;
   int _viewerGeneration = 0;
+  bool _loadedNotified = false;
 
   @override
   void initState() {
     super.initState();
-    _activeAssetPath = widget.enabled ? widget.assetPath : null;
+    if (widget.enabled) {
+      _mountViewer(widget.assetPath);
+    }
   }
 
   @override
@@ -74,6 +96,7 @@ class _Avatar3DViewerState extends State<Avatar3DViewer> {
         setState(() {
           _showViewer = false;
           _activeAssetPath = null;
+          _loadedNotified = false;
         });
       }
       return;
@@ -93,9 +116,18 @@ class _Avatar3DViewerState extends State<Avatar3DViewer> {
     setState(() {
       _showViewer = false;
       _activeAssetPath = null;
+      _loadedNotified = false;
     });
 
-    await Future<void>.delayed(const Duration(milliseconds: 350));
+    if (AvatarPreloadCache.hasLoaded(assetPath)) {
+      if (!mounted || !widget.enabled || widget.assetPath != assetPath) {
+        return;
+      }
+      _mountViewer(assetPath);
+      return;
+    }
+
+    await Future<void>.delayed(const Duration(milliseconds: 150));
     if (!mounted || !widget.enabled || widget.assetPath != assetPath) {
       return;
     }
@@ -108,7 +140,18 @@ class _Avatar3DViewerState extends State<Avatar3DViewer> {
       _activeAssetPath = assetPath;
       _showViewer = true;
       _viewerGeneration++;
+      _loadedNotified = false;
     });
+  }
+
+  void _notifyLoadedOnce() {
+    if (_loadedNotified || !mounted) {
+      return;
+    }
+
+    _loadedNotified = true;
+    AvatarPreloadCache.markLoaded(widget.assetPath);
+    widget.onLoaded?.call();
   }
 
   @override
@@ -117,23 +160,36 @@ class _Avatar3DViewerState extends State<Avatar3DViewer> {
       return _AvatarViewerPlaceholder(backgroundColor: widget.backgroundColor);
     }
 
-    return ModelViewer(
-      key: ValueKey('avatar-${_viewerGeneration}_$_activeAssetPath'),
-      src: _activeAssetPath!,
-      alt: 'Expedition avatar',
-      ar: false,
-      autoPlay: true,
-      autoRotate: false,
-      cameraControls: widget.interactionEnabled,
-      disableZoom: !widget.interactionEnabled,
-      disablePan: !widget.interactionEnabled,
-      backgroundColor: widget.backgroundColor,
-      cameraOrbit: widget.cameraOrbit,
-      cameraTarget: widget.cameraTarget,
-      fieldOfView: widget.fieldOfView,
-      interactionPrompt: InteractionPrompt.none,
-      loading: Loading.lazy,
-      relatedJs: kAvatarAnimationLoopScript,
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        return SizedBox(
+          width: constraints.maxWidth,
+          height: constraints.maxHeight,
+          child: ModelViewer(
+            key: ValueKey('avatar-${_viewerGeneration}_$_activeAssetPath'),
+            src: _activeAssetPath!,
+            alt: 'Expedition avatar',
+            ar: false,
+            autoPlay: true,
+            autoRotate: false,
+            cameraControls: widget.interactionEnabled,
+            disableZoom: !widget.interactionEnabled,
+            disablePan: !widget.interactionEnabled,
+            backgroundColor: widget.backgroundColor,
+            cameraOrbit: widget.cameraOrbit,
+            cameraTarget: widget.cameraTarget,
+            fieldOfView: widget.fieldOfView,
+            interactionPrompt: InteractionPrompt.none,
+            loading: Loading.eager,
+            relatedJs: kAvatarAnimationLoopScript,
+            onWebViewCreated: (_) {
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                _notifyLoadedOnce();
+              });
+            },
+          ),
+        );
+      },
     );
   }
 }
@@ -145,13 +201,18 @@ class _AvatarViewerPlaceholder extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isTransparent = backgroundColor.a == 0;
+
     return ColoredBox(
-      color: backgroundColor,
-      child: const Center(
-        child: Icon(
-          Icons.directions_run_rounded,
-          color: AppColorPalette.primary,
-          size: 56,
+      color: isTransparent ? Colors.transparent : backgroundColor,
+      child: Center(
+        child: SizedBox(
+          width: 24,
+          height: 24,
+          child: CircularProgressIndicator(
+            strokeWidth: 2,
+            color: AppColorPalette.primary.withValues(alpha: 0.7),
+          ),
         ),
       ),
     );

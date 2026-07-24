@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../features/activity/data/services/location_service.dart';
 import '../../features/activity/presentation/bloc/activity_bloc.dart';
 import '../../features/activity/presentation/screens/activity_screen.dart';
+import '../../features/activity/presentation/widgets/activity_tab_scope.dart';
 import '../../features/avatar_test/presentation/screens/avatar_test_screen.dart';
 import '../../features/gamification/data/repositories/achievement_repository.dart';
 import '../../features/gamification/data/repositories/challenge_repository.dart';
@@ -193,8 +194,26 @@ class AppRouter {
                       workoutRepository: workoutRepository,
                       onboardingRepository: onboardingRepository,
                       gamificationRepository: gamificationRepository,
-                    )..add(const ActivityStarted()),
-                    child: const ActivityScreen(),
+                    ),
+                    child: const ActivityTabScope(
+                      child: ActivityScreen(),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: RouteConstants.analytics,
+                name: RouteConstants.analyticsName,
+                pageBuilder: (context, state) => shellTransitionPage(
+                  key: state.pageKey,
+                  child: BlocProvider(
+                    create: (_) => AnalyticsBloc(repository: analyticsRepository)
+                      ..add(const LoadAnalytics()),
+                    child: const AnalyticsScreen(),
                   ),
                 ),
               ),
@@ -234,22 +253,6 @@ class AppRouter {
                     ],
                   ),
                 ],
-              ),
-            ],
-          ),
-          StatefulShellBranch(
-            routes: [
-              GoRoute(
-                path: RouteConstants.analytics,
-                name: RouteConstants.analyticsName,
-                pageBuilder: (context, state) => shellTransitionPage(
-                  key: state.pageKey,
-                  child: BlocProvider(
-                    create: (_) => AnalyticsBloc(repository: analyticsRepository)
-                      ..add(const LoadAnalytics()),
-                    child: const AnalyticsScreen(),
-                  ),
-                ),
               ),
             ],
           ),

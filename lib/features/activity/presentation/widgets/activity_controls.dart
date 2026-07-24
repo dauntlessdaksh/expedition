@@ -105,7 +105,7 @@ class _StartControl extends StatelessWidget {
                       AppColorPalette.grey800,
                     ],
                   ),
-            borderRadius: AppBorderRadius.radiusLg,
+            borderRadius: AppBorderRadius.radiusFull,
             boxShadow: isEnabled
                 ? [
                     BoxShadow(
@@ -266,7 +266,7 @@ class _PrimaryButton extends StatelessWidget {
                     ],
                   )
                 : PremiumGradients.accentButton,
-            borderRadius: AppBorderRadius.radiusLg,
+            borderRadius: AppBorderRadius.radiusFull,
             boxShadow: [
               BoxShadow(
                 color: accent.withValues(alpha: 0.35),
@@ -329,7 +329,7 @@ class _SecondaryButton extends StatelessWidget {
         child: DecoratedBox(
           decoration: BoxDecoration(
             color: AppColorPalette.darkCardElevated,
-            borderRadius: AppBorderRadius.radiusLg,
+            borderRadius: AppBorderRadius.radiusFull,
             border: Border.all(
               color: AppColorPalette.grey700.withValues(alpha: 0.7),
             ),

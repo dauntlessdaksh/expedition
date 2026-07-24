@@ -34,7 +34,7 @@ class WorkoutHistoryCard extends StatelessWidget {
         child: Ink(
           decoration: BoxDecoration(
             gradient: PremiumGradients.cardShimmer,
-            borderRadius: AppBorderRadius.radiusXl,
+            borderRadius: AppBorderRadius.radiusXxl,
             border: Border.all(
               color: AppColorPalette.darkCardElevated.withValues(alpha: 0.65),
             ),

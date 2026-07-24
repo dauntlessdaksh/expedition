@@ -87,11 +87,8 @@ Future<void> bootstrap() async {
     achievementRepository: achievementRepository,
   );
 
-  final preferences = await profileLocalDataSource.getPreferences();
   final themeCubit = ThemeCubit(
-    initialMode: preferences.theme == 'dark'
-        ? ThemeMode.dark
-        : ThemeMode.system,
+    initialMode: ThemeMode.dark,
   );
 
   final homeRepository = HomeRepository(

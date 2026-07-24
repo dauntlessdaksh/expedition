@@ -65,23 +65,8 @@ final class ActivityState extends Equatable {
 
   bool get showWorkoutPanel => isSessionActive;
 
-  Set<Polyline> get polylines {
-    if (routePoints.length < 2) {
-      return const {};
-    }
-
-    return {
-      Polyline(
-        polylineId: const PolylineId('activity_route'),
-        points: routePoints,
-        color: const Color(0xFF10B981),
-        width: 5,
-        jointType: JointType.round,
-        startCap: Cap.roundCap,
-        endCap: Cap.roundCap,
-      ),
-    };
-  }
+  Set<Polyline> get polylines =>
+      GradientPolyline.build(routePoints, idPrefix: 'activity_route');
 
   ActivityState copyWith({
     ActivityTrackingStatus? status,

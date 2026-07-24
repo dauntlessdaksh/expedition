@@ -19,3 +19,15 @@ abstract final class AvatarLifecycle {
     }
   }
 }
+
+/// Tracks whether a GLB asset has been loaded at least once this session so
+/// remounts can skip artificial settle delays.
+abstract final class AvatarPreloadCache {
+  static final Set<String> _loadedAssets = <String>{};
+
+  static bool hasLoaded(String assetPath) => _loadedAssets.contains(assetPath);
+
+  static void markLoaded(String assetPath) {
+    _loadedAssets.add(assetPath);
+  }
+}

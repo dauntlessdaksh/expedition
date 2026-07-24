@@ -8,12 +8,17 @@ void main() {
   group('AccuracyFilter', () {
     const filter = AccuracyFilter();
     const config = GpsEngineConfig(
-      minimumAccuracy: 15,
+      gpsLockAccuracyMeters: 12,
+      gpsLockSamplesRequired: 3,
+      movementConfirmationMeters: 10,
+      movementConfirmationSamples: 4,
+      minimumConfirmationSpeedMps: 1 / 3.6,
+      maximumConfirmationSpeedMps: 25 / 3.6,
       minimumMovementMeters: 5,
       minimumUpdateInterval: Duration(seconds: 1),
       speedSmoothingWindow: 5,
-      stationarySamplesRequired: 3,
-      minimumMovingSpeedMps: 0.8,
+      stationarySamplesRequired: 4,
+      minimumMovingSpeedMps: 1 / 3.6,
       maximumSpeedMps: 25 / 3.6,
     );
 

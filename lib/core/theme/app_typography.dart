@@ -7,110 +7,147 @@ abstract final class AppTypography {
   static const String _fontFamily = 'Roboto';
 
   static TextTheme textTheme(Brightness brightness) {
-    final baseColor = brightness == Brightness.light
-        ? AppColorPalette.grey900
-        : AppColorPalette.grey100;
+    const baseColor = AppColorPalette.textPrimary;
+    const mutedColor = AppColorPalette.textSecondary;
 
     return TextTheme(
-      displayLarge: TextStyle(
+      displayLarge: const TextStyle(
         fontFamily: _fontFamily,
         fontSize: 57,
-        fontWeight: FontWeight.w400,
-        letterSpacing: -0.25,
+        fontWeight: FontWeight.w700,
+        letterSpacing: -1.5,
         color: baseColor,
+        height: 1.05,
       ),
-      displayMedium: TextStyle(
+      displayMedium: const TextStyle(
         fontFamily: _fontFamily,
         fontSize: 45,
-        fontWeight: FontWeight.w400,
+        fontWeight: FontWeight.w700,
+        letterSpacing: -1,
         color: baseColor,
+        height: 1.08,
       ),
-      displaySmall: TextStyle(
+      displaySmall: const TextStyle(
         fontFamily: _fontFamily,
         fontSize: 36,
-        fontWeight: FontWeight.w400,
+        fontWeight: FontWeight.w700,
+        letterSpacing: -0.8,
         color: baseColor,
+        height: 1.1,
       ),
-      headlineLarge: TextStyle(
+      headlineLarge: const TextStyle(
         fontFamily: _fontFamily,
         fontSize: 32,
-        fontWeight: FontWeight.w600,
+        fontWeight: FontWeight.w700,
+        letterSpacing: -0.6,
         color: baseColor,
       ),
-      headlineMedium: TextStyle(
+      headlineMedium: const TextStyle(
         fontFamily: _fontFamily,
         fontSize: 28,
-        fontWeight: FontWeight.w600,
+        fontWeight: FontWeight.w700,
+        letterSpacing: -0.5,
         color: baseColor,
       ),
-      headlineSmall: TextStyle(
+      headlineSmall: const TextStyle(
         fontFamily: _fontFamily,
         fontSize: 24,
         fontWeight: FontWeight.w600,
+        letterSpacing: -0.3,
         color: baseColor,
       ),
-      titleLarge: TextStyle(
+      titleLarge: const TextStyle(
         fontFamily: _fontFamily,
         fontSize: 22,
-        fontWeight: FontWeight.w500,
+        fontWeight: FontWeight.w600,
         color: baseColor,
       ),
-      titleMedium: TextStyle(
+      titleMedium: const TextStyle(
         fontFamily: _fontFamily,
         fontSize: 16,
-        fontWeight: FontWeight.w500,
+        fontWeight: FontWeight.w600,
+        letterSpacing: 0.1,
+        color: baseColor,
+      ),
+      titleSmall: const TextStyle(
+        fontFamily: _fontFamily,
+        fontSize: 14,
+        fontWeight: FontWeight.w600,
+        letterSpacing: 0.2,
+        color: baseColor,
+      ),
+      bodyLarge: const TextStyle(
+        fontFamily: _fontFamily,
+        fontSize: 16,
+        fontWeight: FontWeight.w400,
+        letterSpacing: 0.2,
+        color: baseColor,
+      ),
+      bodyMedium: const TextStyle(
+        fontFamily: _fontFamily,
+        fontSize: 14,
+        fontWeight: FontWeight.w400,
         letterSpacing: 0.15,
-        color: baseColor,
+        color: mutedColor,
       ),
-      titleSmall: TextStyle(
-        fontFamily: _fontFamily,
-        fontSize: 14,
-        fontWeight: FontWeight.w500,
-        letterSpacing: 0.1,
-        color: baseColor,
-      ),
-      bodyLarge: TextStyle(
-        fontFamily: _fontFamily,
-        fontSize: 16,
-        fontWeight: FontWeight.w400,
-        letterSpacing: 0.5,
-        color: baseColor,
-      ),
-      bodyMedium: TextStyle(
-        fontFamily: _fontFamily,
-        fontSize: 14,
-        fontWeight: FontWeight.w400,
-        letterSpacing: 0.25,
-        color: baseColor,
-      ),
-      bodySmall: TextStyle(
+      bodySmall: const TextStyle(
         fontFamily: _fontFamily,
         fontSize: 12,
         fontWeight: FontWeight.w400,
-        letterSpacing: 0.4,
-        color: baseColor,
+        letterSpacing: 0.3,
+        color: mutedColor,
       ),
-      labelLarge: TextStyle(
+      labelLarge: const TextStyle(
         fontFamily: _fontFamily,
         fontSize: 14,
-        fontWeight: FontWeight.w500,
-        letterSpacing: 0.1,
-        color: baseColor,
+        fontWeight: FontWeight.w600,
+        letterSpacing: 0.8,
+        color: mutedColor,
       ),
-      labelMedium: TextStyle(
+      labelMedium: const TextStyle(
         fontFamily: _fontFamily,
         fontSize: 12,
-        fontWeight: FontWeight.w500,
-        letterSpacing: 0.5,
-        color: baseColor,
+        fontWeight: FontWeight.w600,
+        letterSpacing: 0.6,
+        color: mutedColor,
       ),
-      labelSmall: TextStyle(
+      labelSmall: const TextStyle(
         fontFamily: _fontFamily,
         fontSize: 11,
-        fontWeight: FontWeight.w500,
-        letterSpacing: 0.5,
-        color: baseColor,
+        fontWeight: FontWeight.w600,
+        letterSpacing: 0.8,
+        color: mutedColor,
       ),
     );
   }
+
+  /// Large performance statistic — e.g. "7.95 km", "52 min".
+  static const TextStyle statLarge = TextStyle(
+    fontFamily: _fontFamily,
+    fontSize: 42,
+    fontWeight: FontWeight.w700,
+    letterSpacing: -1,
+    color: AppColorPalette.textPrimary,
+    fontFeatures: [FontFeature.tabularFigures()],
+    height: 1,
+  );
+
+  /// Medium performance statistic for cards and grids.
+  static const TextStyle statMedium = TextStyle(
+    fontFamily: _fontFamily,
+    fontSize: 24,
+    fontWeight: FontWeight.w700,
+    letterSpacing: -0.4,
+    color: AppColorPalette.textPrimary,
+    fontFeatures: [FontFeature.tabularFigures()],
+  );
+
+  /// Subtle label beneath statistics.
+  static const TextStyle statLabel = TextStyle(
+    fontFamily: _fontFamily,
+    fontSize: 12,
+    fontWeight: FontWeight.w600,
+    letterSpacing: 1,
+    color: AppColorPalette.textSecondary,
+  );
 }

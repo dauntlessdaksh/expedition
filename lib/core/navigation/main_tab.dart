@@ -1,37 +1,47 @@
+import 'package:flutter/material.dart';
+
 import '../router/route_constants.dart';
 
 /// Primary destinations in the app's bottom navigation shell.
+///
+/// Order: Home → Activity → Analytics → History
 enum MainTab {
   home(
     branchIndex: 0,
     path: RouteConstants.home,
     label: 'Home',
+    icon: Icons.home_rounded,
   ),
   activity(
     branchIndex: 1,
     path: RouteConstants.activity,
-    label: 'Activities',
-  ),
-  history(
-    branchIndex: 2,
-    path: RouteConstants.history,
-    label: 'History',
+    label: 'Activity',
+    icon: Icons.directions_run_rounded,
   ),
   analytics(
-    branchIndex: 3,
+    branchIndex: 2,
     path: RouteConstants.analytics,
     label: 'Analytics',
+    icon: Icons.insights_rounded,
+  ),
+  history(
+    branchIndex: 3,
+    path: RouteConstants.history,
+    label: 'History',
+    icon: Icons.history_rounded,
   );
 
   const MainTab({
     required this.branchIndex,
     required this.path,
     required this.label,
+    required this.icon,
   });
 
   final int branchIndex;
   final String path;
   final String label;
+  final IconData icon;
 
   static MainTab fromBranchIndex(int index) {
     return MainTab.values.firstWhere((tab) => tab.branchIndex == index);

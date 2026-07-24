@@ -4,26 +4,20 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_spacing.dart';
-import '../../../../core/navigation/main_navigation.dart';
+import '../../../../core/navigation/shell_tab_index_scope.dart';
 import '../../../../core/navigation/main_tab.dart';
 import '../../../../core/router/app_router.dart';
 import '../../../../core/router/route_constants.dart';
 import '../../../../core/services/avatar_lifecycle.dart';
-import '../../../../core/theme/premium_gradients.dart';
 import '../../../../core/widgets/app_error_view.dart';
 import '../../../../core/widgets/skeleton/skeleton_loaders.dart';
 import '../../domain/models/home_dashboard_data.dart';
 import '../bloc/home_bloc.dart';
-import '../widgets/avatar_card.dart';
-import '../widgets/greeting_section.dart';
-import '../widgets/home_animated_section.dart';
-import '../widgets/progress_card.dart';
-import '../widgets/stats_grid.dart';
-import '../widgets/streak_card.dart';
-import '../widgets/weekly_chart.dart';
-import '../widgets/workout_fab.dart';
+import '../widgets/daily_steps_progress_bar.dart';
+import '../widgets/home_hero_section.dart';
+import '../widgets/hourly_activity_graph.dart';
 
-/// Premium fitness dashboard shown after onboarding completes.
+/// Premium fitness dashboard matching the reference home layout.
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
@@ -31,8 +25,12 @@ class HomeScreen extends StatefulWidget {
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> with RouteAware {
+class _HomeScreenState extends State<HomeScreen>
+    with RouteAware, AutomaticKeepAliveClientMixin {
   bool _isRouteVisible = true;
+
+  @override
+  bool get wantKeepAlive => true;
 
   @override
   void didChangeDependencies() {
@@ -68,48 +66,75 @@ class _HomeScreenState extends State<HomeScreen> with RouteAware {
     context.read<HomeBloc>().add(const RefreshDashboard());
   }
 
+  bool _isHomeTabActive(BuildContext context) {
+    return ShellTabIndexScope.indexOf(context) == MainTab.home.branchIndex;
+  }
+
+  bool _isActivityTabActive(BuildContext context) {
+    return ShellTabIndexScope.indexOf(context) == MainTab.activity.branchIndex;
+  }
+
+  bool _isProfileOpen(BuildContext context) {
+    return GoRouterState.of(context).uri.toString().contains(
+          RouteConstants.profile,
+        );
+  }
+
+  /// Hide the avatar visually but keep the WebView alive (History/Analytics).
+  bool _isAvatarVisible(BuildContext context) {
+    return _isRouteVisible && _isHomeTabActive(context);
+  }
+
+  /// Tear down the WebView so Google Maps / Profile avatar can use it.
+  bool _shouldSuspendAvatar(BuildContext context) {
+    if (!_isRouteVisible) {
+      return true;
+    }
+
+    if (_isActivityTabActive(context)) {
+      return true;
+    }
+
+    if (_isProfileOpen(context)) {
+      return true;
+    }
+
+    if (avatarHostLock.value != null && avatarHostLock.value != 'home') {
+      return true;
+    }
+
+    return false;
+  }
+
   @override
   Widget build(BuildContext context) {
-    return ValueListenableBuilder<String?>(
-      valueListenable: avatarHostLock,
-      builder: (context, avatarLockOwner, _) {
-        final shell = StatefulNavigationShell.maybeOf(context);
-        final isHomeTabActive = shell == null || shell.currentIndex == 0;
-        final location = GoRouterState.of(context).uri.toString();
-        final showAvatar = _isRouteVisible &&
-            isHomeTabActive &&
-            avatarLockOwner == null &&
-            !location.contains(RouteConstants.profile);
+    super.build(context);
 
-        return Scaffold(
-          backgroundColor: AppColorPalette.darkBackground,
-          body: DecoratedBox(
-            decoration: const BoxDecoration(
-              gradient: PremiumGradients.darkBackground,
-            ),
-            child: BlocBuilder<HomeBloc, HomeState>(
-              builder: (context, state) {
-                return switch (state.status) {
-                  HomeStatus.initial || HomeStatus.loading =>
-                    SkeletonLoaders.dashboard(),
-                  HomeStatus.failure => AppErrorView.fromError(
-                      StateError('Unable to load dashboard'),
-                      onRetry: () => context
-                          .read<HomeBloc>()
-                          .add(const LoadDashboard()),
-                    ),
-                  HomeStatus.loaded when state.data != null =>
-                    _DashboardContent(
-                      data: state.data!,
-                      showAvatar: showAvatar,
-                    ),
-                  _ => const SizedBox.shrink(),
-                };
-              },
-            ),
-          ),
-        );
-      },
+    final avatarVisible = _isAvatarVisible(context);
+    final avatarSuspended = _shouldSuspendAvatar(context);
+
+    return Scaffold(
+      backgroundColor: AppColorPalette.black,
+      body: BlocBuilder<HomeBloc, HomeState>(
+        builder: (context, state) {
+          return switch (state.status) {
+            HomeStatus.initial || HomeStatus.loading =>
+              SkeletonLoaders.dashboard(),
+            HomeStatus.failure => AppErrorView.fromError(
+                StateError('Unable to load dashboard'),
+                onRetry: () =>
+                    context.read<HomeBloc>().add(const LoadDashboard()),
+              ),
+            HomeStatus.loaded when state.data != null =>
+              _DashboardContent(
+                data: state.data!,
+                avatarVisible: avatarVisible,
+                avatarSuspended: avatarSuspended,
+              ),
+            _ => const SizedBox.shrink(),
+          };
+        },
+      ),
     );
   }
 }
@@ -117,107 +142,76 @@ class _HomeScreenState extends State<HomeScreen> with RouteAware {
 class _DashboardContent extends StatelessWidget {
   const _DashboardContent({
     required this.data,
-    required this.showAvatar,
+    required this.avatarVisible,
+    required this.avatarSuspended,
   });
 
   final HomeDashboardData data;
-  final bool showAvatar;
+  final bool avatarVisible;
+  final bool avatarSuspended;
 
   @override
   Widget build(BuildContext context) {
-    final bottomPadding = MediaQuery.paddingOf(context).bottom;
-
-    return Stack(
-      children: [
-        RefreshIndicator(
-          color: AppColorPalette.primary,
-          backgroundColor: AppColorPalette.darkCard,
-          onRefresh: () async {
-            context.read<HomeBloc>().add(const RefreshDashboard());
-          },
-          child: CustomScrollView(
+    return RefreshIndicator(
+      color: AppColorPalette.primary,
+      backgroundColor: AppColorPalette.darkCard,
+      onRefresh: () async {
+        context.read<HomeBloc>().add(const RefreshDashboard());
+      },
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          return SingleChildScrollView(
             physics: const AlwaysScrollableScrollPhysics(
               parent: BouncingScrollPhysics(),
             ),
-            slivers: [
-              SliverToBoxAdapter(
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(
-                    AppSpacing.xxl,
-                    AppSpacing.lg,
-                    AppSpacing.xxl,
-                    0,
-                  ),
-                  child: HomeAnimatedSection(
-                    index: 0,
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Expanded(
-                          child: GreetingSection(userName: data.userName),
+            child: ConstrainedBox(
+              constraints: BoxConstraints(minHeight: constraints.maxHeight),
+              child: SizedBox(
+                height: constraints.maxHeight,
+                child: Column(
+                  children: [
+                    SizedBox(
+                      height: constraints.maxHeight * 0.40,
+                      child: SafeArea(
+                        bottom: false,
+                        child: Column(
+                          children: [
+                            Expanded(
+                              child: HourlyActivityGraph(
+                                hourlyActivity: data.hourlyActivity,
+                                totalSteps: data.stats.steps,
+                              ),
+                            ),
+                            Padding(
+                              padding: EdgeInsets.fromLTRB(
+                                AppSpacing.xl,
+                                0,
+                                AppSpacing.xl,
+                                AppSpacing.sm,
+                              ),
+                              child: DailyStepsProgressBar(
+                                stats: data.stats,
+                              ),
+                            ),
+                          ],
                         ),
-                        ProfileButton(
-                          onTap: () => context.push(RouteConstants.profilePath),
-                        ),
-                      ],
+                      ),
                     ),
-                  ),
-                ),
-              ),
-              SliverPadding(
-                padding: EdgeInsets.fromLTRB(
-                  AppSpacing.xxl,
-                  AppSpacing.xl,
-                  AppSpacing.xxl,
-                  AppSpacing.xxxl + 80 + bottomPadding,
-                ),
-                sliver: SliverList(
-                  delegate: SliverChildListDelegate([
-                    HomeAnimatedSection(
-                      index: 1,
-                      child: AvatarCard(
+                    Expanded(
+                      child: HomeHeroSection(
                         gender: data.gender,
-                        showAvatar: showAvatar,
+                        stats: data.stats,
+                        avatarVisible: avatarVisible,
+                        avatarSuspended: avatarSuspended,
                       ),
                     ),
-                    const SizedBox(height: AppSpacing.xl),
-                    HomeAnimatedSection(
-                      index: 2,
-                      child: ProgressCard(stats: data.stats),
-                    ),
-                    const SizedBox(height: AppSpacing.xl),
-                    HomeAnimatedSection(
-                      index: 3,
-                      child: StatsGrid(stats: data.stats),
-                    ),
-                    const SizedBox(height: AppSpacing.xl),
-                    HomeAnimatedSection(
-                      index: 4,
-                      child: StreakCard(streakDays: data.streakDays),
-                    ),
-                    const SizedBox(height: AppSpacing.xl),
-                    HomeAnimatedSection(
-                      index: 5,
-                      child: WeeklyChart(
-                        weeklyActivity: data.weeklyActivity,
-                      ),
-                    ),
-                  ]),
+                  ],
                 ),
               ),
-            ],
-          ),
-        ),
-        Positioned(
-          left: 0,
-          right: 0,
-          bottom: 0,
-          child: WorkoutFab(
-            onPressed: () =>
-                MainNavigation.goToTab(context, MainTab.activity),
-          ),
-        ),
-      ],
+            ),
+          );
+        },
+      ),
     );
   }
 }

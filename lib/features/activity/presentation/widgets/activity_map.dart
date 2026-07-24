@@ -4,6 +4,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 import '../../../../core/widgets/skeleton/skeleton_loaders.dart';
 import '../bloc/activity_bloc.dart';
+import 'activity_tab_scope.dart';
 import 'map_dark_style.dart';
 
 /// Full-screen Google Map with live route rendering and user follow mode.
@@ -39,41 +40,49 @@ class _ActivityMapState extends State<ActivityMap> {
           previous.routePoints != current.routePoints ||
           previous.permissionStatus != current.permissionStatus,
       builder: (context, state) {
+        final isTabActive = ActivityTabActiveScope.of(context);
+        final showMap = isTabActive || state.isSessionActive;
+
         return RepaintBoundary(
           child: Stack(
             fit: StackFit.expand,
             children: [
-              GoogleMap(
-                initialCameraPosition: const CameraPosition(
-                  target: _initialPosition,
-                  zoom: 15,
+              if (showMap)
+                GoogleMap(
+                  initialCameraPosition: const CameraPosition(
+                    target: _initialPosition,
+                    zoom: 15,
+                  ),
+                  style: MapDarkStyle.json,
+                  myLocationEnabled: state.permissionStatus ==
+                      ActivityPermissionStatus.granted,
+                  myLocationButtonEnabled: false,
+                  zoomControlsEnabled: false,
+                  compassEnabled: false,
+                  mapToolbarEnabled: false,
+                  polylines: state.polylines,
+                  onMapCreated: (controller) {
+                    _controller = controller;
+                    final currentState = context.read<ActivityBloc>().state;
+                    if (currentState.currentPosition != null) {
+                      _maybeFollowUser(currentState, force: true);
+                    }
+                  },
+                  onCameraMoveStarted: () {
+                    final followUser =
+                        context.read<ActivityBloc>().state.followUser;
+                    if (followUser) {
+                      context.read<ActivityBloc>().add(
+                            const FollowUserToggled(followUser: false),
+                          );
+                    }
+                  },
+                )
+              else
+                const ColoredBox(
+                  color: Color(0xFF0B0C10),
                 ),
-                style: MapDarkStyle.json,
-                myLocationEnabled: state.permissionStatus ==
-                    ActivityPermissionStatus.granted,
-                myLocationButtonEnabled: false,
-                zoomControlsEnabled: false,
-                compassEnabled: false,
-                mapToolbarEnabled: false,
-                polylines: state.polylines,
-                onMapCreated: (controller) {
-                  _controller = controller;
-                  final currentState = context.read<ActivityBloc>().state;
-                  if (currentState.currentPosition != null) {
-                    _maybeFollowUser(currentState, force: true);
-                  }
-                },
-                onCameraMoveStarted: () {
-                  final followUser =
-                      context.read<ActivityBloc>().state.followUser;
-                  if (followUser) {
-                    context.read<ActivityBloc>().add(
-                          const FollowUserToggled(followUser: false),
-                        );
-                  }
-                },
-              ),
-              if (state.status == ActivityTrackingStatus.locating)
+              if (state.status == ActivityTrackingStatus.locating && showMap)
                 SkeletonLoaders.activityMapOverlay(),
             ],
           ),

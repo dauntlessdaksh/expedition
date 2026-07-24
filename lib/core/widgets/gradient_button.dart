@@ -38,7 +38,7 @@ class GradientButton extends StatelessWidget {
         child: DecoratedBox(
           decoration: BoxDecoration(
             gradient: PremiumGradients.accentButton,
-            borderRadius: AppBorderRadius.radiusLg,
+            borderRadius: AppBorderRadius.radiusFull,
             boxShadow: [
               BoxShadow(
                 color: AppColorPalette.primary.withValues(alpha: 0.35),
@@ -51,7 +51,7 @@ class GradientButton extends StatelessWidget {
             color: Colors.transparent,
             child: InkWell(
               onTap: effectiveOnPressed,
-              borderRadius: AppBorderRadius.radiusLg,
+              borderRadius: AppBorderRadius.radiusFull,
               child: Center(
                 child: isLoading
                     ? const SizedBox(

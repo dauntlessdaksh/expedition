@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 import '../../../activity/presentation/widgets/map_dark_style.dart';
-import '../../../../core/constants/app_colors.dart';
+import '../../../../core/utils/gradient_polyline.dart';
 
 /// Static Google Map that renders a saved workout route polyline.
 class WorkoutRouteMap extends StatefulWidget {
@@ -44,19 +44,7 @@ class _WorkoutRouteMapState extends State<WorkoutRouteMap> {
       zoomControlsEnabled: false,
       compassEnabled: false,
       mapToolbarEnabled: false,
-      polylines: points.length >= 2
-          ? {
-              Polyline(
-                polylineId: const PolylineId('saved_route'),
-                points: points,
-                color: AppColorPalette.primary,
-                width: 5,
-                jointType: JointType.round,
-                startCap: Cap.roundCap,
-                endCap: Cap.roundCap,
-              ),
-            }
-          : const {},
+      polylines: GradientPolyline.build(points, idPrefix: 'saved_route'),
       onMapCreated: (controller) async {
         _controller = controller;
         if (points.length >= 2) {

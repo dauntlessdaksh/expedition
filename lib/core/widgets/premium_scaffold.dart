@@ -25,6 +25,7 @@ class PremiumScaffold extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppColorPalette.darkBackground,
       extendBodyBehindAppBar: appBar != null,
       appBar: appBar,
       bottomNavigationBar: bottomNavigationBar,
@@ -36,7 +37,7 @@ class PremiumScaffold extends StatelessWidget {
   }
 }
 
-/// Elevated card with soft shadow and rounded corners.
+/// Elevated dark card with soft shadow and glass-like border.
 class PremiumCard extends StatelessWidget {
   const PremiumCard({
     required this.child,
@@ -55,27 +56,26 @@ class PremiumCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final borderColor = isSelected
-        ? (selectedColor ?? AppColorPalette.primary)
-        : AppColorPalette.darkCardElevated.withValues(alpha: 0.5);
+    final accent = selectedColor ?? AppColorPalette.primary;
+    final borderColor = isSelected ? accent : AppColorPalette.divider;
 
     return AnimatedContainer(
       duration: const Duration(milliseconds: 250),
       curve: Curves.easeOutCubic,
       decoration: BoxDecoration(
         gradient: PremiumGradients.cardShimmer,
-        borderRadius: AppBorderRadius.radiusLg,
+        borderRadius: AppBorderRadius.radiusXxl,
         border: Border.all(
           color: borderColor,
-          width: isSelected ? 2 : 1,
+          width: isSelected ? 1.5 : 1,
         ),
         boxShadow: [
           BoxShadow(
             color: isSelected
-                ? AppColorPalette.primary.withValues(alpha: 0.2)
-                : AppColorPalette.black.withValues(alpha: 0.3),
-            blurRadius: isSelected ? 20 : 12,
-            offset: const Offset(0, 4),
+                ? accent.withValues(alpha: 0.22)
+                : AppColorPalette.black.withValues(alpha: 0.35),
+            blurRadius: isSelected ? 24 : 16,
+            offset: const Offset(0, 8),
           ),
         ],
       ),
@@ -83,7 +83,7 @@ class PremiumCard extends StatelessWidget {
         color: Colors.transparent,
         child: InkWell(
           onTap: onTap,
-          borderRadius: AppBorderRadius.radiusLg,
+          borderRadius: AppBorderRadius.radiusXxl,
           child: Padding(
             padding: padding,
             child: child,

@@ -57,11 +57,11 @@ class AnalyticsActivityPieChart extends StatelessWidget {
                 label: 'Running',
               ),
               _LegendItem(
-                color: AppColorPalette.info,
+                color: AppColorPalette.primaryDark,
                 label: 'Cycling',
               ),
               _LegendItem(
-                color: AppColorPalette.grey500,
+                color: AppColorPalette.grey600,
                 label: 'Other',
               ),
             ],
@@ -86,12 +86,12 @@ class AnalyticsActivityPieChart extends StatelessWidget {
       (
         label: 'Cycling',
         percent: distribution.cyclingPercent,
-        color: AppColorPalette.info,
+        color: AppColorPalette.primaryDark,
       ),
       (
         label: 'Other',
         percent: distribution.otherPercent,
-        color: AppColorPalette.grey500,
+        color: AppColorPalette.grey600,
       ),
     ];
 
