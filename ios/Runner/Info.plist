@@ -49,5 +49,7 @@
 	<string>Expedition needs your location to record GPS routes during activities.</string>
 	<key>NSMotionUsageDescription</key>
 	<string>Expedition uses motion data to automatically detect your activities.</string>
+	<key>io.flutter.embedded_views_preview</key>
+	<true/>
 </dict>
 </plist>

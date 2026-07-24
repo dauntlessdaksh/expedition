@@ -2,17 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../features/avatar/presentation/bloc/avatar_bloc.dart';
-import '../../features/avatar/presentation/screens/avatar_screen.dart';
+import '../../features/activity/data/services/location_service.dart';
+import '../../features/activity/presentation/bloc/activity_bloc.dart';
+import '../../features/activity/presentation/screens/activity_screen.dart';
+import '../../features/avatar_test/presentation/screens/avatar_test_screen.dart';
+import '../../features/home/data/repositories/dummy_home_repository.dart';
+import '../../features/home/presentation/bloc/home_bloc.dart';
 import '../../features/home/presentation/screens/home_screen.dart';
+import '../../features/onboarding/data/repositories/onboarding_repository.dart';
 import '../../features/onboarding/presentation/bloc/onboarding_bloc.dart';
-import '../../features/onboarding/presentation/screens/onboarding_screen.dart';
-import '../../features/permissions/presentation/bloc/permission_bloc.dart';
-import '../../features/permissions/presentation/screens/permissions_screen.dart';
-import '../../features/profile/data/repositories/user_repository.dart';
-import '../../features/profile/presentation/bloc/profile_bloc.dart';
-import '../../features/profile/presentation/screens/profile_screen.dart';
-import '../../features/settings/data/repositories/settings_repository.dart';
+import '../../features/onboarding/presentation/screens/onboarding_flow_screen.dart';
 import '../../features/splash/presentation/bloc/splash_bloc.dart';
 import '../../features/splash/presentation/screens/splash_screen.dart';
 import 'page_transitions.dart';
@@ -21,21 +20,30 @@ import 'route_constants.dart';
 /// Centralized router configuration for the Expedition application.
 class AppRouter {
   AppRouter({
-    required UserRepository userRepository,
-    required SettingsRepository settingsRepository,
+    required OnboardingRepository onboardingRepository,
+    required DummyHomeRepository homeRepository,
     GlobalKey<NavigatorState>? navigatorKey,
-  }) : router = GoRouter(
-          navigatorKey: navigatorKey,
-          initialLocation: RouteConstants.splash,
-          debugLogDiagnostics: true,
-          routes: _buildRoutes(userRepository, settingsRepository),
-        );
+  }) : navigatorKey = navigatorKey ?? GlobalKey<NavigatorState>() {
+    router = GoRouter(
+      navigatorKey: this.navigatorKey,
+      initialLocation: RouteConstants.splash,
+      debugLogDiagnostics: true,
+      observers: [routeObserver],
+      routes: _buildRoutes(onboardingRepository, homeRepository),
+    );
+  }
 
-  final GoRouter router;
+  final GlobalKey<NavigatorState> navigatorKey;
+  late final GoRouter router;
+
+  /// Tracks when a route is covered so heavy widgets (e.g. 3D avatar WebView)
+  /// can pause before another platform view (Google Maps) mounts.
+  static final RouteObserver<ModalRoute<void>> routeObserver =
+      RouteObserver<ModalRoute<void>>();
 
   static List<RouteBase> _buildRoutes(
-    UserRepository userRepository,
-    SettingsRepository settingsRepository,
+    OnboardingRepository onboardingRepository,
+    DummyHomeRepository homeRepository,
   ) {
     return [
       GoRoute(
@@ -44,7 +52,9 @@ class AppRouter {
         pageBuilder: (context, state) => fadeTransitionPage(
           key: state.pageKey,
           child: BlocProvider(
-            create: (_) => SplashBloc(userRepository: userRepository),
+            create: (_) => SplashBloc(
+              onboardingRepository: onboardingRepository,
+            ),
             child: const SplashScreen(),
           ),
         ),
@@ -55,43 +65,9 @@ class AppRouter {
         pageBuilder: (context, state) => fadeSlideTransitionPage(
           key: state.pageKey,
           child: BlocProvider(
-            create: (_) => OnboardingBloc(),
-            child: const OnboardingScreen(),
-          ),
-        ),
-      ),
-      GoRoute(
-        path: RouteConstants.profile,
-        name: RouteConstants.profileName,
-        pageBuilder: (context, state) => fadeSlideTransitionPage(
-          key: state.pageKey,
-          child: BlocProvider(
-            create: (_) => ProfileBloc(userRepository: userRepository),
-            child: const ProfileScreen(),
-          ),
-        ),
-      ),
-      GoRoute(
-        path: RouteConstants.avatar,
-        name: RouteConstants.avatarName,
-        pageBuilder: (context, state) => fadeSlideTransitionPage(
-          key: state.pageKey,
-          child: BlocProvider(
-            create: (_) => AvatarBloc(userRepository: userRepository),
-            child: const AvatarScreen(),
-          ),
-        ),
-      ),
-      GoRoute(
-        path: RouteConstants.permissions,
-        name: RouteConstants.permissionsName,
-        pageBuilder: (context, state) => fadeSlideTransitionPage(
-          key: state.pageKey,
-          child: BlocProvider(
-            create: (_) => PermissionBloc(
-              settingsRepository: settingsRepository,
-            ),
-            child: const PermissionsScreen(),
+            create: (_) => OnboardingBloc(repository: onboardingRepository)
+              ..add(const OnboardingStarted()),
+            child: const OnboardingFlowScreen(),
           ),
         ),
       ),
@@ -100,7 +76,31 @@ class AppRouter {
         name: RouteConstants.homeName,
         pageBuilder: (context, state) => fadeTransitionPage(
           key: state.pageKey,
-          child: const HomeScreen(),
+          child: BlocProvider(
+            create: (_) => HomeBloc(repository: homeRepository)
+              ..add(const HomeStarted()),
+            child: const HomeScreen(),
+          ),
+        ),
+      ),
+      GoRoute(
+        path: RouteConstants.activity,
+        name: RouteConstants.activityName,
+        pageBuilder: (context, state) => fadeSlideTransitionPage(
+          key: state.pageKey,
+          child: BlocProvider(
+            create: (_) => ActivityBloc(locationService: LocationService())
+              ..add(const ActivityStarted()),
+            child: const ActivityScreen(),
+          ),
+        ),
+      ),
+      GoRoute(
+        path: RouteConstants.avatarTest,
+        name: RouteConstants.avatarTestName,
+        pageBuilder: (context, state) => fadeTransitionPage(
+          key: state.pageKey,
+          child: const AvatarTestScreen(),
         ),
       ),
     ];

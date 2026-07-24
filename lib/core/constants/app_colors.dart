@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 
 /// Raw color palette used across the Expedition application.
 abstract final class AppColorPalette {
-  // Primary — energetic teal for a premium fitness feel
-  static const Color primary = Color(0xFF0D9488);
-  static const Color primaryLight = Color(0xFF14B8A6);
-  static const Color primaryDark = Color(0xFF0F766E);
+  // Primary — emerald green for a premium fitness feel
+  static const Color primary = Color(0xFF10B981);
+  static const Color primaryLight = Color(0xFF34D399);
+  static const Color primaryDark = Color(0xFF059669);
 
   // Accent — warm coral for highlights and CTAs
   static const Color accent = Color(0xFFFF6B35);
@@ -41,5 +41,5 @@ abstract final class AppColorPalette {
   // Premium gradients
   static const Color gradientStart = Color(0xFF0A0A0F);
   static const Color gradientMid = Color(0xFF141428);
-  static const Color gradientEnd = Color(0xFF0D9488);
+  static const Color gradientEnd = Color(0xFF10B981);
 }

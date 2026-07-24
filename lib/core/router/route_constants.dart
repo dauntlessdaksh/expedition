@@ -2,16 +2,13 @@
 abstract final class RouteConstants {
   static const String splash = '/';
   static const String onboarding = '/onboarding';
-  static const String profile = '/profile';
-  static const String avatar = '/avatar';
-  static const String permissions = '/permissions';
   static const String home = '/home';
+  static const String activity = '/activity';
+  static const String avatarTest = '/avatar-test';
 
-  // Route names for typed navigation
   static const String splashName = 'splash';
   static const String onboardingName = 'onboarding';
-  static const String profileName = 'profile';
-  static const String avatarName = 'avatar';
-  static const String permissionsName = 'permissions';
   static const String homeName = 'home';
+  static const String activityName = 'activity';
+  static const String avatarTestName = 'avatar-test';
 }

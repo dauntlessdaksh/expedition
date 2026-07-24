@@ -1,21 +1,21 @@
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../profile/data/repositories/user_repository.dart';
+import '../../../onboarding/data/repositories/onboarding_repository.dart';
 
 part 'splash_event.dart';
 part 'splash_state.dart';
 
 /// Handles splash initialization and routing decisions.
 class SplashBloc extends Bloc<SplashEvent, SplashState> {
-  SplashBloc({required UserRepository userRepository})
-      : _userRepository = userRepository,
+  SplashBloc({required OnboardingRepository onboardingRepository})
+      : _onboardingRepository = onboardingRepository,
         super(const SplashState()) {
     on<SplashStarted>(_onStarted);
     on<SplashAnimationCompleted>(_onAnimationCompleted);
   }
 
-  final UserRepository _userRepository;
+  final OnboardingRepository _onboardingRepository;
 
   Future<void> _onStarted(
     SplashStarted event,
@@ -23,9 +23,11 @@ class SplashBloc extends Bloc<SplashEvent, SplashState> {
   ) async {
     emit(state.copyWith(status: SplashStatus.initializing));
 
-    final hasUser = await _userRepository.hasUser();
-    final destination =
-        hasUser ? SplashDestination.home : SplashDestination.onboarding;
+    final hasCompleted =
+        await _onboardingRepository.hasCompletedOnboarding();
+    final destination = hasCompleted
+        ? SplashDestination.home
+        : SplashDestination.onboarding;
 
     emit(state.copyWith(
       status: SplashStatus.ready,

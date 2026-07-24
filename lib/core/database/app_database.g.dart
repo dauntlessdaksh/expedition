@@ -34,17 +34,6 @@ class $UsersTable extends Users with TableInfo<$UsersTable, User> {
     type: DriftSqlType.string,
     requiredDuringInsert: true,
   );
-  static const VerificationMeta _dateOfBirthMeta = const VerificationMeta(
-    'dateOfBirth',
-  );
-  @override
-  late final GeneratedColumn<DateTime> dateOfBirth = GeneratedColumn<DateTime>(
-    'date_of_birth',
-    aliasedName,
-    false,
-    type: DriftSqlType.dateTime,
-    requiredDuringInsert: true,
-  );
   static const VerificationMeta _genderMeta = const VerificationMeta('gender');
   @override
   late final GeneratedColumn<String> gender = GeneratedColumn<String>(
@@ -56,6 +45,15 @@ class $UsersTable extends Users with TableInfo<$UsersTable, User> {
       maxTextLength: 20,
     ),
     type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _ageMeta = const VerificationMeta('age');
+  @override
+  late final GeneratedColumn<int> age = GeneratedColumn<int>(
+    'age',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
     requiredDuringInsert: true,
   );
   static const VerificationMeta _heightMeta = const VerificationMeta('height');
@@ -76,38 +74,35 @@ class $UsersTable extends Users with TableInfo<$UsersTable, User> {
     type: DriftSqlType.double,
     requiredDuringInsert: true,
   );
-  static const VerificationMeta _hairStyleMeta = const VerificationMeta(
-    'hairStyle',
+  static const VerificationMeta _fitnessGoalMeta = const VerificationMeta(
+    'fitnessGoal',
   );
   @override
-  late final GeneratedColumn<String> hairStyle = GeneratedColumn<String>(
-    'hair_style',
+  late final GeneratedColumn<String> fitnessGoal = GeneratedColumn<String>(
+    'fitness_goal',
     aliasedName,
-    true,
+    false,
+    additionalChecks: GeneratedColumn.checkTextLength(
+      minTextLength: 1,
+      maxTextLength: 50,
+    ),
     type: DriftSqlType.string,
-    requiredDuringInsert: false,
+    requiredDuringInsert: true,
   );
-  static const VerificationMeta _skinToneMeta = const VerificationMeta(
-    'skinTone',
+  static const VerificationMeta _activityLevelMeta = const VerificationMeta(
+    'activityLevel',
   );
   @override
-  late final GeneratedColumn<String> skinTone = GeneratedColumn<String>(
-    'skin_tone',
+  late final GeneratedColumn<String> activityLevel = GeneratedColumn<String>(
+    'activity_level',
     aliasedName,
-    true,
+    false,
+    additionalChecks: GeneratedColumn.checkTextLength(
+      minTextLength: 1,
+      maxTextLength: 50,
+    ),
     type: DriftSqlType.string,
-    requiredDuringInsert: false,
-  );
-  static const VerificationMeta _outfitColorMeta = const VerificationMeta(
-    'outfitColor',
-  );
-  @override
-  late final GeneratedColumn<String> outfitColor = GeneratedColumn<String>(
-    'outfit_color',
-    aliasedName,
-    true,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
+    requiredDuringInsert: true,
   );
   static const VerificationMeta _createdAtMeta = const VerificationMeta(
     'createdAt',
@@ -125,13 +120,12 @@ class $UsersTable extends Users with TableInfo<$UsersTable, User> {
   List<GeneratedColumn> get $columns => [
     id,
     name,
-    dateOfBirth,
     gender,
+    age,
     height,
     weight,
-    hairStyle,
-    skinTone,
-    outfitColor,
+    fitnessGoal,
+    activityLevel,
     createdAt,
   ];
   @override
@@ -157,17 +151,6 @@ class $UsersTable extends Users with TableInfo<$UsersTable, User> {
     } else if (isInserting) {
       context.missing(_nameMeta);
     }
-    if (data.containsKey('date_of_birth')) {
-      context.handle(
-        _dateOfBirthMeta,
-        dateOfBirth.isAcceptableOrUnknown(
-          data['date_of_birth']!,
-          _dateOfBirthMeta,
-        ),
-      );
-    } else if (isInserting) {
-      context.missing(_dateOfBirthMeta);
-    }
     if (data.containsKey('gender')) {
       context.handle(
         _genderMeta,
@@ -175,6 +158,14 @@ class $UsersTable extends Users with TableInfo<$UsersTable, User> {
       );
     } else if (isInserting) {
       context.missing(_genderMeta);
+    }
+    if (data.containsKey('age')) {
+      context.handle(
+        _ageMeta,
+        age.isAcceptableOrUnknown(data['age']!, _ageMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_ageMeta);
     }
     if (data.containsKey('height')) {
       context.handle(
@@ -192,26 +183,27 @@ class $UsersTable extends Users with TableInfo<$UsersTable, User> {
     } else if (isInserting) {
       context.missing(_weightMeta);
     }
-    if (data.containsKey('hair_style')) {
+    if (data.containsKey('fitness_goal')) {
       context.handle(
-        _hairStyleMeta,
-        hairStyle.isAcceptableOrUnknown(data['hair_style']!, _hairStyleMeta),
-      );
-    }
-    if (data.containsKey('skin_tone')) {
-      context.handle(
-        _skinToneMeta,
-        skinTone.isAcceptableOrUnknown(data['skin_tone']!, _skinToneMeta),
-      );
-    }
-    if (data.containsKey('outfit_color')) {
-      context.handle(
-        _outfitColorMeta,
-        outfitColor.isAcceptableOrUnknown(
-          data['outfit_color']!,
-          _outfitColorMeta,
+        _fitnessGoalMeta,
+        fitnessGoal.isAcceptableOrUnknown(
+          data['fitness_goal']!,
+          _fitnessGoalMeta,
         ),
       );
+    } else if (isInserting) {
+      context.missing(_fitnessGoalMeta);
+    }
+    if (data.containsKey('activity_level')) {
+      context.handle(
+        _activityLevelMeta,
+        activityLevel.isAcceptableOrUnknown(
+          data['activity_level']!,
+          _activityLevelMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_activityLevelMeta);
     }
     if (data.containsKey('created_at')) {
       context.handle(
@@ -236,13 +228,13 @@ class $UsersTable extends Users with TableInfo<$UsersTable, User> {
         DriftSqlType.string,
         data['${effectivePrefix}name'],
       )!,
-      dateOfBirth: attachedDatabase.typeMapping.read(
-        DriftSqlType.dateTime,
-        data['${effectivePrefix}date_of_birth'],
-      )!,
       gender: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}gender'],
+      )!,
+      age: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}age'],
       )!,
       height: attachedDatabase.typeMapping.read(
         DriftSqlType.double,
@@ -252,18 +244,14 @@ class $UsersTable extends Users with TableInfo<$UsersTable, User> {
         DriftSqlType.double,
         data['${effectivePrefix}weight'],
       )!,
-      hairStyle: attachedDatabase.typeMapping.read(
+      fitnessGoal: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
-        data['${effectivePrefix}hair_style'],
-      ),
-      skinTone: attachedDatabase.typeMapping.read(
+        data['${effectivePrefix}fitness_goal'],
+      )!,
+      activityLevel: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
-        data['${effectivePrefix}skin_tone'],
-      ),
-      outfitColor: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}outfit_color'],
-      ),
+        data['${effectivePrefix}activity_level'],
+      )!,
       createdAt: attachedDatabase.typeMapping.read(
         DriftSqlType.dateTime,
         data['${effectivePrefix}created_at'],
@@ -280,24 +268,22 @@ class $UsersTable extends Users with TableInfo<$UsersTable, User> {
 class User extends DataClass implements Insertable<User> {
   final int id;
   final String name;
-  final DateTime dateOfBirth;
   final String gender;
+  final int age;
   final double height;
   final double weight;
-  final String? hairStyle;
-  final String? skinTone;
-  final String? outfitColor;
+  final String fitnessGoal;
+  final String activityLevel;
   final DateTime createdAt;
   const User({
     required this.id,
     required this.name,
-    required this.dateOfBirth,
     required this.gender,
+    required this.age,
     required this.height,
     required this.weight,
-    this.hairStyle,
-    this.skinTone,
-    this.outfitColor,
+    required this.fitnessGoal,
+    required this.activityLevel,
     required this.createdAt,
   });
   @override
@@ -305,19 +291,12 @@ class User extends DataClass implements Insertable<User> {
     final map = <String, Expression>{};
     map['id'] = Variable<int>(id);
     map['name'] = Variable<String>(name);
-    map['date_of_birth'] = Variable<DateTime>(dateOfBirth);
     map['gender'] = Variable<String>(gender);
+    map['age'] = Variable<int>(age);
     map['height'] = Variable<double>(height);
     map['weight'] = Variable<double>(weight);
-    if (!nullToAbsent || hairStyle != null) {
-      map['hair_style'] = Variable<String>(hairStyle);
-    }
-    if (!nullToAbsent || skinTone != null) {
-      map['skin_tone'] = Variable<String>(skinTone);
-    }
-    if (!nullToAbsent || outfitColor != null) {
-      map['outfit_color'] = Variable<String>(outfitColor);
-    }
+    map['fitness_goal'] = Variable<String>(fitnessGoal);
+    map['activity_level'] = Variable<String>(activityLevel);
     map['created_at'] = Variable<DateTime>(createdAt);
     return map;
   }
@@ -326,19 +305,12 @@ class User extends DataClass implements Insertable<User> {
     return UsersCompanion(
       id: Value(id),
       name: Value(name),
-      dateOfBirth: Value(dateOfBirth),
       gender: Value(gender),
+      age: Value(age),
       height: Value(height),
       weight: Value(weight),
-      hairStyle: hairStyle == null && nullToAbsent
-          ? const Value.absent()
-          : Value(hairStyle),
-      skinTone: skinTone == null && nullToAbsent
-          ? const Value.absent()
-          : Value(skinTone),
-      outfitColor: outfitColor == null && nullToAbsent
-          ? const Value.absent()
-          : Value(outfitColor),
+      fitnessGoal: Value(fitnessGoal),
+      activityLevel: Value(activityLevel),
       createdAt: Value(createdAt),
     );
   }
@@ -351,13 +323,12 @@ class User extends DataClass implements Insertable<User> {
     return User(
       id: serializer.fromJson<int>(json['id']),
       name: serializer.fromJson<String>(json['name']),
-      dateOfBirth: serializer.fromJson<DateTime>(json['dateOfBirth']),
       gender: serializer.fromJson<String>(json['gender']),
+      age: serializer.fromJson<int>(json['age']),
       height: serializer.fromJson<double>(json['height']),
       weight: serializer.fromJson<double>(json['weight']),
-      hairStyle: serializer.fromJson<String?>(json['hairStyle']),
-      skinTone: serializer.fromJson<String?>(json['skinTone']),
-      outfitColor: serializer.fromJson<String?>(json['outfitColor']),
+      fitnessGoal: serializer.fromJson<String>(json['fitnessGoal']),
+      activityLevel: serializer.fromJson<String>(json['activityLevel']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
     );
   }
@@ -367,13 +338,12 @@ class User extends DataClass implements Insertable<User> {
     return <String, dynamic>{
       'id': serializer.toJson<int>(id),
       'name': serializer.toJson<String>(name),
-      'dateOfBirth': serializer.toJson<DateTime>(dateOfBirth),
       'gender': serializer.toJson<String>(gender),
+      'age': serializer.toJson<int>(age),
       'height': serializer.toJson<double>(height),
       'weight': serializer.toJson<double>(weight),
-      'hairStyle': serializer.toJson<String?>(hairStyle),
-      'skinTone': serializer.toJson<String?>(skinTone),
-      'outfitColor': serializer.toJson<String?>(outfitColor),
+      'fitnessGoal': serializer.toJson<String>(fitnessGoal),
+      'activityLevel': serializer.toJson<String>(activityLevel),
       'createdAt': serializer.toJson<DateTime>(createdAt),
     };
   }
@@ -381,41 +351,38 @@ class User extends DataClass implements Insertable<User> {
   User copyWith({
     int? id,
     String? name,
-    DateTime? dateOfBirth,
     String? gender,
+    int? age,
     double? height,
     double? weight,
-    Value<String?> hairStyle = const Value.absent(),
-    Value<String?> skinTone = const Value.absent(),
-    Value<String?> outfitColor = const Value.absent(),
+    String? fitnessGoal,
+    String? activityLevel,
     DateTime? createdAt,
   }) => User(
     id: id ?? this.id,
     name: name ?? this.name,
-    dateOfBirth: dateOfBirth ?? this.dateOfBirth,
     gender: gender ?? this.gender,
+    age: age ?? this.age,
     height: height ?? this.height,
     weight: weight ?? this.weight,
-    hairStyle: hairStyle.present ? hairStyle.value : this.hairStyle,
-    skinTone: skinTone.present ? skinTone.value : this.skinTone,
-    outfitColor: outfitColor.present ? outfitColor.value : this.outfitColor,
+    fitnessGoal: fitnessGoal ?? this.fitnessGoal,
+    activityLevel: activityLevel ?? this.activityLevel,
     createdAt: createdAt ?? this.createdAt,
   );
   User copyWithCompanion(UsersCompanion data) {
     return User(
       id: data.id.present ? data.id.value : this.id,
       name: data.name.present ? data.name.value : this.name,
-      dateOfBirth: data.dateOfBirth.present
-          ? data.dateOfBirth.value
-          : this.dateOfBirth,
       gender: data.gender.present ? data.gender.value : this.gender,
+      age: data.age.present ? data.age.value : this.age,
       height: data.height.present ? data.height.value : this.height,
       weight: data.weight.present ? data.weight.value : this.weight,
-      hairStyle: data.hairStyle.present ? data.hairStyle.value : this.hairStyle,
-      skinTone: data.skinTone.present ? data.skinTone.value : this.skinTone,
-      outfitColor: data.outfitColor.present
-          ? data.outfitColor.value
-          : this.outfitColor,
+      fitnessGoal: data.fitnessGoal.present
+          ? data.fitnessGoal.value
+          : this.fitnessGoal,
+      activityLevel: data.activityLevel.present
+          ? data.activityLevel.value
+          : this.activityLevel,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
     );
   }
@@ -425,13 +392,12 @@ class User extends DataClass implements Insertable<User> {
     return (StringBuffer('User(')
           ..write('id: $id, ')
           ..write('name: $name, ')
-          ..write('dateOfBirth: $dateOfBirth, ')
           ..write('gender: $gender, ')
+          ..write('age: $age, ')
           ..write('height: $height, ')
           ..write('weight: $weight, ')
-          ..write('hairStyle: $hairStyle, ')
-          ..write('skinTone: $skinTone, ')
-          ..write('outfitColor: $outfitColor, ')
+          ..write('fitnessGoal: $fitnessGoal, ')
+          ..write('activityLevel: $activityLevel, ')
           ..write('createdAt: $createdAt')
           ..write(')'))
         .toString();
@@ -441,13 +407,12 @@ class User extends DataClass implements Insertable<User> {
   int get hashCode => Object.hash(
     id,
     name,
-    dateOfBirth,
     gender,
+    age,
     height,
     weight,
-    hairStyle,
-    skinTone,
-    outfitColor,
+    fitnessGoal,
+    activityLevel,
     createdAt,
   );
   @override
@@ -456,77 +421,73 @@ class User extends DataClass implements Insertable<User> {
       (other is User &&
           other.id == this.id &&
           other.name == this.name &&
-          other.dateOfBirth == this.dateOfBirth &&
           other.gender == this.gender &&
+          other.age == this.age &&
           other.height == this.height &&
           other.weight == this.weight &&
-          other.hairStyle == this.hairStyle &&
-          other.skinTone == this.skinTone &&
-          other.outfitColor == this.outfitColor &&
+          other.fitnessGoal == this.fitnessGoal &&
+          other.activityLevel == this.activityLevel &&
           other.createdAt == this.createdAt);
 }
 
 class UsersCompanion extends UpdateCompanion<User> {
   final Value<int> id;
   final Value<String> name;
-  final Value<DateTime> dateOfBirth;
   final Value<String> gender;
+  final Value<int> age;
   final Value<double> height;
   final Value<double> weight;
-  final Value<String?> hairStyle;
-  final Value<String?> skinTone;
-  final Value<String?> outfitColor;
+  final Value<String> fitnessGoal;
+  final Value<String> activityLevel;
   final Value<DateTime> createdAt;
   const UsersCompanion({
     this.id = const Value.absent(),
     this.name = const Value.absent(),
-    this.dateOfBirth = const Value.absent(),
     this.gender = const Value.absent(),
+    this.age = const Value.absent(),
     this.height = const Value.absent(),
     this.weight = const Value.absent(),
-    this.hairStyle = const Value.absent(),
-    this.skinTone = const Value.absent(),
-    this.outfitColor = const Value.absent(),
+    this.fitnessGoal = const Value.absent(),
+    this.activityLevel = const Value.absent(),
     this.createdAt = const Value.absent(),
   });
   UsersCompanion.insert({
     this.id = const Value.absent(),
     required String name,
-    required DateTime dateOfBirth,
     required String gender,
+    required int age,
     required double height,
     required double weight,
-    this.hairStyle = const Value.absent(),
-    this.skinTone = const Value.absent(),
-    this.outfitColor = const Value.absent(),
+    required String fitnessGoal,
+    required String activityLevel,
     this.createdAt = const Value.absent(),
   }) : name = Value(name),
-       dateOfBirth = Value(dateOfBirth),
        gender = Value(gender),
+       age = Value(age),
        height = Value(height),
-       weight = Value(weight);
+       weight = Value(weight),
+       fitnessGoal = Value(fitnessGoal),
+       activityLevel = Value(activityLevel);
   static Insertable<User> custom({
     Expression<int>? id,
     Expression<String>? name,
-    Expression<DateTime>? dateOfBirth,
     Expression<String>? gender,
+    Expression<int>? age,
     Expression<double>? height,
     Expression<double>? weight,
-    Expression<String>? hairStyle,
-    Expression<String>? skinTone,
-    Expression<String>? outfitColor,
+    Expression<String>? fitnessGoal,
+    Expression<String>? activityLevel,
     Expression<DateTime>? createdAt,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
       if (name != null) 'name': name,
-      if (dateOfBirth != null) 'date_of_birth': dateOfBirth,
       if (gender != null) 'gender': gender,
+      if (age != null) 'age': age,
       if (height != null) 'height': height,
       if (weight != null) 'weight': weight,
-      if (hairStyle != null) 'hair_style': hairStyle,
-      if (skinTone != null) 'skin_tone': skinTone,
-      if (outfitColor != null) 'outfit_color': outfitColor,
+      if (fitnessGoal != null) 'fitness_goal': fitnessGoal,
+      if (activityLevel != null) 'activity_level': activityLevel,
       if (createdAt != null) 'created_at': createdAt,
     });
   }
@@ -534,25 +495,23 @@ class UsersCompanion extends UpdateCompanion<User> {
   UsersCompanion copyWith({
     Value<int>? id,
     Value<String>? name,
-    Value<DateTime>? dateOfBirth,
     Value<String>? gender,
+    Value<int>? age,
     Value<double>? height,
     Value<double>? weight,
-    Value<String?>? hairStyle,
-    Value<String?>? skinTone,
-    Value<String?>? outfitColor,
+    Value<String>? fitnessGoal,
+    Value<String>? activityLevel,
     Value<DateTime>? createdAt,
   }) {
     return UsersCompanion(
       id: id ?? this.id,
       name: name ?? this.name,
-      dateOfBirth: dateOfBirth ?? this.dateOfBirth,
       gender: gender ?? this.gender,
+      age: age ?? this.age,
       height: height ?? this.height,
       weight: weight ?? this.weight,
-      hairStyle: hairStyle ?? this.hairStyle,
-      skinTone: skinTone ?? this.skinTone,
-      outfitColor: outfitColor ?? this.outfitColor,
+      fitnessGoal: fitnessGoal ?? this.fitnessGoal,
+      activityLevel: activityLevel ?? this.activityLevel,
       createdAt: createdAt ?? this.createdAt,
     );
   }
@@ -566,11 +525,11 @@ class UsersCompanion extends UpdateCompanion<User> {
     if (name.present) {
       map['name'] = Variable<String>(name.value);
     }
-    if (dateOfBirth.present) {
-      map['date_of_birth'] = Variable<DateTime>(dateOfBirth.value);
-    }
     if (gender.present) {
       map['gender'] = Variable<String>(gender.value);
+    }
+    if (age.present) {
+      map['age'] = Variable<int>(age.value);
     }
     if (height.present) {
       map['height'] = Variable<double>(height.value);
@@ -578,14 +537,11 @@ class UsersCompanion extends UpdateCompanion<User> {
     if (weight.present) {
       map['weight'] = Variable<double>(weight.value);
     }
-    if (hairStyle.present) {
-      map['hair_style'] = Variable<String>(hairStyle.value);
+    if (fitnessGoal.present) {
+      map['fitness_goal'] = Variable<String>(fitnessGoal.value);
     }
-    if (skinTone.present) {
-      map['skin_tone'] = Variable<String>(skinTone.value);
-    }
-    if (outfitColor.present) {
-      map['outfit_color'] = Variable<String>(outfitColor.value);
+    if (activityLevel.present) {
+      map['activity_level'] = Variable<String>(activityLevel.value);
     }
     if (createdAt.present) {
       map['created_at'] = Variable<DateTime>(createdAt.value);
@@ -598,13 +554,12 @@ class UsersCompanion extends UpdateCompanion<User> {
     return (StringBuffer('UsersCompanion(')
           ..write('id: $id, ')
           ..write('name: $name, ')
-          ..write('dateOfBirth: $dateOfBirth, ')
           ..write('gender: $gender, ')
+          ..write('age: $age, ')
           ..write('height: $height, ')
           ..write('weight: $weight, ')
-          ..write('hairStyle: $hairStyle, ')
-          ..write('skinTone: $skinTone, ')
-          ..write('outfitColor: $outfitColor, ')
+          ..write('fitnessGoal: $fitnessGoal, ')
+          ..write('activityLevel: $activityLevel, ')
           ..write('createdAt: $createdAt')
           ..write(')'))
         .toString();
@@ -983,26 +938,24 @@ typedef $$UsersTableCreateCompanionBuilder =
     UsersCompanion Function({
       Value<int> id,
       required String name,
-      required DateTime dateOfBirth,
       required String gender,
+      required int age,
       required double height,
       required double weight,
-      Value<String?> hairStyle,
-      Value<String?> skinTone,
-      Value<String?> outfitColor,
+      required String fitnessGoal,
+      required String activityLevel,
       Value<DateTime> createdAt,
     });
 typedef $$UsersTableUpdateCompanionBuilder =
     UsersCompanion Function({
       Value<int> id,
       Value<String> name,
-      Value<DateTime> dateOfBirth,
       Value<String> gender,
+      Value<int> age,
       Value<double> height,
       Value<double> weight,
-      Value<String?> hairStyle,
-      Value<String?> skinTone,
-      Value<String?> outfitColor,
+      Value<String> fitnessGoal,
+      Value<String> activityLevel,
       Value<DateTime> createdAt,
     });
 
@@ -1024,13 +977,13 @@ class $$UsersTableFilterComposer extends Composer<_$AppDatabase, $UsersTable> {
     builder: (column) => ColumnFilters(column),
   );
 
-  ColumnFilters<DateTime> get dateOfBirth => $composableBuilder(
-    column: $table.dateOfBirth,
+  ColumnFilters<String> get gender => $composableBuilder(
+    column: $table.gender,
     builder: (column) => ColumnFilters(column),
   );
 
-  ColumnFilters<String> get gender => $composableBuilder(
-    column: $table.gender,
+  ColumnFilters<int> get age => $composableBuilder(
+    column: $table.age,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -1044,18 +997,13 @@ class $$UsersTableFilterComposer extends Composer<_$AppDatabase, $UsersTable> {
     builder: (column) => ColumnFilters(column),
   );
 
-  ColumnFilters<String> get hairStyle => $composableBuilder(
-    column: $table.hairStyle,
+  ColumnFilters<String> get fitnessGoal => $composableBuilder(
+    column: $table.fitnessGoal,
     builder: (column) => ColumnFilters(column),
   );
 
-  ColumnFilters<String> get skinTone => $composableBuilder(
-    column: $table.skinTone,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<String> get outfitColor => $composableBuilder(
-    column: $table.outfitColor,
+  ColumnFilters<String> get activityLevel => $composableBuilder(
+    column: $table.activityLevel,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -1084,13 +1032,13 @@ class $$UsersTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
-  ColumnOrderings<DateTime> get dateOfBirth => $composableBuilder(
-    column: $table.dateOfBirth,
+  ColumnOrderings<String> get gender => $composableBuilder(
+    column: $table.gender,
     builder: (column) => ColumnOrderings(column),
   );
 
-  ColumnOrderings<String> get gender => $composableBuilder(
-    column: $table.gender,
+  ColumnOrderings<int> get age => $composableBuilder(
+    column: $table.age,
     builder: (column) => ColumnOrderings(column),
   );
 
@@ -1104,18 +1052,13 @@ class $$UsersTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
-  ColumnOrderings<String> get hairStyle => $composableBuilder(
-    column: $table.hairStyle,
+  ColumnOrderings<String> get fitnessGoal => $composableBuilder(
+    column: $table.fitnessGoal,
     builder: (column) => ColumnOrderings(column),
   );
 
-  ColumnOrderings<String> get skinTone => $composableBuilder(
-    column: $table.skinTone,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<String> get outfitColor => $composableBuilder(
-    column: $table.outfitColor,
+  ColumnOrderings<String> get activityLevel => $composableBuilder(
+    column: $table.activityLevel,
     builder: (column) => ColumnOrderings(column),
   );
 
@@ -1140,13 +1083,11 @@ class $$UsersTableAnnotationComposer
   GeneratedColumn<String> get name =>
       $composableBuilder(column: $table.name, builder: (column) => column);
 
-  GeneratedColumn<DateTime> get dateOfBirth => $composableBuilder(
-    column: $table.dateOfBirth,
-    builder: (column) => column,
-  );
-
   GeneratedColumn<String> get gender =>
       $composableBuilder(column: $table.gender, builder: (column) => column);
+
+  GeneratedColumn<int> get age =>
+      $composableBuilder(column: $table.age, builder: (column) => column);
 
   GeneratedColumn<double> get height =>
       $composableBuilder(column: $table.height, builder: (column) => column);
@@ -1154,14 +1095,13 @@ class $$UsersTableAnnotationComposer
   GeneratedColumn<double> get weight =>
       $composableBuilder(column: $table.weight, builder: (column) => column);
 
-  GeneratedColumn<String> get hairStyle =>
-      $composableBuilder(column: $table.hairStyle, builder: (column) => column);
+  GeneratedColumn<String> get fitnessGoal => $composableBuilder(
+    column: $table.fitnessGoal,
+    builder: (column) => column,
+  );
 
-  GeneratedColumn<String> get skinTone =>
-      $composableBuilder(column: $table.skinTone, builder: (column) => column);
-
-  GeneratedColumn<String> get outfitColor => $composableBuilder(
-    column: $table.outfitColor,
+  GeneratedColumn<String> get activityLevel => $composableBuilder(
+    column: $table.activityLevel,
     builder: (column) => column,
   );
 
@@ -1199,48 +1139,44 @@ class $$UsersTableTableManager
               ({
                 Value<int> id = const Value.absent(),
                 Value<String> name = const Value.absent(),
-                Value<DateTime> dateOfBirth = const Value.absent(),
                 Value<String> gender = const Value.absent(),
+                Value<int> age = const Value.absent(),
                 Value<double> height = const Value.absent(),
                 Value<double> weight = const Value.absent(),
-                Value<String?> hairStyle = const Value.absent(),
-                Value<String?> skinTone = const Value.absent(),
-                Value<String?> outfitColor = const Value.absent(),
+                Value<String> fitnessGoal = const Value.absent(),
+                Value<String> activityLevel = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
               }) => UsersCompanion(
                 id: id,
                 name: name,
-                dateOfBirth: dateOfBirth,
                 gender: gender,
+                age: age,
                 height: height,
                 weight: weight,
-                hairStyle: hairStyle,
-                skinTone: skinTone,
-                outfitColor: outfitColor,
+                fitnessGoal: fitnessGoal,
+                activityLevel: activityLevel,
                 createdAt: createdAt,
               ),
           createCompanionCallback:
               ({
                 Value<int> id = const Value.absent(),
                 required String name,
-                required DateTime dateOfBirth,
                 required String gender,
+                required int age,
                 required double height,
                 required double weight,
-                Value<String?> hairStyle = const Value.absent(),
-                Value<String?> skinTone = const Value.absent(),
-                Value<String?> outfitColor = const Value.absent(),
+                required String fitnessGoal,
+                required String activityLevel,
                 Value<DateTime> createdAt = const Value.absent(),
               }) => UsersCompanion.insert(
                 id: id,
                 name: name,
-                dateOfBirth: dateOfBirth,
                 gender: gender,
+                age: age,
                 height: height,
                 weight: weight,
-                hairStyle: hairStyle,
-                skinTone: skinTone,
-                outfitColor: outfitColor,
+                fitnessGoal: fitnessGoal,
+                activityLevel: activityLevel,
                 createdAt: createdAt,
               ),
           withReferenceMapper: (p0) => p0

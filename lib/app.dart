@@ -8,10 +8,9 @@ import 'core/services/api_client.dart';
 import 'core/theme/app_theme.dart';
 import 'core/theme/theme_cubit.dart';
 import 'core/utils/logger.dart';
-import 'features/profile/data/datasource/user_local_datasource.dart';
-import 'features/profile/data/repositories/user_repository.dart';
-import 'features/settings/data/datasource/settings_local_datasource.dart';
-import 'features/settings/data/repositories/settings_repository.dart';
+import 'features/home/data/repositories/dummy_home_repository.dart';
+import 'features/onboarding/data/datasource/onboarding_local_datasource.dart';
+import 'features/onboarding/data/repositories/onboarding_repository.dart';
 
 /// Root widget for the Expedition application.
 class ExpeditionApp extends StatelessWidget {
@@ -48,16 +47,17 @@ Future<void> bootstrap() async {
   final database = AppDatabase();
   final apiClient = ApiClient();
 
-  final userRepository = UserRepository(
-    UserLocalDataSource(database),
+  final onboardingRepository = OnboardingRepository(
+    OnboardingLocalDataSource(database),
   );
-  final settingsRepository = SettingsRepository(
-    SettingsLocalDataSource(database),
+
+  final homeRepository = DummyHomeRepository(
+    onboardingRepository: onboardingRepository,
   );
 
   final appRouter = AppRouter(
-    userRepository: userRepository,
-    settingsRepository: settingsRepository,
+    onboardingRepository: onboardingRepository,
+    homeRepository: homeRepository,
   );
 
   AppLogger.info('Core services initialized');
@@ -67,10 +67,10 @@ Future<void> bootstrap() async {
       providers: [
         RepositoryProvider<AppDatabase>.value(value: database),
         RepositoryProvider<ApiClient>.value(value: apiClient),
-        RepositoryProvider<UserRepository>.value(value: userRepository),
-        RepositoryProvider<SettingsRepository>.value(
-          value: settingsRepository,
+        RepositoryProvider<OnboardingRepository>.value(
+          value: onboardingRepository,
         ),
+        RepositoryProvider<DummyHomeRepository>.value(value: homeRepository),
       ],
       child: BlocProvider(
         create: (_) => ThemeCubit(),

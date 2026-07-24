@@ -43,6 +43,9 @@ dependencies:
   # Utilities
   intl: ^0.20.2
 
+  # 3D Models
+  model_viewer_plus: ^1.10.0
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -53,6 +56,8 @@ dev_dependencies:
 flutter:
   uses-material-design: true
 
-  # assets:
-  #   - assets/images/
-  #   - assets/icons/
+  assets:
+    - assets/avatars/male/malerunning.glb
+    - assets/avatars/male/maledancing.glb
+    - assets/avatars/female/femrunning.glb
+    - assets/avatars/female/femdancing.glb
