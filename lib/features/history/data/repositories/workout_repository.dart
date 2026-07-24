@@ -16,6 +16,10 @@ class WorkoutRepository {
     return _localDataSource.getAllWorkouts();
   }
 
+  Future<Workout?> getWorkoutById(int id) {
+    return _localDataSource.getWorkoutById(id);
+  }
+
   Future<List<Workout>> getTodaysWorkouts([DateTime? referenceDate]) {
     final now = referenceDate ?? DateTime.now();
     final start = DateTime(now.year, now.month, now.day);

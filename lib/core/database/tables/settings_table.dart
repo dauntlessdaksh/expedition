@@ -15,4 +15,16 @@ class Settings extends Table {
 
   IntColumn get dailyStepGoal =>
       integer().withDefault(const Constant(10000))();
+
+  RealColumn get weeklyDistanceGoal =>
+      real().withDefault(const Constant(56.0))();
+
+  IntColumn get weeklyWorkoutGoal =>
+      integer().withDefault(const Constant(12))();
+
+  IntColumn get dailyActiveMinutesGoal =>
+      integer().withDefault(const Constant(60))();
+
+  IntColumn get monthlyWorkoutGoal =>
+      integer().withDefault(const Constant(12))();
 }

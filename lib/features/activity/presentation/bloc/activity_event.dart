@@ -52,3 +52,7 @@ final class FollowUserToggled extends ActivityEvent {
 final class RecenterMapRequested extends ActivityEvent {
   const RecenterMapRequested();
 }
+
+final class ClearPendingCelebration extends ActivityEvent {
+  const ClearPendingCelebration();
+}

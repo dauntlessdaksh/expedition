@@ -6,6 +6,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
+import '../../../gamification/data/repositories/gamification_repository.dart';
+import '../../../gamification/domain/models/gamification_models.dart';
 import '../../../history/domain/models/workout.dart';
 import '../../../history/data/repositories/workout_repository.dart';
 import '../../../onboarding/data/repositories/onboarding_repository.dart';
@@ -22,9 +24,11 @@ class ActivityBloc extends Bloc<ActivityEvent, ActivityState> {
     required LocationService locationService,
     required WorkoutRepository workoutRepository,
     required OnboardingRepository onboardingRepository,
+    required GamificationRepository gamificationRepository,
   })  : _locationService = locationService,
         _workoutRepository = workoutRepository,
         _onboardingRepository = onboardingRepository,
+        _gamificationRepository = gamificationRepository,
         super(const ActivityState()) {
     on<ActivityStarted>(_onStarted);
     on<StartTracking>(_onStartTracking);
@@ -35,6 +39,7 @@ class ActivityBloc extends Bloc<ActivityEvent, ActivityState> {
     on<DurationTicked>(_onDurationTicked);
     on<FollowUserToggled>(_onFollowUserToggled);
     on<RecenterMapRequested>(_onRecenterMapRequested);
+    on<ClearPendingCelebration>(_onClearPendingCelebration);
   }
 
   static const _activityType = 'outdoor_run';
@@ -42,6 +47,7 @@ class ActivityBloc extends Bloc<ActivityEvent, ActivityState> {
   final LocationService _locationService;
   final WorkoutRepository _workoutRepository;
   final OnboardingRepository _onboardingRepository;
+  final GamificationRepository _gamificationRepository;
   final ActivityMetricsTracker _metrics = ActivityMetricsTracker();
 
   StreamSubscription<Position>? _positionSubscription;
@@ -238,9 +244,17 @@ class ActivityBloc extends Bloc<ActivityEvent, ActivityState> {
 
       try {
         await _saveWorkout(sessionSnapshot);
+        final profile = await _onboardingRepository.getUserProfile();
+        final syncResult = await _gamificationRepository.syncAfterWorkout();
+        final celebration = syncResult.newlyUnlocked.isNotEmpty
+            ? syncResult.newlyUnlocked.first
+            : null;
+
         emit(state.copyWith(
           status: ActivityTrackingStatus.stopped,
           workoutSaveStatus: ActivityWorkoutSaveStatus.saved,
+          pendingCelebration: celebration,
+          userGender: profile?.gender ?? 'male',
           routePoints: const [],
           duration: Duration.zero,
           distanceMeters: 0,
@@ -371,6 +385,13 @@ class ActivityBloc extends Bloc<ActivityEvent, ActivityState> {
     Emitter<ActivityState> emit,
   ) {
     emit(state.copyWith(followUser: true));
+  }
+
+  void _onClearPendingCelebration(
+    ClearPendingCelebration event,
+    Emitter<ActivityState> emit,
+  ) {
+    emit(state.copyWith(clearPendingCelebration: true));
   }
 
   Duration _currentElapsedDuration() {

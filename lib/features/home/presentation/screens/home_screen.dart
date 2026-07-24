@@ -4,8 +4,11 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_spacing.dart';
+import '../../../../core/navigation/main_navigation.dart';
+import '../../../../core/navigation/main_tab.dart';
 import '../../../../core/router/app_router.dart';
 import '../../../../core/router/route_constants.dart';
+import '../../../../core/services/avatar_lifecycle.dart';
 import '../../../../core/theme/premium_gradients.dart';
 import '../../../../core/widgets/loading_indicator.dart';
 import '../../domain/models/home_dashboard_data.dart';
@@ -51,37 +54,62 @@ class _HomeScreenState extends State<HomeScreen> with RouteAware {
   }
 
   @override
+  void activate() {
+    super.activate();
+    if (mounted) {
+      context.read<HomeBloc>().add(const RefreshDashboard());
+    }
+  }
+
+  @override
   void didPopNext() {
     setState(() => _isRouteVisible = true);
+    context.read<HomeBloc>().add(const RefreshDashboard());
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColorPalette.darkBackground,
-      body: DecoratedBox(
-        decoration: const BoxDecoration(
-          gradient: PremiumGradients.darkBackground,
-        ),
-        child: BlocBuilder<HomeBloc, HomeState>(
-          builder: (context, state) {
-            return switch (state.status) {
-              HomeStatus.initial || HomeStatus.loading =>
-                const LoadingIndicator(message: 'Loading your dashboard...'),
-              HomeStatus.failure => _ErrorView(
-                  onRetry: () =>
-                      context.read<HomeBloc>().add(const LoadDashboard()),
-                ),
-              HomeStatus.loaded when state.data != null =>
-                _DashboardContent(
-                  data: state.data!,
-                  showAvatar: _isRouteVisible,
-                ),
-              _ => const SizedBox.shrink(),
-            };
-          },
-        ),
-      ),
+    return ValueListenableBuilder<String?>(
+      valueListenable: avatarHostLock,
+      builder: (context, avatarLockOwner, _) {
+        final shell = StatefulNavigationShell.maybeOf(context);
+        final isHomeTabActive = shell == null || shell.currentIndex == 0;
+        final location = GoRouterState.of(context).uri.toString();
+        final showAvatar = _isRouteVisible &&
+            isHomeTabActive &&
+            avatarLockOwner == null &&
+            !location.contains(RouteConstants.profile);
+
+        return Scaffold(
+          backgroundColor: AppColorPalette.darkBackground,
+          body: DecoratedBox(
+            decoration: const BoxDecoration(
+              gradient: PremiumGradients.darkBackground,
+            ),
+            child: BlocBuilder<HomeBloc, HomeState>(
+              builder: (context, state) {
+                return switch (state.status) {
+                  HomeStatus.initial || HomeStatus.loading =>
+                    const LoadingIndicator(
+                      message: 'Loading your dashboard...',
+                    ),
+                  HomeStatus.failure => _ErrorView(
+                      onRetry: () => context
+                          .read<HomeBloc>()
+                          .add(const LoadDashboard()),
+                    ),
+                  HomeStatus.loaded when state.data != null =>
+                    _DashboardContent(
+                      data: state.data!,
+                      showAvatar: showAvatar,
+                    ),
+                  _ => const SizedBox.shrink(),
+                };
+              },
+            ),
+          ),
+        );
+      },
     );
   }
 }
@@ -129,9 +157,7 @@ class _DashboardContent extends StatelessWidget {
                           child: GreetingSection(userName: data.userName),
                         ),
                         ProfileButton(
-                          onTap: () {
-                            // Profile screen — coming soon.
-                          },
+                          onTap: () => context.push(RouteConstants.profilePath),
                         ),
                       ],
                     ),
@@ -187,7 +213,8 @@ class _DashboardContent extends StatelessWidget {
           right: 0,
           bottom: 0,
           child: WorkoutFab(
-            onPressed: () => context.go(RouteConstants.activity),
+            onPressed: () =>
+                MainNavigation.goToTab(context, MainTab.activity),
           ),
         ),
       ],

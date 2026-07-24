@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:go_router/go_router.dart';
 
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_spacing.dart';
-import '../../../../core/router/route_constants.dart';
+import '../../../../core/navigation/main_navigation.dart';
+import '../../../../core/navigation/main_tab.dart';
+import '../../../gamification/presentation/widgets/achievement_celebration_dialog.dart';
 import '../bloc/activity_bloc.dart';
 import '../widgets/activity_controls.dart';
 import '../widgets/activity_map.dart';
@@ -18,11 +19,26 @@ class ActivityScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocListener<ActivityBloc, ActivityState>(
       listenWhen: (previous, current) =>
-          previous.workoutSaveStatus != current.workoutSaveStatus,
-      listener: (context, state) {
-        if (state.workoutSaveStatus == ActivityWorkoutSaveStatus.saved) {
-          context.go(RouteConstants.home);
+          previous.workoutSaveStatus != current.workoutSaveStatus ||
+          (current.pendingCelebration != null &&
+              previous.pendingCelebration == null),
+      listener: (context, state) async {
+        if (state.workoutSaveStatus != ActivityWorkoutSaveStatus.saved) {
+          return;
         }
+
+        if (state.pendingCelebration != null) {
+          await AchievementCelebrationDialog.show(
+            context,
+            achievement: state.pendingCelebration!,
+            gender: state.userGender,
+          );
+          if (!context.mounted) return;
+          context.read<ActivityBloc>().add(const ClearPendingCelebration());
+        }
+
+        if (!context.mounted) return;
+        MainNavigation.goToTab(context, MainTab.home);
       },
       child: BlocBuilder<ActivityBloc, ActivityState>(
         builder: (context, state) {
@@ -44,7 +60,8 @@ class ActivityScreen extends StatelessWidget {
                           onPressed: state.workoutSaveStatus ==
                                   ActivityWorkoutSaveStatus.saving
                               ? null
-                              : () => context.go(RouteConstants.home),
+                              : () =>
+                                  MainNavigation.goToTab(context, MainTab.home),
                         ),
                         const Spacer(),
                         if (!state.followUser && state.currentPosition != null)

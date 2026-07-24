@@ -4,7 +4,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 /// Manages the application's theme mode (light, dark, or system).
 class ThemeCubit extends Cubit<ThemeMode> {
-  ThemeCubit() : super(ThemeMode.system);
+  ThemeCubit({ThemeMode initialMode = ThemeMode.system})
+      : super(initialMode);
 
   void setThemeMode(ThemeMode mode) => emit(mode);
 

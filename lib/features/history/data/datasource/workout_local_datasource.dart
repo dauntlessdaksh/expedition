@@ -26,6 +26,14 @@ class WorkoutLocalDataSource {
     return rows.map(Workout.fromRow).toList();
   }
 
+  Future<Workout?> getWorkoutById(int id) async {
+    final row = await (_database.select(_database.workouts)
+          ..where((table) => table.id.equals(id)))
+        .getSingleOrNull();
+
+    return row == null ? null : Workout.fromRow(row);
+  }
+
   Future<List<Workout>> getWorkoutsBetween({
     required DateTime startInclusive,
     required DateTime endExclusive,

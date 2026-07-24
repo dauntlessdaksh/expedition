@@ -2,6 +2,7 @@ import '../../../history/data/repositories/workout_repository.dart';
 import '../../../history/domain/models/workout.dart';
 import '../../../onboarding/data/repositories/onboarding_repository.dart';
 import '../../../shared/utils/streak_calculator.dart';
+import '../../../profile/data/repositories/profile_repository.dart';
 import '../../domain/models/home_dashboard_data.dart';
 
 /// Builds home dashboard metrics from persisted workouts and user profile.
@@ -9,20 +10,22 @@ class HomeRepository {
   const HomeRepository({
     required WorkoutRepository workoutRepository,
     required OnboardingRepository onboardingRepository,
+    required ProfileRepository profileRepository,
   })  : _workoutRepository = workoutRepository,
-        _onboardingRepository = onboardingRepository;
+        _onboardingRepository = onboardingRepository,
+        _profileRepository = profileRepository;
 
   final WorkoutRepository _workoutRepository;
   final OnboardingRepository _onboardingRepository;
+  final ProfileRepository _profileRepository;
 
-  static const _defaultStepGoal = 10000;
   static const _defaultCaloriesGoal = 600;
-  static const _defaultDistanceGoalKm = 8.0;
   static const _defaultActiveMinutesGoal = 60;
   static const _stepsPerKm = 1300;
 
   Future<HomeDashboardData> getDashboardData() async {
     final profile = await _onboardingRepository.getUserProfile();
+    final preferences = await _profileRepository.getPreferences();
     final todaysWorkouts = await _workoutRepository.getTodaysWorkouts();
     final weeklyWorkouts = await _workoutRepository.getWeeklyWorkouts();
     final allWorkouts = await _workoutRepository.getAllWorkouts();
@@ -31,17 +34,18 @@ class HomeRepository {
     final todayCalories = _sumCalories(todaysWorkouts);
     final todayActiveMinutes = _sumActiveMinutes(todaysWorkouts);
     final todaySteps = _estimateSteps(todayDistanceMeters);
+    final dailyDistanceGoalKm = preferences.weeklyDistanceGoalKm / 7;
 
     return HomeDashboardData(
       userName: profile?.name ?? 'Athlete',
       gender: profile?.gender ?? 'male',
       stats: DailyStats(
         steps: todaySteps,
-        stepsGoal: _defaultStepGoal,
+        stepsGoal: preferences.dailyStepGoal,
         calories: todayCalories,
         caloriesGoal: _defaultCaloriesGoal,
         distanceKm: todayDistanceMeters / 1000,
-        distanceGoalKm: _defaultDistanceGoalKm,
+        distanceGoalKm: dailyDistanceGoalKm,
         activeMinutes: todayActiveMinutes,
         activeMinutesGoal: _defaultActiveMinutesGoal,
         workoutCount: todaysWorkouts.length,

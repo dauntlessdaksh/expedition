@@ -38,6 +38,8 @@ final class ActivityState extends Equatable {
     this.gpsAccuracyMeters = 0,
     this.followUser = true,
     this.errorMessage,
+    this.pendingCelebration,
+    this.userGender = 'male',
   });
 
   final ActivityTrackingStatus status;
@@ -53,6 +55,8 @@ final class ActivityState extends Equatable {
   final double gpsAccuracyMeters;
   final bool followUser;
   final String? errorMessage;
+  final Achievement? pendingCelebration;
+  final String userGender;
 
   bool get isSessionActive =>
       status == ActivityTrackingStatus.tracking ||
@@ -92,7 +96,10 @@ final class ActivityState extends Equatable {
     double? gpsAccuracyMeters,
     bool? followUser,
     String? errorMessage,
+    Achievement? pendingCelebration,
+    String? userGender,
     bool clearError = false,
+    bool clearPendingCelebration = false,
   }) {
     return ActivityState(
       status: status ?? this.status,
@@ -108,6 +115,10 @@ final class ActivityState extends Equatable {
       gpsAccuracyMeters: gpsAccuracyMeters ?? this.gpsAccuracyMeters,
       followUser: followUser ?? this.followUser,
       errorMessage: clearError ? null : errorMessage ?? this.errorMessage,
+      pendingCelebration: clearPendingCelebration
+          ? null
+          : pendingCelebration ?? this.pendingCelebration,
+      userGender: userGender ?? this.userGender,
     );
   }
 
@@ -126,5 +137,7 @@ final class ActivityState extends Equatable {
         gpsAccuracyMeters,
         followUser,
         errorMessage,
+        pendingCelebration,
+        userGender,
       ];
 }
