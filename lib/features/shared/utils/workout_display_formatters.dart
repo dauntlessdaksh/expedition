@@ -38,4 +38,19 @@ abstract final class WorkoutDisplayFormatters {
   static String timeOfDay(DateTime dateTime) {
     return DateFormat('h:mm a').format(dateTime);
   }
+
+  static String elevationMeters(double meters) {
+    if (meters <= 0) return '0 m';
+    return '${meters.round()} m';
+  }
+
+  static String elevationDeltaMeters(double meters) {
+    if (meters <= 0) return '0 m';
+    return '+${meters.round()} m';
+  }
+
+  static String elevationChangeMeters(double meters) {
+    if (meters <= 0) return '0 m';
+    return '${meters.round()} m';
+  }
 }

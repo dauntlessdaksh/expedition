@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/constants/app_border_radius.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_spacing.dart';
+import '../../../../core/theme/expedition_colors.dart';
 import '../../../activity/presentation/utils/activity_formatters.dart';
 import '../../domain/models/workout_pace_sample.dart';
 import '../../domain/models/workout_split.dart';
@@ -50,6 +51,7 @@ class _WorkoutPaceAnalysisCardState extends State<WorkoutPaceAnalysisCard>
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.expeditionColors;
     final validSamples = widget.samples
         .where((sample) => sample.paceSecondsPerKm > 0)
         .toList();
@@ -68,28 +70,28 @@ class _WorkoutPaceAnalysisCardState extends State<WorkoutPaceAnalysisCard>
     return Container(
       padding: const EdgeInsets.all(AppSpacing.lg),
       decoration: BoxDecoration(
-        color: AppColorPalette.darkCard.withValues(alpha: 0.72),
+        color: colors.card.withValues(alpha: 0.92),
         borderRadius: AppBorderRadius.radiusXl,
         border: Border.all(
-          color: AppColorPalette.darkCardElevated.withValues(alpha: 0.55),
+          color: colors.cardElevated.withValues(alpha: 0.55),
         ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
-          const Text(
+          Text(
             'Pace',
             style: TextStyle(
-              color: AppColorPalette.white,
+              color: colors.textPrimary,
               fontSize: 20,
               fontWeight: FontWeight.w700,
             ),
           ),
           const SizedBox(height: 4),
-          const Text(
+          Text(
             'Average Pace',
-            style: TextStyle(color: AppColorPalette.grey500, fontSize: 13),
+            style: TextStyle(color: colors.textMuted, fontSize: 13),
           ),
           const SizedBox(height: AppSpacing.lg),
           Row(
@@ -110,12 +112,12 @@ class _WorkoutPaceAnalysisCardState extends State<WorkoutPaceAnalysisCard>
           ),
           const SizedBox(height: AppSpacing.lg),
           if (validSamples.isEmpty)
-            const SizedBox(
+            SizedBox(
               height: 140,
               child: Center(
                 child: Text(
                   'Not enough data for pace chart',
-                  style: TextStyle(color: AppColorPalette.grey500),
+                  style: TextStyle(color: colors.textMuted),
                 ),
               ),
             )
@@ -325,26 +327,26 @@ class WorkoutSplitsTable extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(AppSpacing.lg),
       decoration: BoxDecoration(
-        color: AppColorPalette.darkCard.withValues(alpha: 0.72),
+        color: context.expeditionColors.card.withValues(alpha: 0.92),
         borderRadius: AppBorderRadius.radiusXl,
         border: Border.all(
-          color: AppColorPalette.darkCardElevated.withValues(alpha: 0.55),
+          color: context.expeditionColors.cardElevated.withValues(alpha: 0.55),
         ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
+          Text(
             'Splits',
             style: TextStyle(
-              color: AppColorPalette.white,
+              color: context.expeditionColors.textPrimary,
               fontSize: 20,
               fontWeight: FontWeight.w700,
             ),
           ),
           const SizedBox(height: AppSpacing.md),
           const _SplitsHeader(),
-          const Divider(color: AppColorPalette.darkCardElevated, height: 24),
+          Divider(color: context.expeditionColors.cardElevated, height: 24),
           ..._splitRows(splits, animationOffset),
         ],
       ),
@@ -379,14 +381,14 @@ class _SplitsHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const style = TextStyle(
-      color: AppColorPalette.grey500,
+    final style = TextStyle(
+      color: context.expeditionColors.textMuted,
       fontSize: 11,
       fontWeight: FontWeight.w600,
       letterSpacing: 0.8,
     );
 
-    return const Row(
+    return Row(
       children: [
         Expanded(flex: 2, child: Text('KM', style: style)),
         Expanded(flex: 3, child: Text('TIME', style: style)),
@@ -408,14 +410,14 @@ class _SplitRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const style = TextStyle(
-      color: AppColorPalette.white,
+    final style = TextStyle(
+      color: context.expeditionColors.textPrimary,
       fontSize: 15,
       fontWeight: FontWeight.w600,
-      fontFeatures: [FontFeature.tabularFigures()],
+      fontFeatures: const [FontFeature.tabularFigures()],
     );
 
-    Color changeColor = AppColorPalette.grey500;
+    Color changeColor = context.expeditionColors.textMuted;
     if (paceChange != null) {
       changeColor = paceChange! > 0
           ? AppColorPalette.error
@@ -520,11 +522,41 @@ class AnimatedStatValue extends StatelessWidget {
   final String value;
   final TextStyle style;
 
+  static bool _shouldAnimate(String value) {
+    final trimmed = value.trim();
+    if (trimmed.isEmpty) return false;
+
+    // Never animate time, pace, or compound formatted values.
+    if (trimmed.contains(':') ||
+        trimmed.contains("'") ||
+        trimmed.contains('"') ||
+        trimmed.contains('+') ||
+        trimmed.contains('−') ||
+        trimmed.contains('-') ||
+        trimmed.contains('/')) {
+      return false;
+    }
+
+    // Only animate plain numbers with an optional simple unit suffix.
+    return RegExp(
+      r'^\d+(\.\d+)?(\s*(km|kcal|m|mi|bpm))?$',
+      caseSensitive: false,
+    ).hasMatch(trimmed);
+  }
+
   @override
   Widget build(BuildContext context) {
-    final numeric = double.tryParse(
-      value.replaceAll(RegExp(r'[^0-9.]'), ''),
-    );
+    if (!_shouldAnimate(value)) {
+      return Text(value, style: style);
+    }
+
+    final match = RegExp(r'^(\d+(?:\.\d+)?)(.*)$').firstMatch(value.trim());
+    if (match == null) {
+      return Text(value, style: style);
+    }
+
+    final numeric = double.tryParse(match.group(1)!);
+    final suffix = match.group(2) ?? '';
 
     if (numeric == null) {
       return Text(value, style: style);
@@ -535,11 +567,10 @@ class AnimatedStatValue extends StatelessWidget {
       duration: const Duration(milliseconds: 800),
       curve: Curves.easeOutCubic,
       builder: (context, animated, _) {
-        final hasDecimal = value.contains('.');
+        final hasDecimal = match.group(1)!.contains('.');
         final formatted = hasDecimal
             ? animated.toStringAsFixed(2)
             : animated.round().toString();
-        final suffix = value.replaceFirst(RegExp(r'^[\d.]+'), '');
         return Text('$formatted$suffix', style: style);
       },
     );

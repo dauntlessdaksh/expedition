@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/constants/app_border_radius.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_spacing.dart';
+import '../../../../core/theme/expedition_colors.dart';
 import '../../domain/models/history_filter.dart';
 
 /// Debounced search field for filtering workouts by activity name.
@@ -61,18 +62,20 @@ class _HistorySearchBarState extends State<HistorySearchBar> {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.expeditionColors;
+
     return Semantics(
       label: 'Search workouts',
       child: TextField(
         controller: _controller,
         onChanged: _onQueryChanged,
-        style: const TextStyle(color: AppColorPalette.white),
+        style: TextStyle(color: colors.textPrimary),
         decoration: InputDecoration(
           hintText: 'Search activity',
-          hintStyle: const TextStyle(color: AppColorPalette.grey500),
-          prefixIcon: const Icon(
+          hintStyle: TextStyle(color: colors.textMuted),
+          prefixIcon: Icon(
             Icons.search_rounded,
-            color: AppColorPalette.grey400,
+            color: colors.textMuted,
           ),
           suffixIcon: widget.query.isEmpty
               ? null
@@ -82,28 +85,24 @@ class _HistorySearchBarState extends State<HistorySearchBar> {
                     _controller.clear();
                     widget.onChanged('');
                   },
-                  icon: const Icon(
+                  icon: Icon(
                     Icons.close_rounded,
-                    color: AppColorPalette.grey400,
+                    color: colors.textMuted,
                   ),
                 ),
           filled: true,
-          fillColor: AppColorPalette.darkCard,
+          fillColor: colors.cardElevated,
           contentPadding: const EdgeInsets.symmetric(
             horizontal: AppSpacing.lg,
             vertical: AppSpacing.md,
           ),
           border: OutlineInputBorder(
             borderRadius: AppBorderRadius.radiusLg,
-            borderSide: BorderSide(
-              color: AppColorPalette.grey700.withValues(alpha: 0.6),
-            ),
+            borderSide: BorderSide(color: colors.divider),
           ),
           enabledBorder: OutlineInputBorder(
             borderRadius: AppBorderRadius.radiusLg,
-            borderSide: BorderSide(
-              color: AppColorPalette.grey700.withValues(alpha: 0.6),
-            ),
+            borderSide: BorderSide(color: colors.divider),
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: AppBorderRadius.radiusLg,
@@ -130,6 +129,8 @@ class HistoryFilterBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.expeditionColors;
+
     return SizedBox(
       height: 40,
       child: ListView.separated(
@@ -146,18 +147,16 @@ class HistoryFilterBar extends StatelessWidget {
             onSelected: (_) => onFilterSelected(filter),
             showCheckmark: false,
             labelStyle: TextStyle(
-              color: isSelected
-                  ? AppColorPalette.white
-                  : AppColorPalette.grey300,
+              color: isSelected ? AppColorPalette.white : colors.textSecondary,
               fontWeight: FontWeight.w600,
               fontSize: 13,
             ),
-            backgroundColor: AppColorPalette.darkCard,
-            selectedColor: AppColorPalette.primary.withValues(alpha: 0.35),
+            backgroundColor: colors.cardElevated,
+            selectedColor: AppColorPalette.primary,
             side: BorderSide(
               color: isSelected
-                  ? AppColorPalette.primary.withValues(alpha: 0.6)
-                  : AppColorPalette.grey700.withValues(alpha: 0.6),
+                  ? AppColorPalette.primary
+                  : colors.divider,
             ),
             shape: RoundedRectangleBorder(
               borderRadius: AppBorderRadius.radiusFull,

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/constants/app_border_radius.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_spacing.dart';
+import '../../../../core/theme/expedition_colors.dart';
 import '../../../../core/theme/premium_gradients.dart';
 import '../../domain/models/workout.dart';
 import '../../../../core/widgets/highlighted_text.dart';
@@ -23,6 +24,7 @@ class WorkoutHistoryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.expeditionColors;
     final activityLabel =
         WorkoutDisplayFormatters.activityType(workout.activityType);
 
@@ -33,14 +35,18 @@ class WorkoutHistoryCard extends StatelessWidget {
         borderRadius: AppBorderRadius.radiusXl,
         child: Ink(
           decoration: BoxDecoration(
-            gradient: PremiumGradients.cardShimmer,
+            gradient: PremiumGradients.cardShimmerFor(context),
             borderRadius: AppBorderRadius.radiusXxl,
             border: Border.all(
-              color: AppColorPalette.darkCardElevated.withValues(alpha: 0.65),
+              color: colors.divider,
             ),
             boxShadow: [
               BoxShadow(
-                color: AppColorPalette.black.withValues(alpha: 0.18),
+                color: AppColorPalette.black.withValues(
+                  alpha: Theme.of(context).brightness == Brightness.light
+                      ? 0.06
+                      : 0.18,
+                ),
                 blurRadius: 18,
                 offset: const Offset(0, 8),
               ),
@@ -66,8 +72,8 @@ class WorkoutHistoryCard extends StatelessWidget {
                           child: HighlightedText(
                             text: activityLabel,
                             query: searchQuery,
-                            style: const TextStyle(
-                              color: AppColorPalette.white,
+                            style: TextStyle(
+                              color: colors.textPrimary,
                               fontSize: 17,
                               fontWeight: FontWeight.w700,
                             ),
@@ -77,8 +83,8 @@ class WorkoutHistoryCard extends StatelessWidget {
                       const SizedBox(height: AppSpacing.xs),
                       Text(
                         WorkoutDisplayFormatters.workoutDate(workout.startTime),
-                        style: const TextStyle(
-                          color: AppColorPalette.grey500,
+                        style: TextStyle(
+                          color: colors.textSecondary,
                           fontSize: 13,
                         ),
                       ),
@@ -114,9 +120,9 @@ class WorkoutHistoryCard extends StatelessWidget {
                     ],
                   ),
                 ),
-                const Icon(
+                Icon(
                   Icons.chevron_right_rounded,
-                  color: AppColorPalette.grey500,
+                  color: colors.textMuted,
                   size: 28,
                 ),
               ],
@@ -135,6 +141,8 @@ class _ActivityIcon extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.expeditionColors;
+
     return Container(
       width: 52,
       height: 52,
@@ -143,8 +151,8 @@ class _ActivityIcon extends StatelessWidget {
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            AppColorPalette.primary.withValues(alpha: 0.25),
-            AppColorPalette.darkCardElevated,
+            AppColorPalette.primary.withValues(alpha: 0.22),
+            colors.cardElevated,
           ],
         ),
         borderRadius: AppBorderRadius.radiusMd,
@@ -154,7 +162,7 @@ class _ActivityIcon extends StatelessWidget {
       ),
       child: Icon(
         _iconForType(activityType),
-        color: AppColorPalette.primaryLight,
+        color: AppColorPalette.primary,
         size: 24,
       ),
     );
@@ -185,15 +193,17 @@ class _MetricChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.expeditionColors;
+
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Icon(icon, size: 14, color: AppColorPalette.grey400),
+        Icon(icon, size: 14, color: colors.textMuted),
         const SizedBox(width: AppSpacing.xs),
         Text(
           label,
-          style: const TextStyle(
-            color: AppColorPalette.grey300,
+          style: TextStyle(
+            color: colors.textSecondary,
             fontSize: 12,
             fontWeight: FontWeight.w500,
           ),

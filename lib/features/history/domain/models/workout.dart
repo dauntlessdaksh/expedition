@@ -4,6 +4,8 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 import '../../../../core/database/app_database.dart';
 import '../../../shared/utils/polyline_codec.dart';
+import 'workout_pace_sample.dart';
+import 'workout_split.dart';
 
 /// Domain model for a persisted workout session.
 class Workout extends Equatable {
@@ -19,6 +21,8 @@ class Workout extends Equatable {
     required this.calories,
     required this.polyline,
     required this.createdAt,
+    this.paceSamples = const [],
+    this.splits = const [],
   });
 
   final int? id;
@@ -32,6 +36,15 @@ class Workout extends Equatable {
   final int calories;
   final List<LatLng> polyline;
   final DateTime createdAt;
+  final List<WorkoutPaceSample> paceSamples;
+  final List<WorkoutSplit> splits;
+
+  /// Defaults until telemetry columns are persisted.
+  int get movingTimeInSeconds => durationInSeconds;
+  double get elevationGainMeters => 0;
+  double get elevationLossMeters => 0;
+  double get highestElevationMeters => 0;
+  double get lowestElevationMeters => 0;
 
   factory Workout.fromRow(WorkoutRow row) {
     return Workout(
@@ -65,7 +78,11 @@ class Workout extends Equatable {
     );
   }
 
-  Workout copyWith({int? id}) {
+  Workout copyWith({
+    int? id,
+    List<WorkoutPaceSample>? paceSamples,
+    List<WorkoutSplit>? splits,
+  }) {
     return Workout(
       id: id ?? this.id,
       activityType: activityType,
@@ -78,6 +95,8 @@ class Workout extends Equatable {
       calories: calories,
       polyline: polyline,
       createdAt: createdAt,
+      paceSamples: paceSamples ?? this.paceSamples,
+      splits: splits ?? this.splits,
     );
   }
 
@@ -94,5 +113,7 @@ class Workout extends Equatable {
         calories,
         polyline,
         createdAt,
+        paceSamples,
+        splits,
       ];
 }

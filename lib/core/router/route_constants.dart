@@ -23,6 +23,10 @@ abstract final class RouteConstants {
   static String get profilePath => '$home/$profile';
   static const String profileName = 'profile';
 
+  static const String settings = 'settings';
+  static String get settingsPath => '$home/$settings';
+  static const String settingsName = 'settings';
+
   static const String gamification = 'gamification';
   static String get gamificationPath => '$home/$gamification';
   static const String gamificationName = 'gamification';

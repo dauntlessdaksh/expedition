@@ -8,6 +8,7 @@ import '../../../../core/navigation/main_tab.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/router/route_constants.dart';
+import '../../../../core/theme/expedition_colors.dart';
 import '../../../../core/theme/premium_gradients.dart';
 import '../../../../core/widgets/app_error_view.dart';
 import '../../../../core/widgets/premium_empty_state.dart';
@@ -49,11 +50,13 @@ class _HistoryScreenState extends State<HistoryScreen> {
         }
       },
       builder: (context, state) {
+        final colors = context.expeditionColors;
+
         return Scaffold(
-          backgroundColor: AppColorPalette.darkBackground,
+          backgroundColor: colors.scaffoldBackground,
           body: DecoratedBox(
-            decoration: const BoxDecoration(
-              gradient: PremiumGradients.darkBackground,
+            decoration: BoxDecoration(
+              gradient: PremiumGradients.scaffoldBackground(context),
             ),
             child: SafeArea(
               child: Column(
@@ -69,11 +72,11 @@ class _HistoryScreenState extends State<HistoryScreen> {
                     child: Row(
                       children: [
                         const SizedBox(width: AppSpacing.sm),
-                        const Expanded(
+                        Expanded(
                           child: Text(
                             'Workout History',
                             style: TextStyle(
-                              color: AppColorPalette.white,
+                              color: colors.textPrimary,
                               fontSize: 22,
                               fontWeight: FontWeight.w700,
                             ),
@@ -81,6 +84,8 @@ class _HistoryScreenState extends State<HistoryScreen> {
                         ),
                         _SortButton(
                           selectedSort: state.sort,
+                          cardColor: colors.card,
+                          textColor: colors.textPrimary,
                           onSortSelected: (sort) => context
                               .read<HistoryBloc>()
                               .add(SortWorkout(sort)),
@@ -174,7 +179,7 @@ class _HistoryBody extends StatelessWidget {
         ),
       HistoryStatus.loaded => RefreshIndicator(
           color: AppColorPalette.primary,
-          backgroundColor: AppColorPalette.darkCard,
+          backgroundColor: context.expeditionColors.card,
           onRefresh: () async {
             context.read<HistoryBloc>().add(const LoadHistory());
             await context.read<HistoryBloc>().stream.firstWhere(
@@ -220,21 +225,25 @@ class _SortButton extends StatelessWidget {
   const _SortButton({
     required this.selectedSort,
     required this.onSortSelected,
+    required this.cardColor,
+    required this.textColor,
   });
 
   final HistorySort selectedSort;
   final ValueChanged<HistorySort> onSortSelected;
+  final Color cardColor;
+  final Color textColor;
 
   @override
   Widget build(BuildContext context) {
     return PopupMenuButton<HistorySort>(
       initialValue: selectedSort,
       tooltip: 'Sort workouts',
-      icon: const Icon(
+      icon: Icon(
         Icons.sort_rounded,
-        color: AppColorPalette.white,
+        color: textColor,
       ),
-      color: AppColorPalette.darkCard,
+      color: cardColor,
       onSelected: onSortSelected,
       itemBuilder: (context) {
         return HistorySort.values
@@ -246,7 +255,7 @@ class _SortButton extends StatelessWidget {
                   style: TextStyle(
                     color: sort == selectedSort
                         ? AppColorPalette.primaryLight
-                        : AppColorPalette.white,
+                        : textColor,
                     fontWeight: sort == selectedSort
                         ? FontWeight.w700
                         : FontWeight.w500,

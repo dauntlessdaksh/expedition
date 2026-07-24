@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -32,6 +33,9 @@ import '../../features/analytics/presentation/screens/analytics_screen.dart';
 import '../../features/profile/data/repositories/profile_repository.dart';
 import '../../features/profile/presentation/bloc/profile_bloc.dart';
 import '../../features/profile/presentation/screens/profile_screen.dart';
+import '../../features/settings/presentation/screens/settings_screen.dart';
+import '../../features/spotify/data/spotify_repository.dart';
+import '../../features/spotify/presentation/bloc/spotify_bloc.dart';
 import '../../features/splash/presentation/bloc/splash_bloc.dart';
 import '../../features/splash/presentation/screens/splash_screen.dart';
 import '../navigation/bottom_navigation_shell.dart';
@@ -51,12 +55,13 @@ class AppRouter {
     required AchievementRepository achievementRepository,
     required GoalRepository goalRepository,
     required ChallengeRepository challengeRepository,
+    required SpotifyRepository spotifyRepository,
     GlobalKey<NavigatorState>? navigatorKey,
   }) : navigatorKey = navigatorKey ?? GlobalKey<NavigatorState>() {
     router = GoRouter(
       navigatorKey: this.navigatorKey,
       initialLocation: RouteConstants.splash,
-      debugLogDiagnostics: true,
+      debugLogDiagnostics: kDebugMode,
       observers: [routeObserver],
       routes: _buildRoutes(
         onboardingRepository,
@@ -69,6 +74,7 @@ class AppRouter {
         achievementRepository,
         goalRepository,
         challengeRepository,
+        spotifyRepository,
       ),
     );
   }
@@ -92,6 +98,7 @@ class AppRouter {
     AchievementRepository achievementRepository,
     GoalRepository goalRepository,
     ChallengeRepository challengeRepository,
+    SpotifyRepository spotifyRepository,
   ) {
     return [
       GoRoute(
@@ -121,7 +128,23 @@ class AppRouter {
       ),
       StatefulShellRoute.indexedStack(
         builder: (context, state, navigationShell) {
-          return BottomNavigationShell(navigationShell: navigationShell);
+          return MultiBlocProvider(
+            providers: [
+              BlocProvider(
+                create: (_) => ActivityBloc(
+                  locationService: LocationService(),
+                  workoutRepository: workoutRepository,
+                  onboardingRepository: onboardingRepository,
+                  gamificationRepository: gamificationRepository,
+                ),
+              ),
+              BlocProvider(
+                create: (_) => SpotifyBloc(repository: spotifyRepository)
+                  ..add(const RestoreSpotifySession()),
+              ),
+            ],
+            child: BottomNavigationShell(navigationShell: navigationShell),
+          );
         },
         branches: [
           StatefulShellBranch(
@@ -132,12 +155,26 @@ class AppRouter {
                 pageBuilder: (context, state) => shellTransitionPage(
                   key: state.pageKey,
                   child: BlocProvider(
-                    create: (_) => HomeBloc(repository: homeRepository)
-                      ..add(const LoadDashboard()),
+                    create: (_) => HomeBloc(
+                      repository: homeRepository,
+                    )..add(const LoadDashboard()),
                     child: const HomeScreen(),
                   ),
                 ),
                 routes: [
+                  GoRoute(
+                    path: RouteConstants.settings,
+                    name: RouteConstants.settingsName,
+                    pageBuilder: (context, state) => heroSlideTransitionPage(
+                      key: state.pageKey,
+                      child: BlocProvider(
+                        create: (_) =>
+                            ProfileBloc(repository: profileRepository)
+                              ..add(const LoadProfile()),
+                        child: const SettingsScreen(),
+                      ),
+                    ),
+                  ),
                   GoRoute(
                     path: RouteConstants.profile,
                     name: RouteConstants.profileName,
@@ -188,16 +225,8 @@ class AppRouter {
                 name: RouteConstants.activityName,
                 pageBuilder: (context, state) => shellTransitionPage(
                   key: state.pageKey,
-                  child: BlocProvider(
-                    create: (_) => ActivityBloc(
-                      locationService: LocationService(),
-                      workoutRepository: workoutRepository,
-                      onboardingRepository: onboardingRepository,
-                      gamificationRepository: gamificationRepository,
-                    ),
-                    child: const ActivityTabScope(
-                      child: ActivityScreen(),
-                    ),
+                  child: const ActivityTabScope(
+                    child: ActivityScreen(),
                   ),
                 ),
               ),
@@ -211,8 +240,9 @@ class AppRouter {
                 pageBuilder: (context, state) => shellTransitionPage(
                   key: state.pageKey,
                   child: BlocProvider(
-                    create: (_) => AnalyticsBloc(repository: analyticsRepository)
-                      ..add(const LoadAnalytics()),
+                    create: (_) => AnalyticsBloc(
+                      repository: analyticsRepository,
+                    )..add(const LoadAnalytics()),
                     child: const AnalyticsScreen(),
                   ),
                 ),
