@@ -7,7 +7,8 @@ import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/services/avatar_lifecycle.dart';
 import '../../../../core/theme/premium_gradients.dart';
 import '../../../../core/theme/theme_cubit.dart';
-import '../../../../core/widgets/loading_indicator.dart';
+import '../../../../core/widgets/app_error_view.dart';
+import '../../../../core/widgets/skeleton/skeleton_loaders.dart';
 import '../../../home/presentation/widgets/home_animated_section.dart';
 import '../bloc/profile_bloc.dart';
 import '../widgets/profile_about_section.dart';
@@ -74,8 +75,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
             child: switch (state.status) {
               ProfileStatus.initial ||
               ProfileStatus.loading =>
-                const LoadingIndicator(message: 'Loading profile...'),
-              ProfileStatus.failure => _ProfileError(
+                SkeletonLoaders.profile(),
+              ProfileStatus.failure => AppErrorView.fromError(
+                  StateError('Unable to load profile'),
                   onRetry: () =>
                       context.read<ProfileBloc>().add(const LoadProfile()),
                 ),
@@ -185,42 +187,6 @@ class _ProfileContent extends StatelessWidget {
             ),
           ),
       ],
-    );
-  }
-}
-
-class _ProfileError extends StatelessWidget {
-  const _ProfileError({required this.onRetry});
-
-  final VoidCallback onRetry;
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          const Icon(
-            Icons.error_outline_rounded,
-            color: AppColorPalette.error,
-            size: 48,
-          ),
-          const SizedBox(height: AppSpacing.lg),
-          const Text(
-            'Unable to load profile.',
-            style: TextStyle(
-              color: AppColorPalette.white,
-              fontSize: 18,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-          const SizedBox(height: AppSpacing.xl),
-          FilledButton(
-            onPressed: onRetry,
-            child: const Text('Try Again'),
-          ),
-        ],
-      ),
     );
   }
 }

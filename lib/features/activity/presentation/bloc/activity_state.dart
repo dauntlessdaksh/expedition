@@ -13,6 +13,7 @@ enum ActivityPermissionStatus {
   unknown,
   granted,
   denied,
+  deniedForever,
   serviceDisabled,
 }
 

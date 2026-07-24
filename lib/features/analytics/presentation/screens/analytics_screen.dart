@@ -6,11 +6,12 @@ import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/navigation/main_navigation.dart';
 import '../../../../core/navigation/main_tab.dart';
 import '../../../../core/theme/premium_gradients.dart';
-import '../../../../core/widgets/loading_indicator.dart';
+import '../../../../core/widgets/app_error_view.dart';
+import '../../../../core/widgets/premium_empty_state.dart';
+import '../../../../core/widgets/skeleton/skeleton_loaders.dart';
 import '../../../home/presentation/widgets/home_animated_section.dart';
 import '../bloc/analytics_bloc.dart';
 import '../widgets/analytics_activity_pie_chart.dart';
-import '../widgets/analytics_empty_state.dart';
 import '../widgets/analytics_goal_progress.dart';
 import '../widgets/analytics_insights_section.dart';
 import '../widgets/analytics_monthly_trend_chart.dart';
@@ -37,13 +38,14 @@ class AnalyticsScreen extends StatelessWidget {
               return switch (state.status) {
                 AnalyticsStatus.initial ||
                 AnalyticsStatus.loading =>
-                  const LoadingIndicator(),
-                AnalyticsStatus.failure => _AnalyticsError(
+                  SkeletonLoaders.analytics(),
+                AnalyticsStatus.failure => AppErrorView.fromError(
+                    StateError('Unable to load analytics'),
                     onRetry: () => context
                         .read<AnalyticsBloc>()
                         .add(const LoadAnalytics()),
                   ),
-                AnalyticsStatus.empty => AnalyticsEmptyState(
+                AnalyticsStatus.empty => PremiumEmptyState.noAnalytics(
                     onStartActivity: () =>
                         MainNavigation.goToTab(context, MainTab.activity),
                   ),
@@ -175,45 +177,6 @@ class _AnalyticsContent extends StatelessWidget {
             ),
           ),
         ],
-      ),
-    );
-  }
-}
-
-class _AnalyticsError extends StatelessWidget {
-  const _AnalyticsError({required this.onRetry});
-
-  final VoidCallback onRetry;
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(AppSpacing.xxxl),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(
-              Icons.error_outline_rounded,
-              color: AppColorPalette.error,
-              size: 48,
-            ),
-            const SizedBox(height: AppSpacing.lg),
-            const Text(
-              'Unable to load analytics.',
-              style: TextStyle(
-                color: AppColorPalette.white,
-                fontSize: 18,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-            const SizedBox(height: AppSpacing.xl),
-            FilledButton(
-              onPressed: onRetry,
-              child: const Text('Try Again'),
-            ),
-          ],
-        ),
       ),
     );
   }

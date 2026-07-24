@@ -26,8 +26,9 @@ class AnalyticsWeeklyChart extends StatelessWidget {
     return AnalyticsSectionCard(
       title: 'Weekly Activity',
       subtitle: 'Distance covered each day this week',
-      child: SizedBox(
-        height: 220,
+      child: RepaintBoundary(
+        child: SizedBox(
+          height: 220,
         child: BarChart(
           BarChartData(
             maxY: chartMaxY,
@@ -113,6 +114,7 @@ class AnalyticsWeeklyChart extends StatelessWidget {
           ),
           duration: const Duration(milliseconds: 900),
           curve: Curves.easeOutCubic,
+        ),
         ),
       ),
     );

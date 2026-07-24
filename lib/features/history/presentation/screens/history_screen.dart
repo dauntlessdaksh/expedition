@@ -2,17 +2,19 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../core/errors/failure_mapper.dart';
 import '../../../../core/navigation/main_navigation.dart';
 import '../../../../core/navigation/main_tab.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/router/route_constants.dart';
 import '../../../../core/theme/premium_gradients.dart';
-import '../../../../core/widgets/loading_indicator.dart';
+import '../../../../core/widgets/app_error_view.dart';
+import '../../../../core/widgets/premium_empty_state.dart';
+import '../../../../core/widgets/skeleton/skeleton_loaders.dart';
 import '../../domain/models/history_filter.dart';
 import '../../domain/models/history_sort.dart';
 import '../bloc/history_bloc.dart';
-import '../widgets/history_empty_state.dart';
 import '../widgets/history_search_bar.dart';
 import '../widgets/workout_history_card.dart';
 
@@ -110,76 +112,15 @@ class _HistoryScreenState extends State<HistoryScreen> {
                   ),
                   const SizedBox(height: AppSpacing.lg),
                   Expanded(
-                    child: switch (state.status) {
-                      HistoryStatus.initial ||
-                      HistoryStatus.loading ||
-                      HistoryStatus.deleting =>
-                        const LoadingIndicator(message: 'Loading workouts...'),
-                      HistoryStatus.failure => HistoryEmptyState(
-                          title: 'Unable to load workouts',
-                          actionLabel: 'Retry',
-                          onActionPressed: () => context
-                              .read<HistoryBloc>()
-                              .add(const LoadHistory()),
-                        ),
-                      HistoryStatus.empty when !state.hasWorkouts =>
-                        HistoryEmptyState(
-                          title: 'No activities yet.',
-                          actionLabel: 'Start First Activity',
-                          onActionPressed: () =>
-                              MainNavigation.goToTab(context, MainTab.activity),
-                        ),
-                      HistoryStatus.empty => HistoryEmptyState(
-                          title: 'No workouts match your filters.',
-                          actionLabel: 'Clear Filters',
-                          showAction: true,
-                          onActionPressed: () {
-                            context.read<HistoryBloc>().add(
-                                  const SearchWorkout(''),
-                                );
-                            context.read<HistoryBloc>().add(
-                                  const FilterWorkout(HistoryFilter.allTime),
-                                );
-                          },
-                        ),
-                      HistoryStatus.loaded => RefreshIndicator(
-                          color: AppColorPalette.primary,
-                          backgroundColor: AppColorPalette.darkCard,
-                          onRefresh: () async {
-                            context.read<HistoryBloc>().add(const LoadHistory());
-                            await context.read<HistoryBloc>().stream.firstWhere(
-                                  (next) =>
-                                      next.status != HistoryStatus.loading &&
-                                      next.status != HistoryStatus.deleting,
-                                );
-                          },
-                          child: ListView.separated(
-                            physics: const AlwaysScrollableScrollPhysics(
-                              parent: BouncingScrollPhysics(),
-                            ),
-                            padding: const EdgeInsets.fromLTRB(
-                              AppSpacing.lg,
-                              0,
-                              AppSpacing.lg,
-                              AppSpacing.xxxl,
-                            ),
-                            itemCount: state.visibleWorkouts.length,
-                            separatorBuilder: (context, index) =>
-                                const SizedBox(height: AppSpacing.md),
-                            itemBuilder: (context, index) {
-                              final workout = state.visibleWorkouts[index];
-                              return WorkoutHistoryCard(
-                                workout: workout,
-                                onTap: () => context.push(
-                                  RouteConstants.historyDetailPath(
-                                    workout.id!,
-                                  ),
-                                ),
-                              );
-                            },
-                          ),
-                        ),
-                    },
+                    child: AnimatedSwitcher(
+                      duration: const Duration(milliseconds: 280),
+                      switchInCurve: Curves.easeOutCubic,
+                      switchOutCurve: Curves.easeInCubic,
+                      child: KeyedSubtree(
+                        key: ValueKey(_contentKey(state)),
+                        child: _HistoryBody(state: state),
+                      ),
+                    ),
                   ),
                 ],
               ),
@@ -188,6 +129,90 @@ class _HistoryScreenState extends State<HistoryScreen> {
         );
       },
     );
+  }
+
+  String _contentKey(HistoryState state) {
+    return '${state.status}_${state.visibleWorkouts.length}_${state.searchQuery}_${state.filter}';
+  }
+}
+
+class _HistoryBody extends StatelessWidget {
+  const _HistoryBody({required this.state});
+
+  final HistoryState state;
+
+  @override
+  Widget build(BuildContext context) {
+    return switch (state.status) {
+      HistoryStatus.initial ||
+      HistoryStatus.loading ||
+      HistoryStatus.deleting =>
+        SkeletonLoaders.history(),
+      HistoryStatus.failure => AppErrorView(
+          failure: FailureMapper.from(
+            StateError(state.errorMessage ?? 'Unable to load workout history.'),
+          ),
+          onRetry: () => context.read<HistoryBloc>().add(const LoadHistory()),
+        ),
+      HistoryStatus.empty when !state.hasWorkouts =>
+        PremiumEmptyState.noWorkouts(
+          onStartActivity: () =>
+              MainNavigation.goToTab(context, MainTab.activity),
+        ),
+      HistoryStatus.empty when state.searchQuery.trim().isNotEmpty =>
+        PremiumEmptyState.noSearchResults(
+          onClearSearch: () =>
+              context.read<HistoryBloc>().add(const SearchWorkout('')),
+        ),
+      HistoryStatus.empty => PremiumEmptyState.filteredEmpty(
+          onClearFilters: () {
+            context.read<HistoryBloc>().add(const SearchWorkout(''));
+            context.read<HistoryBloc>().add(
+                  const FilterWorkout(HistoryFilter.allTime),
+                );
+          },
+        ),
+      HistoryStatus.loaded => RefreshIndicator(
+          color: AppColorPalette.primary,
+          backgroundColor: AppColorPalette.darkCard,
+          onRefresh: () async {
+            context.read<HistoryBloc>().add(const LoadHistory());
+            await context.read<HistoryBloc>().stream.firstWhere(
+                  (next) =>
+                      next.status != HistoryStatus.loading &&
+                      next.status != HistoryStatus.deleting,
+                );
+          },
+          child: ListView.separated(
+            physics: const AlwaysScrollableScrollPhysics(
+              parent: BouncingScrollPhysics(),
+            ),
+            padding: const EdgeInsets.fromLTRB(
+              AppSpacing.lg,
+              0,
+              AppSpacing.lg,
+              AppSpacing.xxxl,
+            ),
+            itemCount: state.visibleWorkouts.length,
+            separatorBuilder: (context, index) =>
+                const SizedBox(height: AppSpacing.md),
+            itemBuilder: (context, index) {
+              final workout = state.visibleWorkouts[index];
+              return AnimatedSwitcher(
+                duration: const Duration(milliseconds: 220),
+                child: WorkoutHistoryCard(
+                  key: ValueKey(workout.id),
+                  workout: workout,
+                  searchQuery: state.searchQuery,
+                  onTap: () => context.push(
+                    RouteConstants.historyDetailPath(workout.id!),
+                  ),
+                ),
+              );
+            },
+          ),
+        ),
+    };
   }
 }
 

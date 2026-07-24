@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/constants/app_border_radius.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_spacing.dart';
+import '../../../../core/widgets/premium_empty_state.dart';
 import '../../domain/models/goal.dart';
 import 'gamification_section_card.dart';
 
@@ -20,14 +21,16 @@ class GamificationGoalSection extends StatelessWidget {
     return GamificationSectionCard(
       title: 'Goals',
       subtitle: 'Automatically updated from your workouts',
-      child: Column(
-        children: goals.map((goal) {
-          return Padding(
-            padding: const EdgeInsets.only(bottom: AppSpacing.md),
-            child: _GoalCard(goal: goal),
-          );
-        }).toList(),
-      ),
+      child: goals.isEmpty
+          ? PremiumEmptyState.noGoals()
+          : Column(
+              children: goals.map((goal) {
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: AppSpacing.md),
+                  child: _GoalCard(goal: goal),
+                );
+              }).toList(),
+            ),
     );
   }
 }

@@ -10,7 +10,8 @@ import '../../../../core/router/app_router.dart';
 import '../../../../core/router/route_constants.dart';
 import '../../../../core/services/avatar_lifecycle.dart';
 import '../../../../core/theme/premium_gradients.dart';
-import '../../../../core/widgets/loading_indicator.dart';
+import '../../../../core/widgets/app_error_view.dart';
+import '../../../../core/widgets/skeleton/skeleton_loaders.dart';
 import '../../domain/models/home_dashboard_data.dart';
 import '../bloc/home_bloc.dart';
 import '../widgets/avatar_card.dart';
@@ -90,10 +91,9 @@ class _HomeScreenState extends State<HomeScreen> with RouteAware {
               builder: (context, state) {
                 return switch (state.status) {
                   HomeStatus.initial || HomeStatus.loading =>
-                    const LoadingIndicator(
-                      message: 'Loading your dashboard...',
-                    ),
-                  HomeStatus.failure => _ErrorView(
+                    SkeletonLoaders.dashboard(),
+                  HomeStatus.failure => AppErrorView.fromError(
+                      StateError('Unable to load dashboard'),
                       onRetry: () => context
                           .read<HomeBloc>()
                           .add(const LoadDashboard()),
@@ -218,42 +218,6 @@ class _DashboardContent extends StatelessWidget {
           ),
         ),
       ],
-    );
-  }
-}
-
-class _ErrorView extends StatelessWidget {
-  const _ErrorView({required this.onRetry});
-
-  final VoidCallback onRetry;
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(AppSpacing.xxl),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Icon(
-              Icons.error_outline_rounded,
-              color: AppColorPalette.error,
-              size: 48,
-            ),
-            const SizedBox(height: AppSpacing.lg),
-            const Text(
-              'Unable to load dashboard',
-              style: TextStyle(
-                color: AppColorPalette.white,
-                fontSize: 18,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-            const SizedBox(height: AppSpacing.xl),
-            TextButton(onPressed: onRetry, child: const Text('Retry')),
-          ],
-        ),
-      ),
     );
   }
 }

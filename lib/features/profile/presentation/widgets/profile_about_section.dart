@@ -2,15 +2,15 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/constants/app_border_radius.dart';
 import '../../../../core/constants/app_colors.dart';
+import '../../../../core/constants/app_info.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/constants/app_strings.dart';
+import '../screens/legal_document_screen.dart';
 import 'profile_section_card.dart';
 
 /// App metadata and legal links.
 class ProfileAboutSection extends StatelessWidget {
   const ProfileAboutSection({super.key});
-
-  static const _appVersion = '1.0.0';
 
   @override
   Widget build(BuildContext context) {
@@ -19,26 +19,40 @@ class ProfileAboutSection extends StatelessWidget {
       subtitle: 'Expedition app information',
       child: Column(
         children: [
-          _AboutTile(
+          const _AboutTile(
             label: 'Version',
-            value: _appVersion,
+            value: '${AppInfo.version} (${AppInfo.buildNumber})',
           ),
           const SizedBox(height: AppSpacing.sm),
-          _AboutTile(
+          const _AboutTile(
             label: 'Developer',
-            value: 'Expedition Team',
+            value: AppInfo.developer,
           ),
           const SizedBox(height: AppSpacing.sm),
           ProfileActionButton(
             label: 'Privacy Policy',
             icon: Icons.privacy_tip_outlined,
-            onPressed: () => _showPlaceholder(context, 'Privacy Policy'),
+            onPressed: () => Navigator.of(context).push(
+              MaterialPageRoute<void>(
+                builder: (_) => const LegalDocumentScreen(
+                  title: 'Privacy Policy',
+                  sections: LegalDocuments.privacyPolicy,
+                ),
+              ),
+            ),
           ),
           const SizedBox(height: AppSpacing.sm),
           ProfileActionButton(
-            label: 'Terms of Service',
+            label: 'Terms & Conditions',
             icon: Icons.description_outlined,
-            onPressed: () => _showPlaceholder(context, 'Terms of Service'),
+            onPressed: () => Navigator.of(context).push(
+              MaterialPageRoute<void>(
+                builder: (_) => const LegalDocumentScreen(
+                  title: 'Terms & Conditions',
+                  sections: LegalDocuments.termsOfService,
+                ),
+              ),
+            ),
           ),
           const SizedBox(height: AppSpacing.sm),
           ProfileActionButton(
@@ -47,17 +61,11 @@ class ProfileAboutSection extends StatelessWidget {
             onPressed: () => showLicensePage(
               context: context,
               applicationName: AppStrings.appName,
-              applicationVersion: _appVersion,
+              applicationVersion: AppInfo.version,
             ),
           ),
         ],
       ),
-    );
-  }
-
-  void _showPlaceholder(BuildContext context, String title) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('$title will be available soon.')),
     );
   }
 }

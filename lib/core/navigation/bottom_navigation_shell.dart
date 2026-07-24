@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../constants/app_colors.dart';
+import '../services/haptic_service.dart';
 import 'bottom_navigation_bar.dart';
 import 'main_navigation.dart';
 
@@ -35,10 +36,15 @@ class BottomNavigationShell extends StatelessWidget {
               alignment: Alignment.bottomCenter,
               child: ExpeditionBottomNavigationBar(
                 currentIndex: navigationShell.currentIndex,
-                onTabSelected: (index) => navigationShell.goBranch(
-                  index,
-                  initialLocation: index == navigationShell.currentIndex,
-                ),
+                onTabSelected: (index) {
+                  if (index != navigationShell.currentIndex) {
+                    HapticService.tabChanged();
+                  }
+                  navigationShell.goBranch(
+                    index,
+                    initialLocation: index == navigationShell.currentIndex,
+                  );
+                },
               ),
             ),
         ],

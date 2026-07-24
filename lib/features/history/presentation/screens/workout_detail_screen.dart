@@ -6,7 +6,7 @@ import '../../../../core/constants/app_border_radius.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/theme/premium_gradients.dart';
-import '../../../../core/widgets/loading_indicator.dart';
+import '../../../../core/widgets/skeleton/skeleton_loaders.dart';
 import '../../../home/presentation/bloc/home_bloc.dart';
 import '../../domain/models/workout.dart';
 import '../bloc/history_bloc.dart';
@@ -64,9 +64,9 @@ class _WorkoutDetailScreenState extends State<WorkoutDetailScreen> {
             (state.status == HistoryStatus.loading ||
                 state.status == HistoryStatus.initial ||
                 state.status == HistoryStatus.deleting)) {
-          return const Scaffold(
+          return Scaffold(
             backgroundColor: AppColorPalette.darkBackground,
-            body: LoadingIndicator(message: 'Loading workout...'),
+            body: SkeletonLoaders.workoutDetail(),
           );
         }
 

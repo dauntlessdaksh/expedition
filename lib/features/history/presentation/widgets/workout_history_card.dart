@@ -5,6 +5,7 @@ import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/theme/premium_gradients.dart';
 import '../../domain/models/workout.dart';
+import '../../../../core/widgets/highlighted_text.dart';
 import '../../../shared/utils/workout_display_formatters.dart';
 
 /// Premium list tile for a saved workout in history.
@@ -12,11 +13,13 @@ class WorkoutHistoryCard extends StatelessWidget {
   const WorkoutHistoryCard({
     required this.workout,
     required this.onTap,
+    this.searchQuery = '',
     super.key,
   });
 
   final Workout workout;
   final VoidCallback onTap;
+  final String searchQuery;
 
   @override
   Widget build(BuildContext context) {
@@ -60,8 +63,9 @@ class WorkoutHistoryCard extends StatelessWidget {
                         tag: 'workout-title-${workout.id}',
                         child: Material(
                           color: Colors.transparent,
-                          child: Text(
-                            activityLabel,
+                          child: HighlightedText(
+                            text: activityLabel,
+                            query: searchQuery,
                             style: const TextStyle(
                               color: AppColorPalette.white,
                               fontSize: 17,

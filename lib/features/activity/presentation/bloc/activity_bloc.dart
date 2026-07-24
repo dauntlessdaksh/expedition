@@ -6,6 +6,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
+import '../../../../core/errors/failure_mapper.dart';
+import '../../../../core/gps/gps_engine.dart';
+import '../../../../core/gps/gps_engine_config.dart';
+import '../../../../core/services/permission_service.dart';
 import '../../../gamification/data/repositories/gamification_repository.dart';
 import '../../../gamification/domain/models/gamification_models.dart';
 import '../../../history/domain/models/workout.dart';
@@ -13,7 +17,6 @@ import '../../../history/data/repositories/workout_repository.dart';
 import '../../../onboarding/data/repositories/onboarding_repository.dart';
 import '../../../shared/utils/workout_calorie_calculator.dart';
 import '../../data/services/location_service.dart';
-import '../../data/utils/activity_metrics_tracker.dart';
 
 part 'activity_event.dart';
 part 'activity_state.dart';
@@ -25,10 +28,12 @@ class ActivityBloc extends Bloc<ActivityEvent, ActivityState> {
     required WorkoutRepository workoutRepository,
     required OnboardingRepository onboardingRepository,
     required GamificationRepository gamificationRepository,
+    GpsEngine? gpsEngine,
   })  : _locationService = locationService,
         _workoutRepository = workoutRepository,
         _onboardingRepository = onboardingRepository,
         _gamificationRepository = gamificationRepository,
+        _gpsEngine = gpsEngine ?? GpsEngine(config: GpsEngineConfig.running()),
         super(const ActivityState()) {
     on<ActivityStarted>(_onStarted);
     on<StartTracking>(_onStartTracking);
@@ -48,13 +53,11 @@ class ActivityBloc extends Bloc<ActivityEvent, ActivityState> {
   final WorkoutRepository _workoutRepository;
   final OnboardingRepository _onboardingRepository;
   final GamificationRepository _gamificationRepository;
-  final ActivityMetricsTracker _metrics = ActivityMetricsTracker();
+  final GpsEngine _gpsEngine;
 
   StreamSubscription<Position>? _positionSubscription;
   Timer? _durationTimer;
 
-  Duration _accumulatedDuration = Duration.zero;
-  DateTime? _segmentStartTime;
   DateTime? _sessionStartTime;
 
   @override
@@ -74,24 +77,37 @@ class ActivityBloc extends Bloc<ActivityEvent, ActivityState> {
       clearError: true,
     ));
 
-    final serviceEnabled = await Geolocator.isLocationServiceEnabled();
-    if (!serviceEnabled) {
-      emit(state.copyWith(
-        status: ActivityTrackingStatus.ready,
-        permissionStatus: ActivityPermissionStatus.serviceDisabled,
-        errorMessage: 'Location services are disabled.',
-      ));
-      return;
-    }
-
-    final granted = await _locationService.ensurePermission();
-    if (!granted) {
-      emit(state.copyWith(
-        status: ActivityTrackingStatus.ready,
-        permissionStatus: ActivityPermissionStatus.denied,
-        errorMessage: 'Location permission is required to track activities.',
-      ));
-      return;
+    final access = await PermissionService.checkLocationAccess();
+    switch (access) {
+      case LocationAccessStatus.serviceDisabled:
+        emit(state.copyWith(
+          status: ActivityTrackingStatus.ready,
+          permissionStatus: ActivityPermissionStatus.serviceDisabled,
+          errorMessage: FailureMapper.from(
+            StateError('location service disabled'),
+          ).message,
+        ));
+        return;
+      case LocationAccessStatus.deniedForever:
+        emit(state.copyWith(
+          status: ActivityTrackingStatus.ready,
+          permissionStatus: ActivityPermissionStatus.deniedForever,
+          errorMessage: FailureMapper.from(
+            StateError('permission denied forever'),
+          ).message,
+        ));
+        return;
+      case LocationAccessStatus.denied:
+        emit(state.copyWith(
+          status: ActivityTrackingStatus.ready,
+          permissionStatus: ActivityPermissionStatus.denied,
+          errorMessage: FailureMapper.from(
+            StateError('location permission denied'),
+          ).message,
+        ));
+        return;
+      case LocationAccessStatus.granted:
+        break;
     }
 
     try {
@@ -100,7 +116,9 @@ class ActivityBloc extends Bloc<ActivityEvent, ActivityState> {
         emit(state.copyWith(
           status: ActivityTrackingStatus.ready,
           permissionStatus: ActivityPermissionStatus.denied,
-          errorMessage: 'Unable to determine your current location.',
+          errorMessage: FailureMapper.from(
+            StateError('location unavailable'),
+          ).message,
         ));
         return;
       }
@@ -115,11 +133,19 @@ class ActivityBloc extends Bloc<ActivityEvent, ActivityState> {
       ));
 
       await _startLocationPreview();
-    } on Exception {
+    } on TimeoutException {
+      emit(state.copyWith(
+        status: ActivityTrackingStatus.ready,
+        permissionStatus: ActivityPermissionStatus.granted,
+        errorMessage: FailureMapper.from(
+          TimeoutException('location timed out'),
+        ).message,
+      ));
+    } on Exception catch (error) {
       emit(state.copyWith(
         status: ActivityTrackingStatus.ready,
         permissionStatus: ActivityPermissionStatus.denied,
-        errorMessage: 'Unable to determine your current location.',
+        errorMessage: FailureMapper.from(error).message,
       ));
     }
   }
@@ -141,19 +167,23 @@ class ActivityBloc extends Bloc<ActivityEvent, ActivityState> {
       return;
     }
 
-    _metrics.reset();
-    _accumulatedDuration = Duration.zero;
-    _segmentStartTime = DateTime.now();
-    _sessionStartTime = _segmentStartTime;
+    _gpsEngine.reset();
+    _sessionStartTime = DateTime.now();
 
-    final initialPoints = state.currentPosition == null
-        ? <LatLng>[]
-        : [state.currentPosition!];
+    if (state.currentPosition != null) {
+      _gpsEngine.beginSession(
+        seed: state.currentPosition!,
+        accuracyMeters: state.gpsAccuracyMeters,
+        timestamp: _sessionStartTime,
+      );
+    }
+
+    final seededRoute = _gpsEngine.lastLocation?.polyline ?? const <LatLng>[];
 
     emit(state.copyWith(
       status: ActivityTrackingStatus.tracking,
       workoutSaveStatus: ActivityWorkoutSaveStatus.none,
-      routePoints: initialPoints,
+      routePoints: seededRoute,
       duration: Duration.zero,
       distanceMeters: 0,
       currentSpeedMps: 0,
@@ -191,11 +221,13 @@ class ActivityBloc extends Bloc<ActivityEvent, ActivityState> {
       return;
     }
 
-    _accumulatedDuration = _currentElapsedDuration();
-    _segmentStartTime = null;
+    _gpsEngine.pauseSession();
     _durationTimer?.cancel();
 
-    emit(state.copyWith(status: ActivityTrackingStatus.paused));
+    emit(state.copyWith(
+      status: ActivityTrackingStatus.paused,
+      duration: _gpsEngine.elapsedTime,
+    ));
   }
 
   Future<void> _onResumeTracking(
@@ -206,7 +238,7 @@ class ActivityBloc extends Bloc<ActivityEvent, ActivityState> {
       return;
     }
 
-    _segmentStartTime = DateTime.now();
+    _gpsEngine.resumeSession();
     emit(state.copyWith(
       status: ActivityTrackingStatus.tracking,
       followUser: true,
@@ -223,19 +255,21 @@ class ActivityBloc extends Bloc<ActivityEvent, ActivityState> {
     final wasActiveSession =
         state.status == ActivityTrackingStatus.tracking ||
             state.status == ActivityTrackingStatus.paused;
-    final elapsed = _currentElapsedDuration();
+    final lastLocation = _gpsEngine.lastLocation;
+    final elapsed = _gpsEngine.elapsedTime;
     final sessionSnapshot = _SessionSnapshot(
       startTime: _sessionStartTime,
       endTime: DateTime.now(),
       duration: elapsed,
-      distanceMeters: state.distanceMeters,
-      averageSpeedMps: state.averageSpeedMps,
-      maxSpeedMps: _metrics.maxSpeedMps,
-      routePoints: List<LatLng>.from(state.routePoints),
+      distanceMeters: lastLocation?.totalDistance ?? 0,
+      averageSpeedMps: lastLocation?.averageSpeed ?? 0,
+      maxSpeedMps: lastLocation?.maxSpeed ?? 0,
+      routePoints: List<LatLng>.from(lastLocation?.polyline ?? const []),
     );
 
     _durationTimer?.cancel();
     await _positionSubscription?.cancel();
+    _gpsEngine.reset();
 
     if (wasActiveSession && sessionSnapshot.hasSaveableData) {
       emit(state.copyWith(
@@ -273,7 +307,7 @@ class ActivityBloc extends Bloc<ActivityEvent, ActivityState> {
       }
     }
 
-    _resetSessionTracking();
+    _sessionStartTime = null;
     emit(state.copyWith(
       status: ActivityTrackingStatus.ready,
       workoutSaveStatus: ActivityWorkoutSaveStatus.none,
@@ -316,48 +350,37 @@ class ActivityBloc extends Bloc<ActivityEvent, ActivityState> {
     await _workoutRepository.saveWorkout(workout);
   }
 
-  void _resetSessionTracking() {
-    _metrics.reset();
-    _accumulatedDuration = Duration.zero;
-    _segmentStartTime = null;
-    _sessionStartTime = null;
-  }
-
   void _onLocationUpdated(
     LocationUpdated event,
     Emitter<ActivityState> emit,
   ) {
-    final position = event.position;
-    final latLng = LatLng(position.latitude, position.longitude);
+    final raw = event.position;
     final isTracking = state.status == ActivityTrackingStatus.tracking;
 
-    var routePoints = state.routePoints;
-    var distanceMeters = state.distanceMeters;
-    var currentSpeedMps = state.currentSpeedMps;
-    var averageSpeedMps = state.averageSpeedMps;
-
-    if (isTracking) {
-      _metrics.recordPosition(position);
-      distanceMeters = _metrics.distanceMeters;
-      currentSpeedMps = _metrics.currentSpeedMps(position);
-      averageSpeedMps = _metrics.averageSpeedMps(_currentElapsedDuration());
-
-      final lastPoint = routePoints.isEmpty ? null : routePoints.last;
-      if (lastPoint == null ||
-          lastPoint.latitude != latLng.latitude ||
-          lastPoint.longitude != latLng.longitude) {
-        routePoints = [...routePoints, latLng];
-      }
+    if (!isTracking) {
+      emit(state.copyWith(
+        currentPosition: LatLng(raw.latitude, raw.longitude),
+        gpsAccuracyMeters: raw.accuracy,
+      ));
+      return;
     }
 
+    final result = _gpsEngine.process(raw);
+    if (!result.wasAccepted || result.location == null) {
+      return;
+    }
+
+    final location = result.location!;
+
     emit(state.copyWith(
-      currentPosition: latLng,
-      routePoints: routePoints,
-      distanceMeters: distanceMeters,
-      currentSpeedMps: currentSpeedMps,
-      averageSpeedMps: averageSpeedMps,
-      maxSpeedMps: _metrics.maxSpeedMps,
-      gpsAccuracyMeters: position.accuracy,
+      currentPosition: location.position,
+      routePoints: location.polyline,
+      distanceMeters: location.totalDistance,
+      currentSpeedMps: location.currentSpeed,
+      averageSpeedMps: location.averageSpeed,
+      maxSpeedMps: location.maxSpeed,
+      gpsAccuracyMeters: location.accuracy,
+      duration: location.elapsedTime,
     ));
   }
 
@@ -366,10 +389,10 @@ class ActivityBloc extends Bloc<ActivityEvent, ActivityState> {
       return;
     }
 
-    final elapsed = _currentElapsedDuration();
+    final lastLocation = _gpsEngine.lastLocation;
     emit(state.copyWith(
-      duration: elapsed,
-      averageSpeedMps: _metrics.averageSpeedMps(elapsed),
+      duration: _gpsEngine.elapsedTime,
+      averageSpeedMps: lastLocation?.averageSpeed ?? state.averageSpeedMps,
     ));
   }
 
@@ -392,15 +415,6 @@ class ActivityBloc extends Bloc<ActivityEvent, ActivityState> {
     Emitter<ActivityState> emit,
   ) {
     emit(state.copyWith(clearPendingCelebration: true));
-  }
-
-  Duration _currentElapsedDuration() {
-    if (_segmentStartTime == null) {
-      return _accumulatedDuration;
-    }
-
-    return _accumulatedDuration +
-        DateTime.now().difference(_segmentStartTime!);
   }
 }
 

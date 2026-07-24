@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../services/haptic_service.dart';
 import 'main_tab.dart';
 
 /// Navigation helpers for the main bottom navigation shell.
@@ -21,6 +22,9 @@ abstract final class MainNavigation {
   static void goToTab(BuildContext context, MainTab tab) {
     final shell = StatefulNavigationShell.maybeOf(context);
     if (shell != null) {
+      if (shell.currentIndex != tab.branchIndex) {
+        HapticService.tabChanged();
+      }
       shell.goBranch(
         tab.branchIndex,
         initialLocation: tab.branchIndex == shell.currentIndex,
@@ -28,6 +32,7 @@ abstract final class MainNavigation {
       return;
     }
 
+    HapticService.tabChanged();
     context.go(tab.path);
   }
 

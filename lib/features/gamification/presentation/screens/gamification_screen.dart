@@ -5,7 +5,8 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/theme/premium_gradients.dart';
-import '../../../../core/widgets/loading_indicator.dart';
+import '../../../../core/widgets/skeleton/skeleton_loaders.dart';
+import '../../../../core/widgets/skeleton/skeleton_shimmer.dart';
 import '../../../home/presentation/widgets/home_animated_section.dart';
 import '../../data/repositories/gamification_repository.dart';
 import '../../domain/models/gamification_models.dart';
@@ -81,9 +82,7 @@ class _GamificationScreenState extends State<GamificationScreen> {
                   builder: (context, challengeState) {
                     if (achievementState.status == AchievementStatus.loading &&
                         achievementState.achievements.isEmpty) {
-                      return const LoadingIndicator(
-                        message: 'Loading rewards...',
-                      );
+                      return SkeletonLoaders.gamification();
                     }
 
                     return RefreshIndicator(
@@ -109,7 +108,10 @@ class _GamificationScreenState extends State<GamificationScreen> {
                                     padding: EdgeInsets.only(
                                       bottom: AppSpacing.xl,
                                     ),
-                                    child: LoadingIndicator(),
+                                    child: SkeletonBox(
+                                      width: double.infinity,
+                                      height: 160,
+                                    ),
                                   )
                                 else
                                   HomeAnimatedSection(

@@ -3,6 +3,9 @@ import 'package:flutter/material.dart';
 import '../../../../core/constants/app_border_radius.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_spacing.dart';
+import '../../../../core/navigation/main_navigation.dart';
+import '../../../../core/navigation/main_tab.dart';
+import '../../../../core/widgets/premium_empty_state.dart';
 import '../../domain/models/gamification_models.dart';
 import 'gamification_section_card.dart';
 
@@ -20,20 +23,25 @@ class GamificationAchievementGrid extends StatelessWidget {
     return GamificationSectionCard(
       title: 'Achievements',
       subtitle: 'Earn badges by hitting fitness milestones',
-      child: GridView.builder(
-        shrinkWrap: true,
-        physics: const NeverScrollableScrollPhysics(),
-        itemCount: achievements.length,
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 2,
-          crossAxisSpacing: AppSpacing.md,
-          mainAxisSpacing: AppSpacing.md,
-          childAspectRatio: 0.95,
-        ),
-        itemBuilder: (context, index) {
-          return _AchievementCard(achievement: achievements[index]);
-        },
-      ),
+      child: achievements.isEmpty
+          ? PremiumEmptyState.noAchievements(
+              onStartActivity: () =>
+                  MainNavigation.goToTab(context, MainTab.activity),
+            )
+          : GridView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemCount: achievements.length,
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 2,
+                crossAxisSpacing: AppSpacing.md,
+                mainAxisSpacing: AppSpacing.md,
+                childAspectRatio: 0.95,
+              ),
+              itemBuilder: (context, index) {
+                return _AchievementCard(achievement: achievements[index]);
+              },
+            ),
     );
   }
 }

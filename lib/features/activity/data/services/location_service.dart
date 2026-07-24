@@ -1,29 +1,25 @@
+import 'dart:async';
+
 import 'package:geolocator/geolocator.dart';
+
+import '../../../../core/services/permission_service.dart';
 
 /// Wraps geolocator and permission checks for live activity tracking.
 class LocationService {
+  static const _locationTimeout = Duration(seconds: 12);
+
+  Future<LocationAccessStatus> checkAccess() {
+    return PermissionService.checkLocationAccess();
+  }
+
   Future<bool> ensurePermission() async {
-    final serviceEnabled = await Geolocator.isLocationServiceEnabled();
-    if (!serviceEnabled) {
-      return false;
-    }
-
-    var permission = await Geolocator.checkPermission();
-    if (permission == LocationPermission.denied) {
-      permission = await Geolocator.requestPermission();
-    }
-
-    if (permission == LocationPermission.deniedForever) {
-      return false;
-    }
-
-    return permission == LocationPermission.always ||
-        permission == LocationPermission.whileInUse;
+    final access = await checkAccess();
+    return access == LocationAccessStatus.granted;
   }
 
   Future<Position?> getCurrentPosition() async {
-    final hasPermission = await ensurePermission();
-    if (!hasPermission) {
+    final access = await checkAccess();
+    if (access != LocationAccessStatus.granted) {
       return null;
     }
 
@@ -31,7 +27,7 @@ class LocationService {
       locationSettings: const LocationSettings(
         accuracy: LocationAccuracy.bestForNavigation,
       ),
-    );
+    ).timeout(_locationTimeout);
   }
 
   Stream<Position> watchPosition() {

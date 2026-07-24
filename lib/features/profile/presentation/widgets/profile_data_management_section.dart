@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/constants/app_strings.dart';
+import '../../../../core/services/haptic_service.dart';
 import '../bloc/profile_bloc.dart';
 import 'profile_section_card.dart';
 
@@ -76,6 +77,7 @@ class ProfileDataManagementSection extends StatelessWidget {
     );
 
     if (confirmed == true && context.mounted) {
+      HapticService.deleteConfirmed();
       context.read<ProfileBloc>().add(const DeleteAllWorkouts());
     }
   }

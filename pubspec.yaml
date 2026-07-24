@@ -52,6 +52,10 @@ dev_dependencies:
   flutter_lints: ^6.0.0
   drift_dev: ^2.26.1
   build_runner: ^2.5.1
+  bloc_test: ^10.0.0
+  mocktail: ^1.0.4
+  flutter_native_splash: ^2.4.4
+  flutter_launcher_icons: ^0.14.3
 
 flutter:
   uses-material-design: true
@@ -61,3 +65,21 @@ flutter:
     - assets/avatars/male/maledancing.glb
     - assets/avatars/female/femrunning.glb
     - assets/avatars/female/femdancing.glb
+
+flutter_native_splash:
+  color: "#0A0E14"
+  color_dark: "#0A0E14"
+  android_12:
+    color: "#0A0E14"
+    color_dark: "#0A0E14"
+  ios: true
+  android: true
+  web: false
+
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: assets/branding/app_icon.png
+  adaptive_icon_background: "#0A0E14"
+  adaptive_icon_foreground: assets/branding/app_icon_foreground.png
+  remove_alpha_ios: true
