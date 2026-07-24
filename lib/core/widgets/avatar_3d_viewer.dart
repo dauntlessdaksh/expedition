@@ -113,6 +113,12 @@ class _Avatar3DViewerState extends State<Avatar3DViewer> {
   }
 
   Future<void> _remountViewer(String assetPath) async {
+    if (AvatarPreloadCache.hasLoaded(assetPath) &&
+        _activeAssetPath == assetPath &&
+        _showViewer) {
+      return;
+    }
+
     setState(() {
       _showViewer = false;
       _activeAssetPath = null;
@@ -127,7 +133,7 @@ class _Avatar3DViewerState extends State<Avatar3DViewer> {
       return;
     }
 
-    await Future<void>.delayed(const Duration(milliseconds: 150));
+    await Future<void>.delayed(const Duration(milliseconds: 50));
     if (!mounted || !widget.enabled || widget.assetPath != assetPath) {
       return;
     }
@@ -136,11 +142,14 @@ class _Avatar3DViewerState extends State<Avatar3DViewer> {
   }
 
   void _mountViewer(String assetPath) {
+    final sameAsset = _activeAssetPath == assetPath && _showViewer;
     setState(() {
       _activeAssetPath = assetPath;
       _showViewer = true;
-      _viewerGeneration++;
-      _loadedNotified = false;
+      if (!sameAsset) {
+        _viewerGeneration++;
+      }
+      _loadedNotified = AvatarPreloadCache.hasLoaded(assetPath);
     });
   }
 
