@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import '../../../../core/constants/app_border_radius.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_spacing.dart';
+import '../../../../core/theme/expedition_colors.dart';
 import '../../domain/models/analytics_chart_models.dart';
 import '../../domain/models/monthly_trend_range.dart';
 import 'analytics_section_card.dart';
@@ -28,6 +29,7 @@ class _AnalyticsMonthlyTrendChartState extends State<AnalyticsMonthlyTrendChart>
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.expeditionColors;
     final points = widget.monthlyTrends[_selectedRange] ?? const [];
     final maxDistance = points.fold<double>(
       0,
@@ -55,7 +57,7 @@ class _AnalyticsMonthlyTrendChartState extends State<AnalyticsMonthlyTrendChart>
               drawVerticalLine: false,
               horizontalInterval: chartMaxY / 4,
               getDrawingHorizontalLine: (_) => FlLine(
-                color: AppColorPalette.darkCardElevated.withValues(alpha: 0.8),
+                color: colors.chartGrid.withValues(alpha: 0.8),
                 strokeWidth: 1,
               ),
             ),
@@ -74,8 +76,8 @@ class _AnalyticsMonthlyTrendChartState extends State<AnalyticsMonthlyTrendChart>
                     }
                     return Text(
                       value.toStringAsFixed(1),
-                      style: const TextStyle(
-                        color: AppColorPalette.grey500,
+                      style: TextStyle(
+                        color: colors.textMuted,
                         fontSize: 10,
                       ),
                     );
@@ -94,8 +96,8 @@ class _AnalyticsMonthlyTrendChartState extends State<AnalyticsMonthlyTrendChart>
                     }
                     return Text(
                       DateFormat('MMM d').format(points[index].date),
-                      style: const TextStyle(
-                        color: AppColorPalette.grey500,
+                      style: TextStyle(
+                        color: colors.textMuted,
                         fontSize: 10,
                       ),
                     );
@@ -159,6 +161,8 @@ class _RangeSelector extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.expeditionColors;
+
     return Wrap(
       spacing: AppSpacing.xs,
       children: MonthlyTrendRange.values.map((range) {
@@ -176,21 +180,21 @@ class _RangeSelector extends StatelessWidget {
               ),
               decoration: BoxDecoration(
                 color: isSelected
-                    ? AppColorPalette.primary.withValues(alpha: 0.2)
-                    : AppColorPalette.darkCardElevated,
+                    ? AppColorPalette.primary.withValues(alpha: 0.15)
+                    : colors.cardElevated,
                 borderRadius: AppBorderRadius.radiusMd,
                 border: Border.all(
                   color: isSelected
-                      ? AppColorPalette.primary.withValues(alpha: 0.5)
-                      : AppColorPalette.grey700.withValues(alpha: 0.4),
+                      ? AppColorPalette.primary
+                      : colors.divider,
                 ),
               ),
               child: Text(
                 range.label,
                 style: TextStyle(
                   color: isSelected
-                      ? AppColorPalette.primaryLight
-                      : AppColorPalette.grey400,
+                      ? AppColorPalette.primary
+                      : colors.textSecondary,
                   fontSize: 11,
                   fontWeight: FontWeight.w600,
                 ),

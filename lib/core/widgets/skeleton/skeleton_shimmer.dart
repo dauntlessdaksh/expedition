@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../constants/app_border_radius.dart';
 import '../../constants/app_colors.dart';
+import '../../theme/expedition_colors.dart';
 
 /// Animated shimmer wrapper for skeleton placeholders.
 class SkeletonShimmer extends StatefulWidget {
@@ -37,6 +38,11 @@ class _SkeletonShimmerState extends State<SkeletonShimmer>
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.expeditionColors;
+    final isLight = Theme.of(context).brightness == Brightness.light;
+    final base = colors.cardElevated;
+    final highlight = isLight ? AppColorPalette.grey200 : AppColorPalette.grey700;
+
     return AnimatedBuilder(
       animation: _controller,
       builder: (context, child) {
@@ -46,11 +52,7 @@ class _SkeletonShimmerState extends State<SkeletonShimmer>
             return LinearGradient(
               begin: Alignment.centerLeft,
               end: Alignment.centerRight,
-              colors: const [
-                AppColorPalette.darkCardElevated,
-                AppColorPalette.grey700,
-                AppColorPalette.darkCardElevated,
-              ],
+              colors: [base, highlight, base],
               stops: [
                 (_controller.value - 0.3).clamp(0.0, 1.0),
                 _controller.value.clamp(0.0, 1.0),
@@ -81,12 +83,14 @@ class SkeletonBox extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.expeditionColors;
+
     return SkeletonShimmer(
       child: Container(
         width: width,
         height: height,
         decoration: BoxDecoration(
-          color: AppColorPalette.darkCardElevated,
+          color: colors.cardElevated,
           borderRadius: borderRadius,
         ),
       ),

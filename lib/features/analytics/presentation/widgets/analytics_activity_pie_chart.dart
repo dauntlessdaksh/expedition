@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_spacing.dart';
+import '../../../../core/theme/expedition_colors.dart';
 import '../../domain/models/analytics_chart_models.dart';
 import 'analytics_section_card.dart';
 
@@ -17,6 +18,7 @@ class AnalyticsActivityPieChart extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.expeditionColors;
     final sections = _buildSections();
 
     return AnalyticsSectionCard(
@@ -27,10 +29,10 @@ class AnalyticsActivityPieChart extends StatelessWidget {
           SizedBox(
             height: 220,
             child: sections.isEmpty
-                ? const Center(
+                ? Center(
                     child: Text(
                       'No activity data yet',
-                      style: TextStyle(color: AppColorPalette.grey500),
+                      style: TextStyle(color: colors.textMuted),
                     ),
                   )
                 : PieChart(
@@ -47,7 +49,7 @@ class AnalyticsActivityPieChart extends StatelessWidget {
           Wrap(
             spacing: AppSpacing.md,
             runSpacing: AppSpacing.sm,
-            children: const [
+            children: [
               _LegendItem(
                 color: AppColorPalette.primaryLight,
                 label: 'Walking',
@@ -125,6 +127,8 @@ class _LegendItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.expeditionColors;
+
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -139,8 +143,8 @@ class _LegendItem extends StatelessWidget {
         const SizedBox(width: AppSpacing.xs),
         Text(
           label,
-          style: const TextStyle(
-            color: AppColorPalette.grey400,
+          style: TextStyle(
+            color: colors.textSecondary,
             fontSize: 12,
           ),
         ),

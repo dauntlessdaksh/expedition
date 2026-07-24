@@ -4,7 +4,9 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_spacing.dart';
+import '../../../../core/router/app_router.dart';
 import '../../../../core/services/avatar_lifecycle.dart';
+import '../../../../core/theme/expedition_colors.dart';
 import '../../../../core/theme/premium_gradients.dart';
 import '../../../../core/theme/theme_cubit.dart';
 import '../../../../core/widgets/app_error_view.dart';
@@ -27,7 +29,7 @@ class ProfileScreen extends StatefulWidget {
   State<ProfileScreen> createState() => _ProfileScreenState();
 }
 
-class _ProfileScreenState extends State<ProfileScreen> {
+class _ProfileScreenState extends State<ProfileScreen> with RouteAware {
   static const _avatarOwner = 'profile';
 
   @override
@@ -37,9 +39,24 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final route = ModalRoute.of(context);
+    if (route != null) {
+      AppRouter.routeObserver.subscribe(this, route);
+    }
+  }
+
+  @override
   void dispose() {
+    AppRouter.routeObserver.unsubscribe(this);
     AvatarLifecycle.release(_avatarOwner);
     super.dispose();
+  }
+
+  @override
+  void didPopNext() {
+    context.read<ProfileBloc>().add(const LoadProfile());
   }
 
   @override
@@ -57,8 +74,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
         }
       },
       builder: (context, state) {
+        final colors = context.expeditionColors;
+
         return Scaffold(
-          backgroundColor: AppColorPalette.darkBackground,
+          backgroundColor: colors.scaffoldBackground,
           appBar: AppBar(
             backgroundColor: Colors.transparent,
             elevation: 0,
@@ -69,8 +88,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
             title: const Text('Profile'),
           ),
           body: DecoratedBox(
-            decoration: const BoxDecoration(
-              gradient: PremiumGradients.darkBackground,
+            decoration: BoxDecoration(
+              gradient: PremiumGradients.scaffoldBackground(context),
             ),
             child: switch (state.status) {
               ProfileStatus.initial ||
@@ -85,10 +104,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 _ProfileContent(
                   state: state,
                   onThemeChanged: (theme) {
-                    final mode = theme == 'dark'
-                        ? ThemeMode.dark
-                        : ThemeMode.system;
-                    context.read<ThemeCubit>().setThemeMode(mode);
+                    context
+                        .read<ThemeCubit>()
+                        .setThemeMode(ThemeCubit.modeFromPreference(theme));
                   },
                 ),
               _ => const SizedBox.shrink(),

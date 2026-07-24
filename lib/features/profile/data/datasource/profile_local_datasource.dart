@@ -70,7 +70,49 @@ class ProfileLocalDataSource {
           .getSingle();
     }
 
-    return UserPreferences.fromRow(settings);
+    final preferences = UserPreferences.fromRow(settings);
+    return _normalizeLegacyGoals(preferences, settings.id);
+  }
+
+  Future<UserPreferences> _normalizeLegacyGoals(
+    UserPreferences preferences,
+    int settingsId,
+  ) async {
+    var dailyDistanceKm = preferences.weeklyDistanceGoalKm;
+    var dailyCalories = preferences.weeklyWorkoutGoal;
+    var needsUpdate = false;
+
+    // Older builds stored weekly distance (e.g. 56 km/week).
+    if (dailyDistanceKm > 25) {
+      dailyDistanceKm = (dailyDistanceKm / 7).clamp(1.0, 30.0);
+      needsUpdate = true;
+    }
+
+    // Older builds stored weekly workout count (e.g. 12 workouts/week).
+    if (dailyCalories < 100) {
+      dailyCalories = 600;
+      needsUpdate = true;
+    }
+
+    if (!needsUpdate) {
+      return preferences;
+    }
+
+    final normalized = preferences.copyWith(
+      weeklyDistanceGoalKm: dailyDistanceKm,
+      weeklyWorkoutGoal: dailyCalories,
+    );
+
+    await (_database.update(_database.settings)
+          ..where((tbl) => tbl.id.equals(settingsId)))
+        .write(
+      SettingsCompanion(
+        weeklyDistanceGoal: Value(dailyDistanceKm),
+        weeklyWorkoutGoal: Value(dailyCalories),
+      ),
+    );
+
+    return normalized;
   }
 
   Future<UserPreferences> updatePreferences(
@@ -82,8 +124,10 @@ class ProfileLocalDataSource {
       theme: request.theme,
       notificationsEnabled: request.notificationsEnabled,
       dailyStepGoal: request.dailyStepGoal,
-      weeklyDistanceGoalKm: request.weeklyDistanceGoalKm,
-      weeklyWorkoutGoal: request.weeklyWorkoutGoal,
+      weeklyDistanceGoalKm:
+          request.dailyDistanceGoalKm ?? request.weeklyDistanceGoalKm,
+      weeklyWorkoutGoal:
+          request.dailyCalorieGoal ?? request.weeklyWorkoutGoal,
     );
 
     final existing = await (_database.select(_database.settings)..limit(1))

@@ -29,6 +29,12 @@ class UserPreferences extends Equatable {
 
   bool get usesMetric => unit == 'metric';
 
+  /// Daily calorie goal (stored in [weeklyWorkoutGoal] column).
+  int get dailyCalorieGoal => weeklyWorkoutGoal;
+
+  /// Daily distance goal in km (stored in [weeklyDistanceGoalKm] column).
+  double get dailyDistanceGoalKm => weeklyDistanceGoalKm;
+
   factory UserPreferences.fromRow(Setting row) {
     return UserPreferences(
       unit: row.unit,
@@ -48,8 +54,8 @@ class UserPreferences extends Equatable {
       theme: 'system',
       notificationsEnabled: true,
       dailyStepGoal: 10000,
-      weeklyDistanceGoalKm: 56,
-      weeklyWorkoutGoal: 12,
+      weeklyDistanceGoalKm: 8,
+      weeklyWorkoutGoal: 600,
       dailyActiveMinutesGoal: 60,
       monthlyWorkoutGoal: 12,
     );
@@ -101,6 +107,8 @@ class PreferencesUpdateRequest extends Equatable {
     this.dailyStepGoal,
     this.weeklyDistanceGoalKm,
     this.weeklyWorkoutGoal,
+    this.dailyCalorieGoal,
+    this.dailyDistanceGoalKm,
   });
 
   final String? unit;
@@ -109,6 +117,8 @@ class PreferencesUpdateRequest extends Equatable {
   final int? dailyStepGoal;
   final double? weeklyDistanceGoalKm;
   final int? weeklyWorkoutGoal;
+  final int? dailyCalorieGoal;
+  final double? dailyDistanceGoalKm;
 
   @override
   List<Object?> get props => [
@@ -118,6 +128,8 @@ class PreferencesUpdateRequest extends Equatable {
         dailyStepGoal,
         weeklyDistanceGoalKm,
         weeklyWorkoutGoal,
+        dailyCalorieGoal,
+        dailyDistanceGoalKm,
       ];
 }
 

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/constants/app_border_radius.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_spacing.dart';
+import '../../../../core/theme/expedition_colors.dart';
 import '../../../../core/theme/premium_gradients.dart';
 import '../../domain/models/analytics_records.dart';
 import 'analytics_section_card.dart';
@@ -54,10 +55,12 @@ class _RecordCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.expeditionColors;
+
     return Container(
       padding: const EdgeInsets.all(AppSpacing.lg),
       decoration: BoxDecoration(
-        gradient: PremiumGradients.cardShimmer,
+        gradient: PremiumGradients.cardShimmerFor(context),
         borderRadius: AppBorderRadius.radiusLg,
         border: Border.all(
           color: AppColorPalette.primary.withValues(alpha: 0.15),
@@ -70,8 +73,8 @@ class _RecordCard extends StatelessWidget {
             record.label,
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
-            style: const TextStyle(
-              color: AppColorPalette.grey400,
+            style: TextStyle(
+              color: colors.textSecondary,
               fontSize: 12,
               fontWeight: FontWeight.w500,
             ),
@@ -79,8 +82,8 @@ class _RecordCard extends StatelessWidget {
           const Spacer(),
           Text(
             record.value,
-            style: const TextStyle(
-              color: AppColorPalette.white,
+            style: TextStyle(
+              color: colors.textPrimary,
               fontSize: 18,
               fontWeight: FontWeight.w700,
             ),
@@ -91,8 +94,8 @@ class _RecordCard extends StatelessWidget {
               record.subtitle!,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
-              style: const TextStyle(
-                color: AppColorPalette.grey500,
+              style: TextStyle(
+                color: colors.textMuted,
                 fontSize: 11,
               ),
             ),

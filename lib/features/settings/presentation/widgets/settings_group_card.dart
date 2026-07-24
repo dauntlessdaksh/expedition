@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/constants/app_border_radius.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_spacing.dart';
+import '../../../../core/theme/expedition_colors.dart';
 
 /// Grouped settings card matching the premium reference layout.
 class SettingsGroupCard extends StatelessWidget {
@@ -15,13 +16,15 @@ class SettingsGroupCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.expeditionColors;
+
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
-        color: AppColorPalette.darkCard,
+        color: colors.card,
         borderRadius: AppBorderRadius.radiusXl,
         border: Border.all(
-          color: AppColorPalette.darkCardElevated.withValues(alpha: 0.7),
+          color: colors.cardElevated.withValues(alpha: 0.7),
         ),
       ),
       child: child,
@@ -50,6 +53,8 @@ class SettingsPickerRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.expeditionColors;
+
     return Column(
       children: [
         Material(
@@ -69,8 +74,8 @@ class SettingsPickerRow extends StatelessWidget {
                   Expanded(
                     child: Text(
                       label,
-                      style: const TextStyle(
-                        color: AppColorPalette.white,
+                      style: TextStyle(
+                        color: colors.textPrimary,
                         fontSize: 16,
                         fontWeight: FontWeight.w500,
                       ),
@@ -101,7 +106,7 @@ class SettingsPickerRow extends StatelessWidget {
             thickness: 1,
             indent: AppSpacing.lg,
             endIndent: AppSpacing.lg,
-            color: AppColorPalette.darkCardElevated.withValues(alpha: 0.8),
+            color: colors.cardElevated.withValues(alpha: 0.8),
           ),
       ],
     );
@@ -116,6 +121,8 @@ class SettingsSectionLabel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.expeditionColors;
+
     return Padding(
       padding: const EdgeInsets.only(
         left: AppSpacing.xs,
@@ -123,8 +130,8 @@ class SettingsSectionLabel extends StatelessWidget {
       ),
       child: Text(
         label,
-        style: const TextStyle(
-          color: AppColorPalette.grey500,
+        style: TextStyle(
+          color: colors.textMuted,
           fontSize: 14,
           fontWeight: FontWeight.w500,
         ),
@@ -141,6 +148,8 @@ class SettingsSectionHint extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.expeditionColors;
+
     return Padding(
       padding: const EdgeInsets.fromLTRB(
         AppSpacing.xs,
@@ -150,8 +159,8 @@ class SettingsSectionHint extends StatelessWidget {
       ),
       child: Text(
         text,
-        style: const TextStyle(
-          color: AppColorPalette.grey500,
+        style: TextStyle(
+          color: colors.textMuted,
           fontSize: 13,
           height: 1.45,
         ),

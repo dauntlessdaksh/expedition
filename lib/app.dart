@@ -1,5 +1,8 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_native_splash/flutter_native_splash.dart';
 
 import 'core/constants/app_strings.dart';
 import 'core/database/app_database.dart';
@@ -22,6 +25,11 @@ import 'features/onboarding/data/datasource/onboarding_local_datasource.dart';
 import 'features/onboarding/data/repositories/onboarding_repository.dart';
 import 'features/profile/data/datasource/profile_local_datasource.dart';
 import 'features/profile/data/repositories/profile_repository.dart';
+import 'features/spotify/data/spotify_auth_service.dart';
+import 'features/spotify/data/spotify_remote_service.dart';
+import 'features/spotify/data/spotify_repository.dart';
+import 'core/voice/voice_service.dart';
+import 'core/voice/voice_settings_service.dart';
 
 /// Root widget for the Expedition application.
 class ExpeditionApp extends StatelessWidget {
@@ -35,6 +43,7 @@ class ExpeditionApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<ThemeCubit, ThemeMode>(
+      buildWhen: (previous, current) => previous != current,
       builder: (context, themeMode) {
         return MaterialApp.router(
           title: AppStrings.appName,
@@ -51,7 +60,8 @@ class ExpeditionApp extends StatelessWidget {
 
 /// Initializes core services and launches the application.
 Future<void> bootstrap() async {
-  WidgetsFlutterBinding.ensureInitialized();
+  final widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
+  FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
 
   AppLogger.info('Bootstrapping Expedition...');
 
@@ -88,7 +98,7 @@ Future<void> bootstrap() async {
   );
 
   final themeCubit = ThemeCubit(
-    initialMode: ThemeMode.dark,
+    initialMode: ThemeMode.system,
   );
 
   final homeRepository = HomeRepository(
@@ -102,7 +112,13 @@ Future<void> bootstrap() async {
     profileRepository: profileRepository,
   );
 
-  await gamificationRepository.refresh();
+  final spotifyRepository = SpotifyRepository(
+    authService: SpotifyAuthService(dio: apiClient.dio),
+    remoteService: SpotifyRemoteService(),
+  );
+
+  final voiceSettingsService = VoiceSettingsService();
+  final voiceService = VoiceService();
 
   final appRouter = AppRouter(
     onboardingRepository: onboardingRepository,
@@ -115,6 +131,7 @@ Future<void> bootstrap() async {
     achievementRepository: achievementRepository,
     goalRepository: goalRepository,
     challengeRepository: challengeRepository,
+    spotifyRepository: spotifyRepository,
   );
 
   AppLogger.info('Core services initialized');
@@ -146,6 +163,15 @@ Future<void> bootstrap() async {
         RepositoryProvider<ChallengeRepository>.value(
           value: challengeRepository,
         ),
+        RepositoryProvider<SpotifyRepository>.value(
+          value: spotifyRepository,
+        ),
+        RepositoryProvider<VoiceSettingsService>.value(
+          value: voiceSettingsService,
+        ),
+        RepositoryProvider<VoiceService>.value(
+          value: voiceService,
+        ),
       ],
       child: BlocProvider.value(
         value: themeCubit,
@@ -153,4 +179,33 @@ Future<void> bootstrap() async {
       ),
     ),
   );
+
+  WidgetsBinding.instance.addPostFrameCallback((_) {
+    FlutterNativeSplash.remove();
+    unawaited(_warmUpAfterFirstFrame(
+      profileRepository: profileRepository,
+      themeCubit: themeCubit,
+      gamificationRepository: gamificationRepository,
+      voiceService: voiceService,
+    ));
+  });
+}
+
+Future<void> _warmUpAfterFirstFrame({
+  required ProfileRepository profileRepository,
+  required ThemeCubit themeCubit,
+  required GamificationRepository gamificationRepository,
+  required VoiceService voiceService,
+}) async {
+  try {
+    final preferences = await profileRepository.getPreferences();
+    themeCubit.setThemeMode(
+      ThemeCubit.modeFromPreference(preferences.theme),
+    );
+  } on Exception {
+    // Keep system theme when preferences is unavailable.
+  }
+
+  unawaited(voiceService.initialize());
+  unawaited(gamificationRepository.refresh());
 }

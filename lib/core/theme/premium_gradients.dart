@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../constants/app_colors.dart';
 
-/// Premium gradient presets for Expedition's dark athletic UI.
+/// Premium gradient presets for Expedition's athletic UI.
 abstract final class PremiumGradients {
   static const LinearGradient darkBackground = LinearGradient(
     begin: Alignment.topCenter,
@@ -41,6 +41,37 @@ abstract final class PremiumGradients {
       AppColorPalette.darkCardElevated,
     ],
   );
+
+  static const LinearGradient lightBackground = LinearGradient(
+    begin: Alignment.topCenter,
+    end: Alignment.bottomCenter,
+    colors: [
+      AppColorPalette.lightBackground,
+      AppColorPalette.lightSurface,
+      AppColorPalette.lightBackground,
+    ],
+  );
+
+  static const LinearGradient lightCardShimmer = LinearGradient(
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+    colors: [
+      AppColorPalette.lightCard,
+      AppColorPalette.lightCardElevated,
+    ],
+  );
+
+  static LinearGradient scaffoldBackground(BuildContext context) {
+    return Theme.of(context).brightness == Brightness.light
+        ? lightBackground
+        : darkBackground;
+  }
+
+  static LinearGradient cardShimmerFor(BuildContext context) {
+    return Theme.of(context).brightness == Brightness.light
+        ? lightCardShimmer
+        : cardShimmer;
+  }
 
   static const LinearGradient cardAccentEdge = LinearGradient(
     begin: Alignment.centerLeft,

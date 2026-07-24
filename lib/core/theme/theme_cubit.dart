@@ -19,6 +19,14 @@ class ThemeCubit extends Cubit<ThemeMode> {
         emit(ThemeMode.dark);
     }
   }
+
+  static ThemeMode modeFromPreference(String theme) {
+    return switch (theme) {
+      'light' => ThemeMode.light,
+      'dark' => ThemeMode.dark,
+      _ => ThemeMode.system,
+    };
+  }
 }
 
 /// State wrapper for theme-related data (reserved for future extensions).

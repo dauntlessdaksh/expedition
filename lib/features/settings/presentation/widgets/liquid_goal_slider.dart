@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import '../../../../core/constants/app_border_radius.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_spacing.dart';
+import '../../../../core/theme/expedition_colors.dart';
 
 /// Premium goal slider with an enlarged pill thumb and fluid drag animation.
 class LiquidGoalSlider extends StatefulWidget {
@@ -12,7 +13,7 @@ class LiquidGoalSlider extends StatefulWidget {
     required this.iconColor,
     required this.label,
     required this.value,
-    required this.formatValue,
+    required this.displayValue,
     required this.min,
     required this.max,
     required this.divisions,
@@ -24,7 +25,7 @@ class LiquidGoalSlider extends StatefulWidget {
   final Color iconColor;
   final String label;
   final double value;
-  final String Function(double value) formatValue;
+  final String displayValue;
   final double min;
   final double max;
   final int divisions;
@@ -75,6 +76,8 @@ class _LiquidGoalSliderState extends State<LiquidGoalSlider> {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.expeditionColors;
+    final isLight = Theme.of(context).brightness == Brightness.light;
     final progress = ((_localValue - widget.min) / (widget.max - widget.min))
         .clamp(0.0, 1.0);
 
@@ -86,11 +89,18 @@ class _LiquidGoalSliderState extends State<LiquidGoalSlider> {
         AppSpacing.md,
       ),
       decoration: BoxDecoration(
-        color: AppColorPalette.darkCard,
+        color: colors.card,
         borderRadius: AppBorderRadius.radiusXl,
-        border: Border.all(
-          color: AppColorPalette.darkCardElevated.withValues(alpha: 0.7),
-        ),
+        border: Border.all(color: colors.divider),
+        boxShadow: isLight
+            ? [
+                BoxShadow(
+                  color: AppColorPalette.black.withValues(alpha: 0.04),
+                  blurRadius: 12,
+                  offset: const Offset(0, 4),
+                ),
+              ]
+            : null,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -102,8 +112,8 @@ class _LiquidGoalSliderState extends State<LiquidGoalSlider> {
               Expanded(
                 child: Text(
                   widget.label,
-                  style: const TextStyle(
-                    color: AppColorPalette.white,
+                  style: TextStyle(
+                    color: colors.textPrimary,
                     fontSize: 15,
                     fontWeight: FontWeight.w500,
                   ),
@@ -113,12 +123,12 @@ class _LiquidGoalSliderState extends State<LiquidGoalSlider> {
                 duration: const Duration(milliseconds: 180),
                 style: TextStyle(
                   color: _isDragging
-                      ? AppColorPalette.white
-                      : AppColorPalette.grey400,
+                      ? AppColorPalette.primary
+                      : colors.textSecondary,
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
                 ),
-                child: Text(widget.formatValue(_localValue)),
+                child: Text(widget.displayValue),
               ),
             ],
           ),
@@ -130,8 +140,7 @@ class _LiquidGoalSliderState extends State<LiquidGoalSlider> {
                 const thumbWidth = 52.0;
                 const thumbHeight = 28.0;
                 final trackWidth = constraints.maxWidth;
-                final thumbLeft =
-                    (trackWidth - thumbWidth) * progress;
+                final thumbLeft = (trackWidth - thumbWidth) * progress;
 
                 return Stack(
                   alignment: Alignment.centerLeft,
@@ -140,7 +149,7 @@ class _LiquidGoalSliderState extends State<LiquidGoalSlider> {
                     Container(
                       height: 4,
                       decoration: BoxDecoration(
-                        color: AppColorPalette.darkCardElevated,
+                        color: colors.progressTrack,
                         borderRadius: BorderRadius.circular(2),
                       ),
                     ),
@@ -150,7 +159,9 @@ class _LiquidGoalSliderState extends State<LiquidGoalSlider> {
                       height: 4,
                       width: trackWidth * progress,
                       decoration: BoxDecoration(
-                        color: AppColorPalette.white.withValues(alpha: 0.18),
+                        color: AppColorPalette.primary.withValues(
+                          alpha: isLight ? 0.55 : 0.35,
+                        ),
                         borderRadius: BorderRadius.circular(2),
                       ),
                     ),
@@ -164,12 +175,18 @@ class _LiquidGoalSliderState extends State<LiquidGoalSlider> {
                           width: thumbWidth,
                           height: thumbHeight,
                           decoration: BoxDecoration(
-                            color: AppColorPalette.white,
+                            color: isLight
+                                ? AppColorPalette.white
+                                : AppColorPalette.white,
                             borderRadius: BorderRadius.circular(999),
+                            border: isLight
+                                ? Border.all(color: colors.divider)
+                                : null,
                             boxShadow: [
                               BoxShadow(
-                                color: AppColorPalette.white
-                                    .withValues(alpha: _isDragging ? 0.35 : 0.2),
+                                color: AppColorPalette.primary.withValues(
+                                  alpha: _isDragging ? 0.35 : 0.18,
+                                ),
                                 blurRadius: _isDragging ? 16 : 8,
                                 spreadRadius: _isDragging ? 1 : 0,
                               ),
@@ -185,11 +202,9 @@ class _LiquidGoalSliderState extends State<LiquidGoalSlider> {
                         inactiveTrackColor: Colors.transparent,
                         thumbColor: Colors.transparent,
                         overlayColor: Colors.transparent,
-                        thumbShape: const RoundSliderThumbShape(
-                          enabledThumbRadius: 18,
-                        ),
+                        thumbShape: const _InvisibleSliderThumbShape(),
                         overlayShape: const RoundSliderOverlayShape(
-                          overlayRadius: 28,
+                          overlayRadius: 0,
                         ),
                       ),
                       child: Slider(
@@ -211,4 +226,28 @@ class _LiquidGoalSliderState extends State<LiquidGoalSlider> {
       ),
     );
   }
+}
+
+/// Hides the Material slider thumb so only the custom pill thumb is visible.
+class _InvisibleSliderThumbShape extends SliderComponentShape {
+  const _InvisibleSliderThumbShape();
+
+  @override
+  Size getPreferredSize(bool isEnabled, bool isDiscrete) => Size.zero;
+
+  @override
+  void paint(
+    PaintingContext context,
+    Offset center, {
+    required Animation<double> activationAnimation,
+    required Animation<double> enableAnimation,
+    required bool isDiscrete,
+    required TextPainter labelPainter,
+    required RenderBox parentBox,
+    required SliderThemeData sliderTheme,
+    required TextDirection textDirection,
+    required double value,
+    required double textScaleFactor,
+    required Size sizeWithOverflow,
+  }) {}
 }

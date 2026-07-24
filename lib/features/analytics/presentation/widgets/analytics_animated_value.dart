@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/constants/app_border_radius.dart';
-import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_spacing.dart';
+import '../../../../core/theme/expedition_colors.dart';
 import '../../../../core/theme/premium_gradients.dart';
 
 /// Counts up a numeric value when the analytics screen loads.
@@ -49,13 +49,15 @@ class AnalyticsSummaryTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.expeditionColors;
+
     return Container(
       padding: const EdgeInsets.all(AppSpacing.lg),
       decoration: BoxDecoration(
-        gradient: PremiumGradients.cardShimmer,
+        gradient: PremiumGradients.cardShimmerFor(context),
         borderRadius: AppBorderRadius.radiusLg,
         border: Border.all(
-          color: AppColorPalette.darkCardElevated.withValues(alpha: 0.6),
+          color: colors.cardElevated.withValues(alpha: 0.6),
         ),
       ),
       child: Column(
@@ -63,8 +65,8 @@ class AnalyticsSummaryTile extends StatelessWidget {
         children: [
           Text(
             label,
-            style: const TextStyle(
-              color: AppColorPalette.grey400,
+            style: TextStyle(
+              color: colors.textSecondary,
               fontSize: 12,
               fontWeight: FontWeight.w500,
             ),
@@ -73,8 +75,8 @@ class AnalyticsSummaryTile extends StatelessWidget {
           AnalyticsAnimatedValue(
             value: value,
             formatter: formatter,
-            style: const TextStyle(
-              color: AppColorPalette.white,
+            style: TextStyle(
+              color: colors.textPrimary,
               fontSize: 20,
               fontWeight: FontWeight.w700,
             ),

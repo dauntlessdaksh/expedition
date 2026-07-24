@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/constants/app_border_radius.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_spacing.dart';
+import '../../../../core/theme/expedition_colors.dart';
 import '../../../../core/theme/premium_gradients.dart';
 
 /// Shared rounded card wrapper for profile sections.
@@ -22,14 +23,16 @@ class ProfileSectionCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.expeditionColors;
+
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(AppSpacing.xl),
       decoration: BoxDecoration(
-        gradient: PremiumGradients.cardShimmer,
+        gradient: PremiumGradients.cardShimmerFor(context),
         borderRadius: AppBorderRadius.radiusXl,
         border: Border.all(
-          color: AppColorPalette.darkCardElevated.withValues(alpha: 0.6),
+          color: colors.cardElevated.withValues(alpha: 0.6),
         ),
       ),
       child: Column(
@@ -44,8 +47,8 @@ class ProfileSectionCard extends StatelessWidget {
                   children: [
                     Text(
                       title,
-                      style: const TextStyle(
-                        color: AppColorPalette.white,
+                      style: TextStyle(
+                        color: colors.textPrimary,
                         fontSize: 18,
                         fontWeight: FontWeight.w700,
                       ),
@@ -54,8 +57,8 @@ class ProfileSectionCard extends StatelessWidget {
                       const SizedBox(height: AppSpacing.xs),
                       Text(
                         subtitle!,
-                        style: const TextStyle(
-                          color: AppColorPalette.grey500,
+                        style: TextStyle(
+                          color: colors.textMuted,
                           fontSize: 13,
                         ),
                       ),
@@ -89,6 +92,8 @@ class ProfileFieldTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.expeditionColors;
+
     return Material(
       color: Colors.transparent,
       child: InkWell(
@@ -100,10 +105,10 @@ class ProfileFieldTile extends StatelessWidget {
             vertical: AppSpacing.md,
           ),
           decoration: BoxDecoration(
-            color: AppColorPalette.darkCardElevated.withValues(alpha: 0.45),
+            color: colors.cardElevated.withValues(alpha: 0.45),
             borderRadius: AppBorderRadius.radiusLg,
             border: Border.all(
-              color: AppColorPalette.grey700.withValues(alpha: 0.35),
+              color: colors.divider,
             ),
           ),
           child: Row(
@@ -111,24 +116,24 @@ class ProfileFieldTile extends StatelessWidget {
               Expanded(
                 child: Text(
                   label,
-                  style: const TextStyle(
-                    color: AppColorPalette.grey400,
+                  style: TextStyle(
+                    color: colors.textSecondary,
                     fontSize: 14,
                   ),
                 ),
               ),
               Text(
                 value,
-                style: const TextStyle(
-                  color: AppColorPalette.white,
+                style: TextStyle(
+                  color: colors.textPrimary,
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
                 ),
               ),
               const SizedBox(width: AppSpacing.sm),
-              const Icon(
+              Icon(
                 Icons.chevron_right_rounded,
-                color: AppColorPalette.grey500,
+                color: colors.textMuted,
                 size: 20,
               ),
             ],
@@ -154,6 +159,8 @@ class ProfileChoiceRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.expeditionColors;
+
     return Wrap(
       spacing: AppSpacing.sm,
       runSpacing: AppSpacing.sm,
@@ -173,20 +180,20 @@ class ProfileChoiceRow extends StatelessWidget {
               decoration: BoxDecoration(
                 color: isSelected
                     ? AppColorPalette.primary.withValues(alpha: 0.18)
-                    : AppColorPalette.darkCardElevated,
+                    : colors.cardElevated,
                 borderRadius: AppBorderRadius.radiusMd,
                 border: Border.all(
                   color: isSelected
                       ? AppColorPalette.primary.withValues(alpha: 0.5)
-                      : AppColorPalette.grey700.withValues(alpha: 0.35),
+                      : colors.divider,
                 ),
               ),
               child: Text(
                 option.label,
                 style: TextStyle(
                   color: isSelected
-                      ? AppColorPalette.primaryLight
-                      : AppColorPalette.grey400,
+                      ? AppColorPalette.primary
+                      : colors.textSecondary,
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
                 ),

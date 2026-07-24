@@ -5,6 +5,7 @@ import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/navigation/main_navigation.dart';
 import '../../../../core/navigation/main_tab.dart';
+import '../../../../core/theme/expedition_colors.dart';
 import '../../../../core/theme/premium_gradients.dart';
 import '../../../../core/widgets/app_error_view.dart';
 import '../../../../core/widgets/premium_empty_state.dart';
@@ -12,7 +13,6 @@ import '../../../../core/widgets/skeleton/skeleton_loaders.dart';
 import '../../../home/presentation/widgets/home_animated_section.dart';
 import '../bloc/analytics_bloc.dart';
 import '../widgets/analytics_activity_pie_chart.dart';
-import '../widgets/analytics_goal_progress.dart';
 import '../widgets/analytics_insights_section.dart';
 import '../widgets/analytics_monthly_trend_chart.dart';
 import '../widgets/analytics_personal_records.dart';
@@ -26,14 +26,19 @@ class AnalyticsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.expeditionColors;
+
     return Scaffold(
-      backgroundColor: AppColorPalette.darkBackground,
+      backgroundColor: colors.scaffoldBackground,
       body: DecoratedBox(
-        decoration: const BoxDecoration(
-          gradient: PremiumGradients.darkBackground,
+        decoration: BoxDecoration(
+          gradient: PremiumGradients.scaffoldBackground(context),
         ),
         child: SafeArea(
           child: BlocBuilder<AnalyticsBloc, AnalyticsState>(
+            buildWhen: (previous, current) =>
+                previous.status != current.status ||
+                previous.data != current.data,
             builder: (context, state) {
               return switch (state.status) {
                 AnalyticsStatus.initial ||
@@ -66,11 +71,12 @@ class _AnalyticsContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.expeditionColors;
     final data = state.data!;
 
     return RefreshIndicator(
       color: AppColorPalette.primary,
-      backgroundColor: AppColorPalette.darkCard,
+      backgroundColor: colors.card,
       onRefresh: () async {
         context.read<AnalyticsBloc>().add(const RefreshAnalytics());
         await context.read<AnalyticsBloc>().stream.firstWhere(
@@ -93,21 +99,21 @@ class _AnalyticsContent extends StatelessWidget {
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                children: const [
+                children: [
                   Text(
                     'Analytics',
                     style: TextStyle(
-                      color: AppColorPalette.white,
+                      color: colors.textPrimary,
                       fontSize: 28,
                       fontWeight: FontWeight.w700,
                       letterSpacing: -0.5,
                     ),
                   ),
-                  SizedBox(height: AppSpacing.xs),
+                  const SizedBox(height: AppSpacing.xs),
                   Text(
                     'Your training trends, records, and insights.',
                     style: TextStyle(
-                      color: AppColorPalette.grey400,
+                      color: colors.textSecondary,
                       fontSize: 14,
                     ),
                   ),
@@ -166,11 +172,6 @@ class _AnalyticsContent extends StatelessWidget {
                 const SizedBox(height: AppSpacing.xl),
                 HomeAnimatedSection(
                   index: 6,
-                  child: AnalyticsGoalProgress(goals: data.goalProgress),
-                ),
-                const SizedBox(height: AppSpacing.xl),
-                HomeAnimatedSection(
-                  index: 7,
                   child: AnalyticsInsightsSection(insights: data.insights),
                 ),
               ]),

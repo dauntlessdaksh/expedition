@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/constants/app_border_radius.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_spacing.dart';
+import '../../../../core/theme/expedition_colors.dart';
 import '../../domain/models/profile_models.dart';
 import '../bloc/profile_bloc.dart';
 import 'profile_section_card.dart';
@@ -21,16 +22,18 @@ class ProfilePreferencesSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.expeditionColors;
+
     return ProfileSectionCard(
       title: 'Preferences',
       subtitle: 'Customize how Expedition looks and feels',
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
+          Text(
             'Units',
             style: TextStyle(
-              color: AppColorPalette.grey400,
+              color: colors.textSecondary,
               fontSize: 13,
               fontWeight: FontWeight.w600,
             ),
@@ -47,10 +50,10 @@ class ProfilePreferencesSection extends StatelessWidget {
                 ),
           ),
           const SizedBox(height: AppSpacing.lg),
-          const Text(
+          Text(
             'Theme',
             style: TextStyle(
-              color: AppColorPalette.grey400,
+              color: colors.textSecondary,
               fontSize: 13,
               fontWeight: FontWeight.w600,
             ),
@@ -58,6 +61,7 @@ class ProfilePreferencesSection extends StatelessWidget {
           const SizedBox(height: AppSpacing.sm),
           ProfileChoiceRow(
             options: const [
+              ProfileChoiceOption(label: 'Light', value: 'light'),
               ProfileChoiceOption(label: 'Dark', value: 'dark'),
               ProfileChoiceOption(label: 'System', value: 'system'),
             ],
@@ -76,31 +80,31 @@ class ProfilePreferencesSection extends StatelessWidget {
               vertical: AppSpacing.sm,
             ),
             decoration: BoxDecoration(
-              color: AppColorPalette.darkCardElevated.withValues(alpha: 0.45),
+              color: colors.cardElevated.withValues(alpha: 0.45),
               borderRadius: BorderRadius.circular(AppBorderRadius.lg),
               border: Border.all(
-                color: AppColorPalette.grey700.withValues(alpha: 0.35),
+                color: colors.divider,
               ),
             ),
             child: Row(
               children: [
-                const Expanded(
+                Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
                         'Notifications',
                         style: TextStyle(
-                          color: AppColorPalette.white,
+                          color: colors.textPrimary,
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
-                      SizedBox(height: AppSpacing.xs),
+                      const SizedBox(height: AppSpacing.xs),
                       Text(
                         'Workout reminders and achievements',
                         style: TextStyle(
-                          color: AppColorPalette.grey500,
+                          color: colors.textMuted,
                           fontSize: 12,
                         ),
                       ),

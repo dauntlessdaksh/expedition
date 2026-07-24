@@ -9,6 +9,11 @@ abstract final class AppColorPalette {
   static const Color darkCard = Color(0xFF1D212A);
   static const Color darkCardElevated = Color(0xFF252932);
 
+  static const Color lightBackground = Color(0xFFF3F4F6);
+  static const Color lightSurface = Color(0xFFFFFFFF);
+  static const Color lightCard = Color(0xFFFFFFFF);
+  static const Color lightCardElevated = Color(0xFFE8EAEE);
+
   // ── Accent (performance red) ───────────────────────────────────────────
   static const Color primary = Color(0xFFE53935);
   static const Color primaryLight = Color(0xFFFF5252);
@@ -43,6 +48,8 @@ abstract final class AppColorPalette {
   // ── Text ─────────────────────────────────────────────────────────────────
   static const Color textPrimary = Color(0xFFFFFFFF);
   static const Color textSecondary = Color(0xFF9CA3AF);
+  static const Color lightTextPrimary = Color(0xFF111827);
+  static const Color lightTextSecondary = Color(0xFF6B7280);
   static const Color disabled = Color(0xFF5A5F69);
 
   // ── Dividers & overlays ────────────────────────────────────────────────

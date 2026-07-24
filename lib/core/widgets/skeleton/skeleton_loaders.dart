@@ -2,57 +2,65 @@ import 'package:flutter/material.dart';
 
 import '../../constants/app_border_radius.dart';
 import '../../constants/app_spacing.dart';
+import '../../theme/expedition_colors.dart';
 import 'skeleton_shimmer.dart';
 
 /// Reusable skeleton layouts for primary Expedition screens.
 abstract final class SkeletonLoaders {
   static Widget dashboard() {
-    return const ColoredBox(
-      color: Colors.black,
-      child: SingleChildScrollView(
-        physics: NeverScrollableScrollPhysics(),
-        padding: EdgeInsets.fromLTRB(
-          AppSpacing.xl,
-          AppSpacing.lg,
-          AppSpacing.xl,
-          AppSpacing.xxxl,
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            SkeletonBox(width: 90, height: 16),
-            SizedBox(height: AppSpacing.lg),
-            SkeletonBox(
-              width: double.infinity,
-              height: 160,
+    return Builder(
+      builder: (context) {
+        final colors = Theme.of(context).extension<ExpeditionColors>() ??
+            ExpeditionColors.dark;
+
+        return ColoredBox(
+          color: colors.scaffoldBackground,
+          child: const SingleChildScrollView(
+            physics: NeverScrollableScrollPhysics(),
+            padding: EdgeInsets.fromLTRB(
+              AppSpacing.xl,
+              AppSpacing.lg,
+              AppSpacing.xl,
+              AppSpacing.xxxl,
             ),
-            SizedBox(height: AppSpacing.md),
-            SkeletonBox(width: 160, height: 16),
-            SizedBox(height: AppSpacing.xl),
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.end,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Expanded(flex: 52, child: SkeletonBox(height: 320)),
-                SizedBox(width: AppSpacing.sm),
-                Expanded(
-                  flex: 48,
-                  child: Column(
-                    children: [
-                      SkeletonBox(
-                        width: 148,
-                        height: 148,
-                        borderRadius: AppBorderRadius.radiusFull,
+                SkeletonBox(width: 90, height: 16),
+                SizedBox(height: AppSpacing.lg),
+                SkeletonBox(
+                  width: double.infinity,
+                  height: 160,
+                ),
+                SizedBox(height: AppSpacing.md),
+                SkeletonBox(width: 160, height: 16),
+                SizedBox(height: AppSpacing.xl),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Expanded(flex: 52, child: SkeletonBox(height: 320)),
+                    SizedBox(width: AppSpacing.sm),
+                    Expanded(
+                      flex: 48,
+                      child: Column(
+                        children: [
+                          SkeletonBox(
+                            width: 148,
+                            height: 148,
+                            borderRadius: AppBorderRadius.radiusFull,
+                          ),
+                          SizedBox(height: AppSpacing.xl),
+                          SkeletonBox(width: double.infinity, height: 180),
+                        ],
                       ),
-                      SizedBox(height: AppSpacing.xl),
-                      SkeletonBox(width: double.infinity, height: 180),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
               ],
             ),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
 

@@ -5,43 +5,52 @@ import '../constants/app_border_radius.dart';
 import '../constants/app_colors.dart';
 import 'app_colors.dart' as theme_colors;
 import 'app_typography.dart';
+import 'expedition_colors.dart';
 
 /// Central theme configuration for the Expedition application.
 abstract final class AppTheme {
   static ThemeData get light => _buildTheme(
         colorScheme: theme_colors.AppColors.lightColorScheme,
-        brightness: Brightness.dark,
+        brightness: Brightness.light,
+        expeditionColors: ExpeditionColors.light,
       );
 
   static ThemeData get dark => _buildTheme(
         colorScheme: theme_colors.AppColors.darkColorScheme,
         brightness: Brightness.dark,
+        expeditionColors: ExpeditionColors.dark,
       );
 
   static ThemeData _buildTheme({
     required ColorScheme colorScheme,
     required Brightness brightness,
+    required ExpeditionColors expeditionColors,
   }) {
+    final isLight = brightness == Brightness.light;
+
     return ThemeData(
       useMaterial3: true,
       brightness: brightness,
       colorScheme: colorScheme,
+      extensions: [expeditionColors],
       textTheme: AppTypography.textTheme(brightness),
-      scaffoldBackgroundColor: AppColorPalette.darkBackground,
-      appBarTheme: const AppBarTheme(
+      scaffoldBackgroundColor: expeditionColors.scaffoldBackground,
+      appBarTheme: AppBarTheme(
         elevation: 0,
         scrolledUnderElevation: 0,
         centerTitle: true,
         backgroundColor: Colors.transparent,
-        foregroundColor: AppColorPalette.textPrimary,
-        systemOverlayStyle: SystemUiOverlayStyle.light,
+        foregroundColor: expeditionColors.textPrimary,
+        systemOverlayStyle:
+            isLight ? SystemUiOverlayStyle.dark : SystemUiOverlayStyle.light,
       ),
       cardTheme: CardThemeData(
-        elevation: 0,
-        color: AppColorPalette.darkCard,
+        elevation: isLight ? 1 : 0,
+        shadowColor: AppColorPalette.black.withValues(alpha: 0.08),
+        color: expeditionColors.card,
         shape: RoundedRectangleBorder(
           borderRadius: AppBorderRadius.radiusXl,
-          side: const BorderSide(color: AppColorPalette.divider),
+          side: BorderSide(color: expeditionColors.divider),
         ),
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
@@ -58,9 +67,9 @@ abstract final class AppTheme {
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
           minimumSize: const Size(double.infinity, 56),
-          foregroundColor: AppColorPalette.textPrimary,
+          foregroundColor: expeditionColors.textPrimary,
           side: BorderSide(
-            color: AppColorPalette.grey600.withValues(alpha: 0.6),
+            color: expeditionColors.divider,
           ),
           shape: RoundedRectangleBorder(
             borderRadius: AppBorderRadius.radiusFull,
@@ -77,18 +86,18 @@ abstract final class AppTheme {
       ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
-        fillColor: AppColorPalette.surface,
+        fillColor: expeditionColors.cardElevated,
         contentPadding: const EdgeInsets.symmetric(
           horizontal: 20,
           vertical: 16,
         ),
         border: OutlineInputBorder(
           borderRadius: AppBorderRadius.radiusXl,
-          borderSide: const BorderSide(color: AppColorPalette.divider),
+          borderSide: BorderSide(color: expeditionColors.divider),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: AppBorderRadius.radiusXl,
-          borderSide: const BorderSide(color: AppColorPalette.divider),
+          borderSide: BorderSide(color: expeditionColors.divider),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: AppBorderRadius.radiusXl,
@@ -98,33 +107,35 @@ abstract final class AppTheme {
           borderRadius: AppBorderRadius.radiusXl,
           borderSide: const BorderSide(color: AppColorPalette.error),
         ),
-        labelStyle: const TextStyle(color: AppColorPalette.textSecondary),
-        hintStyle: const TextStyle(color: AppColorPalette.disabled),
+        labelStyle: TextStyle(color: expeditionColors.textSecondary),
+        hintStyle: TextStyle(
+          color: expeditionColors.textMuted.withValues(alpha: 0.9),
+        ),
       ),
-      dividerTheme: const DividerThemeData(
-        color: AppColorPalette.divider,
+      dividerTheme: DividerThemeData(
+        color: expeditionColors.divider,
         thickness: 1,
       ),
       snackBarTheme: SnackBarThemeData(
         behavior: SnackBarBehavior.floating,
-        backgroundColor: AppColorPalette.darkCard,
-        contentTextStyle: const TextStyle(color: AppColorPalette.textPrimary),
+        backgroundColor: expeditionColors.card,
+        contentTextStyle: TextStyle(color: expeditionColors.textPrimary),
         shape: RoundedRectangleBorder(
           borderRadius: AppBorderRadius.radiusXl,
         ),
       ),
-      progressIndicatorTheme: const ProgressIndicatorThemeData(
+      progressIndicatorTheme: ProgressIndicatorThemeData(
         color: AppColorPalette.primary,
-        linearTrackColor: AppColorPalette.surface,
-        circularTrackColor: AppColorPalette.surface,
+        linearTrackColor: expeditionColors.progressTrack,
+        circularTrackColor: expeditionColors.progressTrack,
       ),
-      iconTheme: const IconThemeData(
-        color: AppColorPalette.textPrimary,
+      iconTheme: IconThemeData(
+        color: expeditionColors.textPrimary,
       ),
-      bottomNavigationBarTheme: const BottomNavigationBarThemeData(
+      bottomNavigationBarTheme: BottomNavigationBarThemeData(
         backgroundColor: Colors.transparent,
         selectedItemColor: AppColorPalette.primary,
-        unselectedItemColor: AppColorPalette.disabled,
+        unselectedItemColor: expeditionColors.textMuted,
       ),
     );
   }

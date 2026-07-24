@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_spacing.dart';
+import '../../../../core/theme/expedition_colors.dart';
 import '../../domain/models/analytics_chart_models.dart';
 import 'analytics_section_card.dart';
 
@@ -17,11 +18,15 @@ class AnalyticsWeeklyChart extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.expeditionColors;
     final maxDistance = weeklyActivity.fold<double>(
       0,
       (max, day) => day.distanceKm > max ? day.distanceKm : max,
     );
-    final chartMaxY = maxDistance <= 0 ? 1.0 : maxDistance * 1.2;
+    final chartMaxY = maxDistance <= 0
+        ? 1.0
+        : _niceInterval(maxDistance * 1.2) * 4;
+    final yInterval = _niceInterval(chartMaxY);
 
     return AnalyticsSectionCard(
       title: 'Weekly Activity',
@@ -36,9 +41,9 @@ class AnalyticsWeeklyChart extends StatelessWidget {
             gridData: FlGridData(
               show: true,
               drawVerticalLine: false,
-              horizontalInterval: chartMaxY / 4,
+              horizontalInterval: yInterval,
               getDrawingHorizontalLine: (_) => FlLine(
-                color: AppColorPalette.darkCardElevated.withValues(alpha: 0.8),
+                color: colors.chartGrid.withValues(alpha: 0.8),
                 strokeWidth: 1,
               ),
             ),
@@ -50,15 +55,15 @@ class AnalyticsWeeklyChart extends StatelessWidget {
                 sideTitles: SideTitles(
                   showTitles: true,
                   reservedSize: 34,
-                  interval: chartMaxY / 4,
+                  interval: yInterval,
                   getTitlesWidget: (value, _) {
-                    if (value == 0) {
+                    if (value <= 0) {
                       return const SizedBox.shrink();
                     }
                     return Text(
                       value.toStringAsFixed(1),
-                      style: const TextStyle(
-                        color: AppColorPalette.grey500,
+                      style: TextStyle(
+                        color: colors.textMuted,
                         fontSize: 10,
                       ),
                     );
@@ -77,8 +82,8 @@ class AnalyticsWeeklyChart extends StatelessWidget {
                       padding: const EdgeInsets.only(top: AppSpacing.sm),
                       child: Text(
                         weeklyActivity[index].label,
-                        style: const TextStyle(
-                          color: AppColorPalette.grey500,
+                        style: TextStyle(
+                          color: colors.textMuted,
                           fontSize: 11,
                           fontWeight: FontWeight.w500,
                         ),
@@ -118,5 +123,28 @@ class AnalyticsWeeklyChart extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  static double _niceInterval(double maxY) {
+    if (maxY <= 0) return 1;
+    final raw = maxY / 4;
+    final magnitude = _pow10(raw.floor().toString().length - 1);
+    final normalized = raw / magnitude;
+    final nice = normalized <= 1
+        ? 1
+        : normalized <= 2
+            ? 2
+            : normalized <= 5
+                ? 5
+                : 10;
+    return nice * magnitude;
+  }
+
+  static double _pow10(int exponent) {
+    var value = 1.0;
+    for (var i = 0; i < exponent; i++) {
+      value *= 10;
+    }
+    return value;
   }
 }

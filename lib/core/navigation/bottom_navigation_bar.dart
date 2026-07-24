@@ -5,6 +5,7 @@ import 'package:flutter/physics.dart';
 
 import '../constants/app_colors.dart';
 import '../constants/app_spacing.dart';
+import '../theme/expedition_colors.dart';
 import 'main_tab.dart';
 
 /// Liquid Glass floating bottom navigation inspired by iOS premium aesthetics.
@@ -101,6 +102,7 @@ class _ExpeditionBottomNavigationBarState
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.expeditionColors;
     final bottomInset = MediaQuery.paddingOf(context).bottom;
 
     return Padding(
@@ -139,23 +141,30 @@ class _ExpeditionBottomNavigationBarState
             child: Container(
               height: ExpeditionBottomNavigationBar.barHeight,
               decoration: BoxDecoration(
-                color: ExpeditionBottomNavigationBar.glassBackground,
+                color: colors.glassNavBackground,
                 borderRadius: BorderRadius.circular(
                   ExpeditionBottomNavigationBar.barRadius,
                 ),
                 border: Border.all(
-                  color: ExpeditionBottomNavigationBar.glassBorder,
+                  color: colors.glassNavBorder,
                   width: 1,
                 ),
                 gradient: LinearGradient(
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
-                  colors: [
-                    AppColorPalette.white.withValues(alpha: 0.11),
-                    AppColorPalette.white.withValues(alpha: 0.03),
-                    AppColorPalette.black.withValues(alpha: 0.08),
-                  ],
-                  stops: const [0, 0.22, 1],
+                  colors: Theme.of(context).brightness == Brightness.light
+                      ? [
+                          AppColorPalette.white.withValues(alpha: 0.95),
+                          AppColorPalette.lightCardElevated.withValues(alpha: 0.9),
+                        ]
+                      : [
+                          AppColorPalette.white.withValues(alpha: 0.11),
+                          AppColorPalette.white.withValues(alpha: 0.03),
+                          AppColorPalette.black.withValues(alpha: 0.08),
+                        ],
+                  stops: Theme.of(context).brightness == Brightness.light
+                      ? const [0, 1]
+                      : const [0, 0.22, 1],
                 ),
               ),
               child: LayoutBuilder(
@@ -183,6 +192,7 @@ class _ExpeditionBottomNavigationBarState
                             child: _LiquidNavItem(
                               tab: tab,
                               isSelected: isSelected,
+                              inactiveIconColor: colors.inactiveNavIcon,
                               onTap: () => _onTabTap(tab.branchIndex),
                             ),
                           );
@@ -257,15 +267,19 @@ class _LiquidNavItem extends StatelessWidget {
   const _LiquidNavItem({
     required this.tab,
     required this.isSelected,
+    required this.inactiveIconColor,
     required this.onTap,
   });
 
   final MainTab tab;
   final bool isSelected;
+  final Color inactiveIconColor;
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.expeditionColors;
+
     return Material(
       color: Colors.transparent,
       child: InkWell(
@@ -305,8 +319,8 @@ class _LiquidNavItem extends StatelessWidget {
                     tab.icon,
                     size: 24,
                     color: isSelected
-                        ? AppColorPalette.white
-                        : ExpeditionBottomNavigationBar.inactiveIcon,
+                        ? colors.textPrimary
+                        : inactiveIconColor,
                   ),
                 ),
                 ClipRect(
@@ -324,8 +338,8 @@ class _LiquidNavItem extends StatelessWidget {
                           tab.label,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(
-                            color: AppColorPalette.white,
+                          style: TextStyle(
+                            color: colors.textPrimary,
                             fontSize: 11,
                             fontWeight: FontWeight.w700,
                             letterSpacing: 0.3,

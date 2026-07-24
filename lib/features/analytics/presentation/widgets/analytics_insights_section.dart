@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/constants/app_border_radius.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_spacing.dart';
+import '../../../../core/theme/expedition_colors.dart';
 import '../../../../core/theme/premium_gradients.dart';
 import 'analytics_section_card.dart';
 
@@ -39,11 +40,13 @@ class _InsightTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.expeditionColors;
+
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(AppSpacing.lg),
       decoration: BoxDecoration(
-        gradient: PremiumGradients.cardShimmer,
+        gradient: PremiumGradients.cardShimmerFor(context),
         borderRadius: AppBorderRadius.radiusLg,
         border: Border.all(
           color: AppColorPalette.primary.withValues(alpha: 0.12),
@@ -61,7 +64,7 @@ class _InsightTile extends StatelessWidget {
             ),
             child: const Icon(
               Icons.auto_awesome_rounded,
-              color: AppColorPalette.primaryLight,
+              color: AppColorPalette.primary,
               size: 18,
             ),
           ),
@@ -69,8 +72,8 @@ class _InsightTile extends StatelessWidget {
           Expanded(
             child: Text(
               text,
-              style: const TextStyle(
-                color: AppColorPalette.white,
+              style: TextStyle(
+                color: colors.textPrimary,
                 fontSize: 14,
                 height: 1.4,
               ),

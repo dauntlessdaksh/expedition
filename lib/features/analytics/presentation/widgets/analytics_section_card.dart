@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/constants/app_border_radius.dart';
-import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_spacing.dart';
+import '../../../../core/theme/expedition_colors.dart';
 import '../../../../core/theme/premium_gradients.dart';
 
 /// Shared card wrapper for analytics sections.
@@ -22,14 +22,16 @@ class AnalyticsSectionCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.expeditionColors;
+
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(AppSpacing.xl),
       decoration: BoxDecoration(
-        gradient: PremiumGradients.cardShimmer,
+        gradient: PremiumGradients.cardShimmerFor(context),
         borderRadius: AppBorderRadius.radiusXl,
         border: Border.all(
-          color: AppColorPalette.darkCardElevated.withValues(alpha: 0.6),
+          color: colors.cardElevated.withValues(alpha: 0.6),
         ),
       ),
       child: Column(
@@ -44,8 +46,8 @@ class AnalyticsSectionCard extends StatelessWidget {
                   children: [
                     Text(
                       title,
-                      style: const TextStyle(
-                        color: AppColorPalette.white,
+                      style: TextStyle(
+                        color: colors.textPrimary,
                         fontSize: 18,
                         fontWeight: FontWeight.w700,
                       ),
@@ -54,8 +56,8 @@ class AnalyticsSectionCard extends StatelessWidget {
                       const SizedBox(height: AppSpacing.xs),
                       Text(
                         subtitle!,
-                        style: const TextStyle(
-                          color: AppColorPalette.grey500,
+                        style: TextStyle(
+                          color: colors.textMuted,
                           fontSize: 13,
                         ),
                       ),
